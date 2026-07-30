@@ -14,6 +14,7 @@ import {
   KEYS,
   defaultProfile,
   loadProgress,
+  resetAllLocalData,
   resetStatistics,
   writeJson,
   type ProgressSnapshot,
@@ -592,6 +593,7 @@ export function useProgress() {
     markModeIntroSeen,
     patchProfile,
     clearStatistics,
+    resetAllData: resetAllLocalData,
     recordSession,
   };
 }
