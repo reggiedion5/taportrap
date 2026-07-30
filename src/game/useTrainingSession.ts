@@ -300,7 +300,7 @@ export function useTrainingSession(params: Params) {
           return next;
         });
         playSound("avoid");
-        vibrate("avoid");
+        vibrate("success");
         pushFeedback("AVOIDED", "red", current.x, current.y, "Well held");
       } else {
         if (current.color === "purple" && current.taps === 1) t.purpleOneTap += 1;
@@ -352,7 +352,7 @@ export function useTrainingSession(params: Params) {
           return next;
         });
         playSound("tap");
-        vibrate("tap");
+        vibrate("success");
         const milestone = nextTaps % KIDS_ASSIST_CONFIG.celebrationEvery === 0;
         if (kidsAssist) {
           const praise = KIDS_PRAISE[Math.floor(Math.random() * KIDS_PRAISE.length)];
@@ -376,7 +376,7 @@ export function useTrainingSession(params: Params) {
         setMistakes((n) => n + 1);
         setStreak(0);
         playSound("gameover");
-        vibrate("error");
+        vibrate("gameover");
         pushFeedback("TRAP", "red", current.x, current.y, "Don't tap red");
         setCoachMessage("That was a trap — let red targets expire.");
         setTarget(null);
@@ -388,7 +388,7 @@ export function useTrainingSession(params: Params) {
       if (current.color === "purple") {
         if (current.taps === 0) {
           playSound("purple-first");
-          vibrate("tap");
+          vibrate("purple-first");
           setTarget({ ...current, taps: 1, firstTapAt: now });
           later(() => {
             const still = targetRef.current;
@@ -425,7 +425,7 @@ export function useTrainingSession(params: Params) {
         return next;
       });
       playSound(current.color === "gold" ? "gold" : "tap");
-      vibrate("tap");
+      vibrate("success");
       pushFeedback(current.color === "gold" ? "BONUS" : "NICE", current.color, current.x, current.y);
       setTarget(null);
       if (presented >= sessionLength) finish("complete");
@@ -458,14 +458,14 @@ export function useTrainingSession(params: Params) {
     let index = 0;
     setCountdownLabel(steps[0]);
     playSound("countdown");
-    vibrate("tap");
+    vibrate("success");
 
     const tick = () => {
       index += 1;
       if (index < steps.length) {
         setCountdownLabel(steps[index]);
         playSound("countdown");
-        vibrate("tap");
+        vibrate("success");
         timers.current.push(setTimeout(tick, index === steps.length - 1 ? goMs : stepMs));
         return;
       }
