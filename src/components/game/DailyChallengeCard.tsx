@@ -25,15 +25,15 @@ export function DailyChallengeCard({ challenge, daily, reducedMotion }: DailyCha
 
   return (
     <section
-      className={`arcade-panel p-5 ${
+      className={`arcade-panel ${daily.completed ? "px-4 py-3" : "p-5"} ${
         daily.completed
-          ? `border-2 border-neon-gold ${reducedMotion ? "" : "shadow-[0_0_36px_-10px_var(--neon-gold)]"}`
+          ? `border border-neon-gold/70 ${reducedMotion ? "" : "shadow-[0_0_30px_-14px_var(--neon-gold)]"}`
           : ""
       }`}
       aria-label="Daily challenge"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="sticker-sm flex items-center gap-2 text-[10px] tracking-[0.24em] text-neon-gold glow-gold">
+        <span className="sticker-sm flex items-center gap-2 text-[10px] tracking-[0.24em] text-neon-gold">
           <CalendarCheck className="size-4" aria-hidden /> DAILY CHALLENGE
         </span>
         <span className="sticker-sm flex items-center gap-1 text-[10px] tracking-[0.18em] text-arcade-text">
@@ -42,12 +42,19 @@ export function DailyChallengeCard({ challenge, daily, reducedMotion }: DailyCha
         </span>
       </div>
 
-      <p className="mt-3 text-base font-black text-arcade-text">{challenge.objective}</p>
+      <p className={`${daily.completed ? "mt-2 text-sm" : "mt-3 text-base"} font-black text-arcade-text`}>
+        {challenge.objective}
+      </p>
 
       {daily.completed ? (
-        <p className="sticker-sm mt-3 text-sm tracking-[0.12em] text-neon-green glow-green">
-          COMPLETED · +{DAILY_XP_REWARD} XP · New challenge tomorrow
-        </p>
+        <>
+          <p className="sticker-sm mt-2 text-xs tracking-[0.12em] text-neon-green glow-green">
+            ✓ COMPLETED · +{DAILY_XP_REWARD} XP
+          </p>
+          <p className="mt-1 text-[11px] font-semibold text-arcade-text/70">
+            New challenge tomorrow
+          </p>
+        </>
       ) : (
         <>
           <div
