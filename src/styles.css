@@ -503,3 +503,128 @@
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
 }
+
+/* ---------- unlockable themes (presentation only) ----------
+ * Target colours keep their identity in every theme so gameplay
+ * recognition and fairness never change.
+ */
+
+:root[data-theme="cyber-grid"] {
+  --arcade-bg: oklch(0.17 0.045 240);
+  --arcade-bg-deep: oklch(0.1 0.04 240);
+  --arcade-surface: oklch(0.24 0.05 230);
+  --arcade-line: oklch(0.44 0.11 210);
+  --arcade-muted: oklch(0.88 0.05 210);
+  --neon-green: oklch(0.87 0.2 165);
+  --neon-gold: oklch(0.88 0.15 95);
+}
+
+:root[data-theme="lava-rush"] {
+  --arcade-bg: oklch(0.18 0.03 40);
+  --arcade-bg-deep: oklch(0.11 0.025 40);
+  --arcade-surface: oklch(0.25 0.05 40);
+  --arcade-line: oklch(0.45 0.11 45);
+  --arcade-muted: oklch(0.9 0.05 60);
+  --neon-gold: oklch(0.83 0.18 68);
+}
+
+:root[data-theme="arctic-pulse"] {
+  --arcade-bg: oklch(0.19 0.04 235);
+  --arcade-bg-deep: oklch(0.12 0.035 235);
+  --arcade-surface: oklch(0.27 0.045 230);
+  --arcade-line: oklch(0.5 0.07 225);
+  --arcade-muted: oklch(0.93 0.03 225);
+  --neon-green: oklch(0.9 0.16 175);
+}
+
+:root[data-theme="royal-voltage"] {
+  --arcade-bg: oklch(0.16 0.05 305);
+  --arcade-bg-deep: oklch(0.09 0.04 305);
+  --arcade-surface: oklch(0.24 0.06 305);
+  --arcade-line: oklch(0.55 0.11 90);
+  --arcade-muted: oklch(0.92 0.06 90);
+  --neon-gold: oklch(0.85 0.15 88);
+}
+
+:root[data-theme="hyperdrive"] {
+  --arcade-bg: oklch(0.14 0.04 275);
+  --arcade-bg-deep: oklch(0.07 0.03 275);
+  --arcade-surface: oklch(0.22 0.05 275);
+  --arcade-line: oklch(0.46 0.09 280);
+  --arcade-muted: oklch(0.92 0.03 280);
+}
+
+/* theme ambience layered behind the arcade backdrop */
+@keyframes theme-drift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 220px;
+  }
+}
+
+@utility theme-ambience {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+:root[data-theme="cyber-grid"] .theme-ambience {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--arcade-line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--arcade-line) 55%, transparent) 1px, transparent 1px);
+  background-size: 46px 46px;
+  opacity: 0.18;
+  animation: theme-drift 12s linear infinite;
+}
+
+:root[data-theme="lava-rush"] .theme-ambience {
+  background-image: radial-gradient(
+    circle at 50% 110%,
+    color-mix(in oklab, var(--neon-red) 40%, transparent),
+    transparent 62%
+  );
+  opacity: 0.5;
+}
+
+:root[data-theme="arctic-pulse"] .theme-ambience {
+  background-image: radial-gradient(
+    circle at 50% -10%,
+    color-mix(in oklab, var(--neon-green) 26%, transparent),
+    transparent 60%
+  );
+  opacity: 0.55;
+}
+
+:root[data-theme="royal-voltage"] .theme-ambience {
+  background-image: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--neon-purple) 22%, transparent),
+    transparent 60%
+  );
+  opacity: 0.6;
+}
+
+:root[data-theme="hyperdrive"] .theme-ambience {
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, var(--arcade-text), transparent),
+    radial-gradient(1px 1px at 70% 60%, var(--arcade-text), transparent),
+    radial-gradient(1.5px 1.5px at 45% 80%, var(--arcade-text), transparent),
+    radial-gradient(1px 1px at 85% 15%, var(--arcade-text), transparent);
+  background-size: 260px 260px;
+  opacity: 0.5;
+  animation: theme-drift 9s linear infinite;
+}
+
+:root[data-motion="reduced"] .theme-ambience,
+:root[data-motion="reduced"] .animate-orb-drift {
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-ambience,
+  .animate-orb-drift {
+    animation: none !important;
+  }
+}

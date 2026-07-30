@@ -11,6 +11,8 @@ export function ArcadeBackdrop() {
         style={{ animationDelay: "-6s" }}
       />
       <div className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(var(--arcade-line)_1px,transparent_1px),linear-gradient(90deg,var(--arcade-line)_1px,transparent_1px)] [background-size:48px_48px]" />
+      <div className="theme-ambience" />
+
     </div>
   );
 }
