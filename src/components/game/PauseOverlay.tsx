@@ -30,7 +30,6 @@ export function PauseOverlay({ onResume, onQuit }: PauseOverlayProps) {
           </button>
         </div>
 
-        </div>
       </div>
     </div>
   );
