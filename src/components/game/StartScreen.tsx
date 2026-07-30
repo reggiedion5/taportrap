@@ -103,9 +103,10 @@ export function StartScreen({
               Trap
             </span>
           </h1>
-          <p className="mt-4 text-lg font-black tracking-tight text-arcade-text">
-            Green good. Red bad.{" "}
-            <span className="text-neon-green glow-green">Don't blink.</span>
+          <p className="mt-4 text-lg font-black tracking-tight">
+            <span className="text-neon-green glow-green">Green good.</span>{" "}
+            <span className="text-neon-red glow-red">Red bad.</span>{" "}
+            <span className="text-arcade-text">Don't blink.</span>
           </p>
         </div>
 
