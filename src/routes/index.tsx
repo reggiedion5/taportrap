@@ -138,7 +138,7 @@ function TapOrTrap() {
           onOpenThemes={() => setOverlay("themes")}
           onOpenSettings={() => setOverlay("settings")}
           onOpenHowToPlay={() => setOverlay("howto")}
-          onDismissReminder={() => setReminderDismissed(true)}
+          
         />
       )}
 
