@@ -63,6 +63,9 @@ export interface ReleaseInputs {
 
 export function validateRelease(inputs: ReleaseInputs = {}): ReleaseReport {
   const bundleId = inputs.bundleId ?? SUGGESTED_BUNDLE_ID;
+  const appIconPresent = inputs.appIconPresent ?? APP_ICON_PRESENT;
+  const launchAssetPresent = inputs.launchAssetPresent ?? LAUNCH_ASSET_VERIFIED;
+  const nativeServerUrl = inputs.nativeServerUrl ?? NATIVE_SERVER_URL;
 
   const checks: ReleaseCheck[] = [
     check(
