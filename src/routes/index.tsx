@@ -156,6 +156,7 @@ function TapOrTrap() {
           feedback={game.feedback}
           burst={game.burst}
           paused={game.phase === "paused"}
+          pauseSource={game.pauseSource}
           shake={game.shake}
           flash={game.flash}
           reducedMotion={game.reducedMotion}

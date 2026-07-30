@@ -7,6 +7,8 @@ import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { ScoreHeader } from "./ScoreHeader";
 import { Target } from "./Target";
 import { PauseOverlay } from "./PauseOverlay";
+import { OrientationOverlay } from "./OrientationOverlay";
+import { useOrientationGuard } from "@/hooks/useOrientationGuard";
 
 const TONE_TEXT: Record<TargetColor, string> = {
   green: "text-neon-green glow-green",
@@ -28,6 +30,7 @@ interface GameScreenProps {
   feedback: FloatingFeedback[];
   burst: { id: number; x: number; y: number } | null;
   paused: boolean;
+  pauseSource: "manual" | "system";
   shake: boolean;
   flash: boolean;
   reducedMotion: boolean;
@@ -49,6 +52,7 @@ export function GameScreen(props: GameScreenProps) {
     feedback,
     burst,
     paused,
+    pauseSource,
     shake,
     flash,
     reducedMotion,
@@ -62,11 +66,13 @@ export function GameScreen(props: GameScreenProps) {
     onQuit,
   } = props;
 
+  const needsRotate = useOrientationGuard(true);
+
   const urgent = timeLeft !== null && timeLeft <= 10_000;
 
   return (
     <div
-      className={`no-select safe-area relative flex min-h-[100dvh] flex-col overflow-hidden ${
+      className={`no-select safe-screen relative flex flex-col overflow-hidden ${
         shake && !reducedMotion ? "animate-shake-hit" : ""
       }`}
       style={{ touchAction: "manipulation" }}
@@ -190,7 +196,10 @@ export function GameScreen(props: GameScreenProps) {
             </span>
           )}
 
-          {paused && <PauseOverlay onResume={onResume} onQuit={onQuit} />}
+          {paused && (
+            <PauseOverlay source={pauseSource} onResume={onResume} onQuit={onQuit} />
+          )}
+          {needsRotate && <OrientationOverlay />}
         </div>
       </div>
     </div>
