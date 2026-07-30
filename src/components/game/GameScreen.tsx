@@ -1,4 +1,5 @@
 import type { ActiveTarget, FloatingFeedback, TargetColor } from "@/game/types";
+import type { DifficultyLevel } from "@/game/difficulty";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { ScoreHeader } from "./ScoreHeader";
 import { Target } from "./Target";
@@ -18,12 +19,15 @@ interface GameScreenProps {
   multiplier: number;
   scorePulse: number;
   comboFlash: number | null;
+  levelUp: DifficultyLevel | null;
   target: ActiveTarget | null;
   feedback: FloatingFeedback[];
   burst: { id: number; x: number; y: number } | null;
   paused: boolean;
   shake: boolean;
   flash: boolean;
+  reducedMotion: boolean;
+  registerArea: (el: HTMLDivElement | null) => void;
   onTap: () => void;
   onPause: () => void;
   onResume: () => void;
@@ -38,6 +42,8 @@ export function GameScreen(props: GameScreenProps) {
     paused,
     shake,
     flash,
+    reducedMotion,
+    registerArea,
     onTap,
     onResume,
     onQuit,
@@ -45,12 +51,13 @@ export function GameScreen(props: GameScreenProps) {
 
   return (
     <div
-      className={`no-select relative flex min-h-[100dvh] flex-col overflow-hidden ${
-        shake ? "animate-shake-hit" : ""
+      className={`no-select safe-area relative flex min-h-[100dvh] flex-col overflow-hidden ${
+        shake && !reducedMotion ? "animate-shake-hit" : ""
       }`}
+      style={{ touchAction: "manipulation" }}
     >
       <ArcadeBackdrop />
-      {flash && (
+      {flash && !reducedMotion && (
         <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-neon-red" />
       )}
 
@@ -64,22 +71,36 @@ export function GameScreen(props: GameScreenProps) {
           onPause={props.onPause}
         />
 
-        <div className="relative mx-3 mt-4 mb-4 flex-1 overflow-hidden rounded-3xl border border-arcade-line/60 bg-arcade-bg/40">
+        <div
+          ref={registerArea}
+          className="relative mx-3 mt-4 mb-4 flex-1 overflow-hidden rounded-3xl border border-arcade-line/60 bg-arcade-bg/40"
+        >
           {target && !paused && (
-            <Target target={target} disabled={paused} onTap={onTap} />
+            <Target
+              target={target}
+              disabled={paused}
+              reducedMotion={reducedMotion}
+              onTap={onTap}
+            />
           )}
 
           {feedback.map((f) => (
             <span
               key={f.id}
-              className={`sticker-sm animate-float-up pointer-events-none absolute text-xl tracking-wide ${TONE_TEXT[f.tone]}`}
-              style={{ left: `${f.x}%`, top: `${f.y}%` }}
+              className={`sticker-sm animate-float-up pointer-events-none absolute -translate-x-1/2 text-center text-xl tracking-wide ${TONE_TEXT[f.tone]}`}
+              style={{ left: f.x, top: f.y }}
             >
               {f.text}
+              {f.sub && (
+                <span className="block text-[10px] tracking-[0.2em] opacity-80">
+                  {f.sub}
+                </span>
+              )}
             </span>
           ))}
 
           {burst &&
+            !reducedMotion &&
             Array.from({ length: 12 }).map((_, i) => {
               const angle = (i / 12) * Math.PI * 2;
               return (
@@ -88,8 +109,8 @@ export function GameScreen(props: GameScreenProps) {
                   className="pointer-events-none absolute size-2 rounded-full bg-neon-gold"
                   style={
                     {
-                      left: `${burst.x}%`,
-                      top: `${burst.y}%`,
+                      left: burst.x,
+                      top: burst.y,
                       "--px": `${Math.cos(angle) * 90}px`,
                       "--py": `${Math.sin(angle) * 90}px`,
                       animation: "particle-fly 650ms ease-out both",
@@ -102,6 +123,12 @@ export function GameScreen(props: GameScreenProps) {
           {props.comboFlash && (
             <span className="sticker-text animate-combo-burst pointer-events-none absolute top-1/2 left-1/2 text-7xl text-neon-purple glow-purple">
               ×{props.comboFlash}
+            </span>
+          )}
+
+          {props.levelUp && props.levelUp.level > 1 && (
+            <span className="sticker-sm animate-float-up pointer-events-none absolute top-6 left-1/2 -translate-x-1/2 text-xs tracking-[0.3em] text-neon-gold glow-gold">
+              LEVEL {props.levelUp.level} · {props.levelUp.label.toUpperCase()}
             </span>
           )}
 
