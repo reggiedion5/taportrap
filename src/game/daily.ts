@@ -94,7 +94,7 @@ const TEMPLATES: ChallengeTemplate[] = [
     type: "combo-reach",
     mode: null,
     targets: [8, 10, 14],
-    objective: (t) => `Reach a ${t} combo`,
+    objective: (t) => `Reach a combo of ${t}`,
   },
   {
     type: "perfect-count",
@@ -125,7 +125,7 @@ const TEMPLATES: ChallengeTemplate[] = [
     type: "multiplier-reach",
     mode: null,
     targets: [3, 4],
-    objective: (t) => `Reach multiplier ${t}x`,
+    objective: (t) => `Reach a ${t}x multiplier`,
   },
 ];
 
