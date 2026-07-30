@@ -38,6 +38,7 @@ export function Target({ target, disabled, reducedMotion, onTap }: TargetProps) 
     <button
       type="button"
       aria-label={`${target.color} target: ${TARGET_LABEL[target.color]}`}
+      data-target-color={target.color}
       disabled={inactive}
       onPointerDown={(e) => {
         // pointer events fire once per touch/click — no synthetic double-fire
