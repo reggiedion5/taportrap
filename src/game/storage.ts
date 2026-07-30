@@ -1,12 +1,12 @@
 import type { GameSettings, LifetimeStats } from "./types";
 
-const SETTINGS_KEY = "tap-or-trap-settings-v1";
+const SETTINGS_KEY = "tap-or-trap-preferences-v2";
 const STATS_KEY = "tap-or-trap-stats-v1";
 const HIGH_SCORE_KEY = "tap-or-trap-high-score-v1";
 
 /** legacy keys kept only for one-time migration */
 const LEGACY_HIGH_SCORE_KEY = "tap-or-trap:highscore";
-const LEGACY_SETTINGS_KEY = "tap-or-trap:settings";
+const LEGACY_SETTINGS_KEY = "tap-or-trap-settings-v1";
 
 export const DEFAULT_SETTINGS: GameSettings = {
   sound: true,
