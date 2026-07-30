@@ -15,6 +15,7 @@ import { StatisticsScreen } from "@/components/game/StatisticsScreen";
 import { ThemeScreen } from "@/components/game/ThemeScreen";
 import { HowToPlayModal } from "@/components/game/HowToPlayModal";
 import { AchievementToastQueue } from "@/components/game/AchievementToastQueue";
+import { AppBootstrap } from "@/components/game/AppBootstrap";
 import { ACHIEVEMENTS } from "@/game/achievements";
 
 const TITLE = "Tap or Trap — Neon Reaction Arcade Game";
@@ -95,10 +96,25 @@ function TapOrTrap() {
     beginRun();
   }, [beginRun, progress.mode, progress.profile.seenModeIntros]);
 
+  const handleResetAllData = useCallback(() => {
+    progress.resetAllData();
+    if (typeof window !== "undefined") window.location.reload();
+  }, [progress]);
+
   const showOnboarding = progress.hydrated && (tutorial || !progress.profile.onboardingCompleted);
 
+  const shell = (content: React.ReactNode) => (
+    <AppBootstrap
+      dataHydrated={progress.hydrated}
+      themeId={progress.activeTheme.id}
+      onReturnToMenu={game.goToMenu}
+    >
+      {content}
+    </AppBootstrap>
+  );
+
   if (showOnboarding) {
-    return (
+    return shell(
       <main className="min-h-[100dvh] bg-arcade-bg-deep">
         <h1 className="sr-only">Tap or Trap tutorial</h1>
         <OnboardingFlow
@@ -112,11 +128,11 @@ function TapOrTrap() {
             setTutorial(false);
           }}
         />
-      </main>
+      </main>,
     );
   }
 
-  return (
+  return shell(
     <main className="min-h-[100dvh] bg-arcade-bg-deep">
       <h1 className="sr-only">Tap or Trap — reaction arcade game</h1>
 
@@ -156,6 +172,7 @@ function TapOrTrap() {
           feedback={game.feedback}
           burst={game.burst}
           paused={game.phase === "paused"}
+          pauseSource={game.pauseSource}
           shake={game.shake}
           flash={game.flash}
           reducedMotion={game.reducedMotion}
@@ -233,6 +250,7 @@ function TapOrTrap() {
         open={overlay === "settings"}
         settings={game.settings}
         onChange={game.updateSettings}
+        onResetAllData={handleResetAllData}
         onClose={() => setOverlay("none")}
       />
 
@@ -251,6 +269,6 @@ function TapOrTrap() {
         reducedMotion={game.reducedMotion}
         onDismiss={(id) => setToasts((prev) => prev.filter((a) => a.id !== id))}
       />
-    </main>
+    </main>,
   );
 }

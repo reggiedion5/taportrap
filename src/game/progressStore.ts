@@ -457,6 +457,22 @@ export function loadProgress(): ProgressSnapshot {
   };
 }
 
+/**
+ * Deletes every Tap or Trap key from this device. Irreversible, offline, and
+ * scoped to this app's own keys so nothing else in local storage is touched.
+ */
+export function resetAllLocalData(): void {
+  if (typeof window === "undefined") return;
+  const keys = [...Object.values(KEYS), "tap-or-trap-preferences-v2"];
+  for (const key of keys) {
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      /* storage unavailable — nothing to remove */
+    }
+  }
+}
+
 export function resetStatistics(): {
   statistics: PlayerStatistics;
   records: PersonalRecords;
