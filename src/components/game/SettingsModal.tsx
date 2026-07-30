@@ -149,10 +149,29 @@ export function SettingsModal({
             checked={settings.reducedMotion}
             onChange={(v) => onChange({ reducedMotion: v })}
           />
+          <Toggle
+            label="Skip countdown"
+            description="Start runs instantly instead of 3 · 2 · 1"
+            checked={settings.skipCountdown}
+            onChange={(v) => onChange({ skipCountdown: v })}
+          />
+          <Toggle
+            label="Kids Assist"
+            description="Bigger, slower, friendlier targets in training"
+            checked={settings.kidsAssist}
+            onChange={(v) => onChange({ kidsAssist: v })}
+          />
         </div>
 
         <h3 className="sticker-sm mt-7 text-sm text-arcade-text/85">Support</h3>
         <div className="mt-3 grid gap-3">
+          <LinkRow
+            label="Send Feedback"
+            hint="Report a bug or suggest an idea"
+            icon={<MessageSquarePlus className="size-5" aria-hidden />}
+            disabled={false}
+            onClick={onOpenFeedback}
+          />
           <LinkRow
             label="Help & Support"
             hint={supportPageReady ? SUPPORT_URL : "Not configured yet"}
@@ -188,39 +207,15 @@ export function SettingsModal({
           this device — nothing is uploaded, and no account is required.
         </p>
 
-        {confirmReset ? (
-          <div className="mt-3 grid gap-3 rounded-2xl border border-neon-red/60 bg-neon-red/10 p-4">
-            <p className="text-sm font-bold text-neon-red">
-              Delete all local data? Scores, XP, achievements, statistics and unlocked themes on
-              this device are permanently removed. This cannot be undone.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                onResetAllData();
-                setConfirmReset(false);
-              }}
-              className="arcade-btn sticker-sm min-h-12 border border-neon-red bg-neon-red/20 py-3 text-base text-neon-red"
-            >
-              Delete everything
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirmReset(false)}
-              className="arcade-btn sticker-sm min-h-12 border border-arcade-line bg-arcade-surface py-3 text-base text-arcade-text"
-            >
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setConfirmReset(true)}
-            className="arcade-btn sticker-sm mt-3 min-h-12 w-full border border-neon-red/60 bg-arcade-surface py-3 text-base text-neon-red"
-          >
-            Reset All Data
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setResetOpen(true)}
+          className="arcade-btn sticker-sm mt-3 grid min-h-12 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-3 border border-neon-red/60 bg-arcade-surface px-4 py-3 text-left text-base text-neon-red"
+        >
+          <Trash2 className="size-5" aria-hidden />
+          <span>Reset Data…</span>
+        </button>
+
 
         <h3 className="sticker-sm mt-7 text-sm text-arcade-text/85">About</h3>
         <p className="mt-2 text-xs font-medium text-arcade-text/75">
