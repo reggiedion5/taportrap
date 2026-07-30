@@ -78,7 +78,7 @@ export function ScoreHeader({
       </div>
 
       <div className="mt-3 flex items-center gap-3">
-        <span className="shrink-0 text-[10px] font-bold tracking-[0.2em] text-arcade-muted">
+        <span className="sticker-sm shrink-0 text-[10px] tracking-[0.2em] text-arcade-muted">
           {diff.label.toUpperCase()}
         </span>
         <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-arcade-surface">
@@ -87,8 +87,10 @@ export function ScoreHeader({
             style={{ width: `${Math.round(diff.progress * 100)}%` }}
           />
         </div>
-        <span className="shrink-0 text-[10px] font-bold tracking-[0.2em] text-arcade-muted">
-          {diff.isMax ? "MAX" : "NEXT"}
+        <span
+          className={`sticker-sm shrink-0 text-[10px] tracking-[0.2em] ${diff.isMax ? "text-neon-gold glow-gold" : "text-arcade-muted"}`}
+        >
+          {diff.isMax ? "MAX!" : "NEXT"}
         </span>
       </div>
     </header>
