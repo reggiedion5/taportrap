@@ -40,7 +40,9 @@ import {
 
 export { difficultyProgress } from "./difficulty";
 
-const EXIT_MS = 140;
+const EXIT_MS = 260;
+/** forgiving window for the second purple tap, measured from the first tap */
+const PURPLE_SECOND_WINDOW = 1000;
 
 interface Burst {
   id: number;
