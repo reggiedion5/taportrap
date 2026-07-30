@@ -71,12 +71,18 @@ export function Target({ target, disabled, reducedMotion, onTap }: TargetProps) 
           />
         )}
         <span
-          className={`relative text-[clamp(13px,3.6vw,18px)] font-black tracking-widest ${style.text}`}
+          className={`relative font-black tracking-widest ${style.text} ${
+            target.color === "purple"
+              ? "text-[clamp(22px,6vw,32px)]"
+              : target.color === "gold"
+                ? "text-[clamp(12px,3.4vw,17px)]"
+                : "text-[clamp(16px,4.4vw,22px)]"
+          }`}
         >
           {TARGET_LABEL[target.color]}
         </span>
         {target.color === "purple" && (
-          <span className="absolute bottom-3 text-[10px] font-bold tracking-[0.18em] text-arcade-text/85">
+          <span className="absolute bottom-3 text-[11px] font-bold tracking-[0.18em] text-arcade-text/85">
             {halfTapped ? "AGAIN!" : "2 TAPS"}
           </span>
         )}
