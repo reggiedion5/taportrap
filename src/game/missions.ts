@@ -19,7 +19,7 @@ const CANDIDATES: Candidate[] = [
   },
   {
     metric: "combo",
-    label: (t) => `Reach a ${t} combo`,
+    label: (t) => `Reach a combo of ${t}`,
     target: (r) => Math.max(5, Math.min(r.bestCombo + 3, 20)),
   },
   {
