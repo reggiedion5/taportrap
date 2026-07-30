@@ -25,36 +25,47 @@ export function ScoreHeader({
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="flex min-w-0 items-end gap-5">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold tracking-[0.22em] text-arcade-muted">
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-muted">
               SCORE
             </p>
             <p
               key={scorePulse}
-              className="animate-score-bump text-4xl leading-none font-black text-arcade-text tabular-nums"
+              className="sticker-sm animate-score-bump text-4xl leading-none text-arcade-text glow-white tabular-nums"
             >
               {score}
             </p>
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold tracking-[0.22em] text-arcade-muted">
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-muted">
               BEST
             </p>
-            <p className="text-lg leading-none font-black text-neon-gold tabular-nums">
+            <p className="sticker-sm text-lg leading-none text-neon-gold glow-gold tabular-nums">
               {highScore}
             </p>
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold tracking-[0.22em] text-arcade-muted">
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-muted">
               COMBO
             </p>
             <p
-              className={`text-lg leading-none font-black tabular-nums ${
-                multiplier > 1 ? "text-neon-purple" : "text-arcade-text"
+              className={`sticker-sm text-lg leading-none tabular-nums ${
+                multiplier > 1
+                  ? "text-neon-purple glow-purple"
+                  : "text-arcade-text"
               }`}
             >
-              {combo} <span className="text-sm">×{multiplier}</span>
+              {combo}{" "}
+              <span
+                key={multiplier}
+                className={
+                  multiplier > 1 ? "animate-score-bump inline-block" : ""
+                }
+              >
+                ×{multiplier}
+              </span>
             </p>
           </div>
+
         </div>
         <button
           type="button"
@@ -67,7 +78,7 @@ export function ScoreHeader({
       </div>
 
       <div className="mt-3 flex items-center gap-3">
-        <span className="shrink-0 text-[10px] font-bold tracking-[0.2em] text-arcade-muted">
+        <span className="sticker-sm shrink-0 text-[10px] tracking-[0.2em] text-arcade-muted">
           {diff.label.toUpperCase()}
         </span>
         <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-arcade-surface">
@@ -76,8 +87,10 @@ export function ScoreHeader({
             style={{ width: `${Math.round(diff.progress * 100)}%` }}
           />
         </div>
-        <span className="shrink-0 text-[10px] font-bold tracking-[0.2em] text-arcade-muted">
-          {diff.isMax ? "MAX" : "NEXT"}
+        <span
+          className={`sticker-sm shrink-0 text-[10px] tracking-[0.2em] ${diff.isMax ? "text-neon-gold glow-gold" : "text-arcade-muted"}`}
+        >
+          {diff.isMax ? "MAX!" : "NEXT"}
         </span>
       </div>
     </header>

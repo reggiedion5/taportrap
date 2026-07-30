@@ -58,8 +58,14 @@ export const TARGET_LABEL: Record<TargetColor, string> = {
   purple: "×2",
 };
 
+export const GAME_OVER_HEADLINE: Record<GameOverReason, string> = {
+  trap: "TRAPPED!",
+  missed: "TOO SLOW!",
+  "purple-single": "ONE TAP SHORT!",
+};
+
 export const GAME_OVER_MESSAGE: Record<GameOverReason, string> = {
-  trap: "You tapped a trap",
-  missed: "You missed the target",
-  "purple-single": "Purple needed two taps",
+  trap: "You tapped the trap. Rookie move.",
+  missed: "Too slow — it slipped away.",
+  "purple-single": "Purple wanted two taps. You gave one.",
 };

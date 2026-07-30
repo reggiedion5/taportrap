@@ -5,10 +5,10 @@ import { Target } from "./Target";
 import { PauseOverlay } from "./PauseOverlay";
 
 const TONE_TEXT: Record<TargetColor, string> = {
-  green: "text-neon-green",
-  red: "text-neon-red",
-  gold: "text-neon-gold",
-  purple: "text-neon-purple",
+  green: "text-neon-green glow-green",
+  red: "text-neon-red glow-red",
+  gold: "text-neon-gold glow-gold",
+  purple: "text-neon-purple glow-purple",
 };
 
 interface GameScreenProps {
@@ -72,7 +72,7 @@ export function GameScreen(props: GameScreenProps) {
           {feedback.map((f) => (
             <span
               key={f.id}
-              className={`animate-float-up pointer-events-none absolute text-lg font-black tracking-widest ${TONE_TEXT[f.tone]}`}
+              className={`sticker-sm animate-float-up pointer-events-none absolute text-xl tracking-wide ${TONE_TEXT[f.tone]}`}
               style={{ left: `${f.x}%`, top: `${f.y}%` }}
             >
               {f.text}
@@ -100,14 +100,14 @@ export function GameScreen(props: GameScreenProps) {
             })}
 
           {props.comboFlash && (
-            <span className="animate-combo-burst pointer-events-none absolute top-1/2 left-1/2 text-6xl font-black text-neon-purple">
+            <span className="sticker-text animate-combo-burst pointer-events-none absolute top-1/2 left-1/2 text-7xl text-neon-purple glow-purple">
               ×{props.comboFlash}
             </span>
           )}
 
           {!target && !paused && (
-            <span className="pointer-events-none absolute inset-0 grid place-items-center text-xs font-bold tracking-[0.3em] text-arcade-muted">
-              GET READY
+            <span className="sticker-sm pointer-events-none absolute inset-0 grid place-items-center text-sm tracking-[0.3em] text-arcade-muted">
+              GET READY…
             </span>
           )}
 

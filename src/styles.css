@@ -354,3 +354,143 @@
   animation: orb-drift 14s ease-in-out infinite;
 }
 
+
+/* ---------- Fun typography kit ---------- */
+
+@utility sticker-text {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 2px var(--arcade-bg-deep);
+  text-shadow:
+    0 3px 0 var(--arcade-bg-deep),
+    0 6px 0 color-mix(in oklab, var(--arcade-bg-deep) 70%, transparent);
+}
+
+@utility sticker-sm {
+  font-weight: 900;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 1px var(--arcade-bg-deep);
+  text-shadow: 0 2px 0 var(--arcade-bg-deep);
+}
+
+@utility glow-green {
+  text-shadow:
+    0 3px 0 var(--arcade-bg-deep),
+    0 0 18px color-mix(in oklab, var(--neon-green) 75%, transparent),
+    0 0 44px color-mix(in oklab, var(--neon-green) 45%, transparent);
+}
+@utility glow-red {
+  text-shadow:
+    0 3px 0 var(--arcade-bg-deep),
+    0 0 18px color-mix(in oklab, var(--neon-red) 75%, transparent),
+    0 0 44px color-mix(in oklab, var(--neon-red) 45%, transparent);
+}
+@utility glow-gold {
+  text-shadow:
+    0 2px 0 var(--arcade-bg-deep),
+    0 0 16px color-mix(in oklab, var(--neon-gold) 80%, transparent),
+    0 0 40px color-mix(in oklab, var(--neon-gold) 45%, transparent);
+}
+@utility glow-purple {
+  text-shadow:
+    0 2px 0 var(--arcade-bg-deep),
+    0 0 16px color-mix(in oklab, var(--neon-purple) 80%, transparent),
+    0 0 40px color-mix(in oklab, var(--neon-purple) 45%, transparent);
+}
+@utility glow-white {
+  text-shadow:
+    0 3px 0 var(--arcade-bg-deep),
+    0 0 20px color-mix(in oklab, var(--arcade-text) 55%, transparent);
+}
+
+@keyframes pop-word {
+  0% {
+    transform: translateY(26px) scale(0.6) rotate(var(--rot, 0deg));
+    opacity: 0;
+  }
+  65% {
+    transform: translateY(-6px) scale(1.12) rotate(var(--rot, 0deg));
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(var(--rot, 0deg));
+    opacity: 1;
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(var(--rot, 0deg)) translateY(0);
+  }
+  50% {
+    transform: rotate(calc(var(--rot, 0deg) + 3deg)) translateY(-3px);
+  }
+}
+
+@keyframes shimmer-text {
+  0% {
+    background-position: -200% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes headline-slam {
+  0% {
+    transform: scale(2.2) rotate(-8deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(0.92) rotate(2deg);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.06) rotate(-1.5deg);
+  }
+  100% {
+    transform: scale(1) rotate(-2deg);
+    opacity: 1;
+  }
+}
+
+@utility animate-pop-word {
+  display: inline-block;
+  transform: rotate(var(--rot, 0deg));
+  animation: pop-word 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@utility animate-wiggle {
+  display: inline-block;
+  animation: wiggle 2.6s ease-in-out infinite;
+}
+
+@utility animate-slam {
+  display: inline-block;
+  animation: headline-slam 620ms cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+@utility shimmer-text {
+  background: linear-gradient(
+    100deg,
+    var(--neon-gold) 20%,
+    color-mix(in oklab, var(--arcade-text) 90%, white) 45%,
+    var(--neon-gold) 70%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-text 2.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop-word,
+  .animate-wiggle,
+  .animate-slam,
+  .shimmer-text {
+    animation: none !important;
+  }
+}

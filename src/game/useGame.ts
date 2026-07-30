@@ -70,8 +70,8 @@ function multiplierFor(combo: number) {
 }
 
 function reactionLabel(ms: number) {
-  if (ms < 250) return "PERFECT";
-  if (ms <= 450) return "FAST";
+  if (ms < 250) return "PERFECT!";
+  if (ms <= 450) return "NICE!";
   return "GOOD";
 }
 
