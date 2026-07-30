@@ -248,6 +248,16 @@ export function SettingsModal({
           </div>
         )}
       </div>
+
+      <DataResetSheet
+        open={resetOpen}
+        onReset={(scope) => {
+          onReset(scope);
+          setResetOpen(false);
+        }}
+        onClose={() => setResetOpen(false)}
+      />
+
     </div>
   );
 }
