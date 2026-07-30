@@ -50,16 +50,19 @@ function TapOrTrap() {
           multiplier={game.multiplier}
           scorePulse={game.scorePulse}
           comboFlash={game.comboFlash}
+          levelUp={game.levelUp}
           target={game.target}
           feedback={game.feedback}
           burst={game.burst}
           paused={game.phase === "paused"}
           shake={game.shake}
           flash={game.flash}
+          reducedMotion={game.reducedMotion}
+          registerArea={game.registerArea}
           onTap={game.tapTarget}
           onPause={game.pause}
           onResume={game.resume}
-          onQuit={game.quit}
+          onQuit={game.quitRun}
         />
       )}
 
@@ -68,10 +71,11 @@ function TapOrTrap() {
           score={game.score}
           highScore={game.highScore}
           bestCombo={game.bestCombo}
-          avgReaction={game.avgReaction}
+          stats={game.runStats}
+          lifetime={game.lifetime}
           reason={game.reason}
           onPlayAgain={game.startGame}
-          onMenu={game.quit}
+          onMenu={game.goToMenu}
         />
       )}
 
