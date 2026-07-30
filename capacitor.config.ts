@@ -3,9 +3,12 @@ import type { CapacitorConfig } from "@capacitor/cli";
 /**
  * Tap or Trap — Capacitor configuration.
  *
- * ⚠️ CHANGE BEFORE THE FIRST XCODE ARCHIVE:
- *   `appId` must match the bundle identifier registered in your Apple Developer
- *   account. The value below is a suggestion, not a reserved identifier.
+ * ⚠️ REGISTER BEFORE THE FIRST XCODE ARCHIVE:
+ *   `appId` below is the identifier this project ships with. It must be
+ *   registered as a Bundle ID in your Apple Developer account (Certificates,
+ *   Identifiers & Profiles → Identifiers → +) and selected in Xcode's Signing
+ *   & Capabilities tab. Do not change the string here unless you also change
+ *   `SUGGESTED_BUNDLE_ID` in `src/lib/appConfig.ts`.
  *
  * `webDir` points at `native/www`, produced by `npm run build:native`. That
  * folder is a fully static snapshot of the app, so the iOS build loads bundled

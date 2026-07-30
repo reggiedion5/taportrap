@@ -1,9 +1,11 @@
 # Privacy policy — Tap or Trap
 
-_Last updated: replace with your effective date before publishing._
+_Effective 2026-07-30._
 
-This is a starting draft. Review it against your own circumstances, publish it
-at a public HTTPS URL, and set that URL as `VITE_PRIVACY_URL`.
+> This document is the source text. The **published** version that App Review
+> reads is the in-app route `src/routes/privacy.tsx`, served at
+> `${VITE_PRIVACY_URL}`. Keep the two in sync if you edit either.
+
 
 ## Summary
 

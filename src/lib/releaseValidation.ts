@@ -7,9 +7,12 @@
 
 import {
   APP_BUILD,
+  APP_ICON_PRESENT,
   APP_STORE_URL,
   APP_VERSION,
   IS_DEV,
+  LAUNCH_ASSET_VERIFIED,
+  NATIVE_SERVER_URL,
   PRIVACY_EFFECTIVE_DATE,
   PRIVACY_URL,
   SUGGESTED_BUNDLE_ID,
@@ -60,6 +63,9 @@ export interface ReleaseInputs {
 
 export function validateRelease(inputs: ReleaseInputs = {}): ReleaseReport {
   const bundleId = inputs.bundleId ?? SUGGESTED_BUNDLE_ID;
+  const appIconPresent = inputs.appIconPresent ?? APP_ICON_PRESENT;
+  const launchAssetPresent = inputs.launchAssetPresent ?? LAUNCH_ASSET_VERIFIED;
+  const nativeServerUrl = inputs.nativeServerUrl ?? NATIVE_SERVER_URL;
 
   const checks: ReleaseCheck[] = [
     check(
@@ -101,21 +107,21 @@ export function validateRelease(inputs: ReleaseInputs = {}): ReleaseReport {
       "app-icon",
       "1024×1024 app icon added",
       "critical",
-      inputs.appIconPresent === true,
-      "Add the master icon per docs/app-icon-spec.md, then set appIconPresent.",
+      appIconPresent === true,
+      "Add the master icon per docs/app-icon-spec.md, then set APP_ICON_PRESENT.",
     ),
     check(
       "launch-asset",
       "Launch screen verified",
       "critical",
-      inputs.launchAssetPresent === true,
-      "Verify the launch screen per docs/launch-screen-spec.md.",
+      launchAssetPresent === true,
+      "Verify the launch screen in Xcode per docs/launch-screen-spec.md, then set LAUNCH_ASSET_VERIFIED in src/lib/appConfig.ts.",
     ),
     check(
       "no-dev-server",
       "No development server URL in native config",
       "critical",
-      !inputs.nativeServerUrl,
+      !nativeServerUrl,
       "capacitor.config.ts must not define server.url for production builds.",
     ),
     check(
