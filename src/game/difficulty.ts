@@ -121,15 +121,19 @@ function weightedPick(pool: { color: TargetColor; weight: number }[]) {
   return pool[pool.length - 1].color;
 }
 
-export function pickColor(recent: TargetColor[]): TargetColor {
+export function pickColor(
+  recent: TargetColor[],
+  allowed: TargetColor[] = ["green", "red", "gold", "purple"],
+): TargetColor {
+  const available = DISTRIBUTION.filter((d) => allowed.includes(d.color));
+  const pool = available.length ? available : DISTRIBUTION;
   const blocked =
     recent.length >= 3 &&
     recent[0] === recent[1] &&
     recent[1] === recent[2]
       ? recent[0]
       : null;
-  const pool = blocked
-    ? DISTRIBUTION.filter((d) => d.color !== blocked)
-    : DISTRIBUTION;
-  return weightedPick(pool);
+  const filtered = blocked ? pool.filter((d) => d.color !== blocked) : pool;
+  return weightedPick(filtered.length ? filtered : pool);
 }
+
