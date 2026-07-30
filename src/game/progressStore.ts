@@ -492,3 +492,13 @@ export function resetStatistics(): {
   writeJson(KEYS.mission, null);
   return { statistics, records, achievements };
 }
+
+/**
+ * Clears daily-challenge progress and streaks only. XP already paid for past
+ * days stays paid — the reward ledger is untouched.
+ */
+export function resetDailyProgress(): DailyState {
+  const fresh = defaultDaily();
+  writeJson(KEYS.daily, fresh);
+  return fresh;
+}
