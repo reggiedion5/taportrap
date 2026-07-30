@@ -87,6 +87,12 @@ export function SettingsModal({
             checked={settings.vibration}
             onChange={(v) => onChange({ vibration: v })}
           />
+          <Toggle
+            label="Reduced motion"
+            description="Calmer animations, no screen shake"
+            checked={settings.reducedMotion}
+            onChange={(v) => onChange({ reducedMotion: v })}
+          />
         </div>
       </div>
     </div>
