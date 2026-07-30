@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Heart } from "lucide-react";
 import type { ActiveTarget, FloatingFeedback, TargetColor } from "@/game/types";
 import type { DifficultyLevel } from "@/game/difficulty";
@@ -62,11 +63,17 @@ export function GameScreen(props: GameScreenProps) {
     avgReaction,
     registerArea,
     onTap,
+    onPause,
     onResume,
     onQuit,
   } = props;
 
   const needsRotate = useOrientationGuard(true);
+
+  // Landscape on a phone pauses the run rather than ending it.
+  useEffect(() => {
+    if (needsRotate && !paused) onPause();
+  }, [needsRotate, paused, onPause]);
 
   const urgent = timeLeft !== null && timeLeft <= 10_000;
 
