@@ -69,8 +69,8 @@ export function StartScreen({
 
         <div className="mt-10">
           <h1 className="text-[clamp(44px,14vw,72px)] leading-[0.9] font-black tracking-tighter text-arcade-text">
-            Tap
-            <span className="text-neon-green"> or </span>
+            <span className="text-neon-green">Tap</span>
+            <span className="text-arcade-text"> or </span>
             <span className="text-neon-red">Trap</span>
           </h1>
           <p className="mt-3 text-lg font-semibold text-arcade-muted">
