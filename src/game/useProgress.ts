@@ -16,6 +16,7 @@ import {
   loadProgress,
   resetAllLocalData,
   resetStatistics,
+  resetDailyProgress,
   writeJson,
   type ProgressSnapshot,
 } from "./progressStore";
