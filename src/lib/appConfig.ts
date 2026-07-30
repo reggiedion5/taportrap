@@ -36,6 +36,23 @@ export const PRIVACY_EFFECTIVE_DATE = text("VITE_PRIVACY_EFFECTIVE_DATE");
 
 export const IS_DEV = import.meta.env.DEV === true;
 
+/**
+ * Native packaging flags.
+ *
+ * These describe assets that live in Xcode rather than in this repo, so they
+ * cannot be detected at runtime — flip them by hand once the step is done.
+ */
+
+/** Master 1024×1024 icon: `resources/app-icon-1024.png` (see docs/app-icon-spec.md). */
+export const APP_ICON_PRESENT = true;
+
+/** Flip to true after confirming the solid #07080f launch screen in Xcode. */
+export const LAUNCH_ASSET_VERIFIED = false;
+
+/** Mirrors `server.url` in capacitor.config.ts. Must stay empty for production. */
+export const NATIVE_SERVER_URL = "";
+
+
 export const APP_CONFIG = {
   name: APP_NAME,
   tagline: APP_TAGLINE,
