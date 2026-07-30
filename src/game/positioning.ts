@@ -18,13 +18,8 @@ export function targetSizeFor(bounds: AreaBounds, scale = 1): number {
   const shortest = Math.min(bounds.width, bounds.height);
   if (!Number.isFinite(shortest) || shortest <= 0) return MIN_TARGET;
   const ideal = shortest * 0.3 * scale;
-  const capped = Math.max(
-    32,
-    Math.min(bounds.width, bounds.height) - EDGE_PADDING * 2,
-  );
-  return Math.round(
-    Math.max(Math.min(MIN_TARGET, capped), Math.min(ideal, MAX_TARGET, capped)),
-  );
+  const capped = Math.max(32, Math.min(bounds.width, bounds.height) - EDGE_PADDING * 2);
+  return Math.round(Math.max(Math.min(MIN_TARGET, capped), Math.min(ideal, MAX_TARGET, capped)));
 }
 
 /**

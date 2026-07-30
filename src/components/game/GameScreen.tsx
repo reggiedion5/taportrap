@@ -1,5 +1,8 @@
+import { Heart } from "lucide-react";
 import type { ActiveTarget, FloatingFeedback, TargetColor } from "@/game/types";
 import type { DifficultyLevel } from "@/game/difficulty";
+import type { GameMode } from "@/game/modes";
+import { formatSeconds } from "@/game/format";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { ScoreHeader } from "./ScoreHeader";
 import { Target } from "./Target";
@@ -13,6 +16,7 @@ const TONE_TEXT: Record<TargetColor, string> = {
 };
 
 interface GameScreenProps {
+  mode: GameMode;
   score: number;
   highScore: number;
   combo: number;
@@ -27,6 +31,10 @@ interface GameScreenProps {
   shake: boolean;
   flash: boolean;
   reducedMotion: boolean;
+  timeLeft: number | null;
+  lives: number | null;
+  lifeLost: boolean;
+  avgReaction: number | null;
   registerArea: (el: HTMLDivElement | null) => void;
   onTap: () => void;
   onPause: () => void;
@@ -36,6 +44,7 @@ interface GameScreenProps {
 
 export function GameScreen(props: GameScreenProps) {
   const {
+    mode,
     target,
     feedback,
     burst,
@@ -43,11 +52,17 @@ export function GameScreen(props: GameScreenProps) {
     shake,
     flash,
     reducedMotion,
+    timeLeft,
+    lives,
+    lifeLost,
+    avgReaction,
     registerArea,
     onTap,
     onResume,
     onQuit,
   } = props;
+
+  const urgent = timeLeft !== null && timeLeft <= 10_000;
 
   return (
     <div
@@ -60,6 +75,9 @@ export function GameScreen(props: GameScreenProps) {
       {flash && !reducedMotion && (
         <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-neon-red" />
       )}
+      {urgent && !reducedMotion && !paused && (
+        <div className="pointer-events-none absolute inset-0 z-10 animate-pulse bg-[radial-gradient(circle,transparent_55%,color-mix(in_oklab,var(--neon-red)_28%,transparent))]" />
+      )}
 
       <div className="relative mx-auto flex w-full max-w-lg flex-1 flex-col">
         <ScoreHeader
@@ -71,17 +89,47 @@ export function GameScreen(props: GameScreenProps) {
           onPause={props.onPause}
         />
 
+        {(timeLeft !== null || lives !== null || mode === "focus") && (
+          <div className="relative z-20 mt-2 flex items-center justify-between gap-3 px-4">
+            {timeLeft !== null && (
+              <p
+                className={`sticker-sm text-4xl leading-none tabular-nums ${
+                  urgent
+                    ? `text-neon-red glow-red ${reducedMotion ? "" : "animate-score-bump"}`
+                    : "text-arcade-text glow-white"
+                }`}
+                aria-label="Time remaining"
+              >
+                {formatSeconds(timeLeft)}s
+              </p>
+            )}
+            {lives !== null && (
+              <p className="flex items-center gap-1" aria-label={`${lives} lives left`}>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Heart
+                    key={i}
+                    className={`size-6 ${
+                      i < lives ? "fill-neon-red text-neon-red" : "text-arcade-line"
+                    }`}
+                    aria-hidden
+                  />
+                ))}
+              </p>
+            )}
+            {mode === "focus" && (
+              <p className="sticker-sm text-sm tracking-[0.16em] text-neon-green glow-green tabular-nums">
+                AVG {avgReaction !== null ? `${avgReaction}ms` : "—"}
+              </p>
+            )}
+          </div>
+        )}
+
         <div
           ref={registerArea}
           className="relative mx-3 mt-4 mb-4 flex-1 overflow-hidden rounded-3xl border border-arcade-line/60 bg-arcade-bg/40"
         >
           {target && !paused && (
-            <Target
-              target={target}
-              disabled={paused}
-              reducedMotion={reducedMotion}
-              onTap={onTap}
-            />
+            <Target target={target} disabled={paused} reducedMotion={reducedMotion} onTap={onTap} />
           )}
 
           {feedback.map((f) => (
@@ -92,9 +140,7 @@ export function GameScreen(props: GameScreenProps) {
             >
               {f.text}
               {f.sub && (
-                <span className="block text-[10px] tracking-[0.2em] opacity-80">
-                  {f.sub}
-                </span>
+                <span className="block text-[10px] tracking-[0.2em] opacity-80">{f.sub}</span>
               )}
             </span>
           ))}
@@ -132,8 +178,14 @@ export function GameScreen(props: GameScreenProps) {
             </span>
           )}
 
-          {!target && !paused && (
-            <span className="sticker-sm pointer-events-none absolute inset-0 grid place-items-center text-sm tracking-[0.3em] text-arcade-muted">
+          {lifeLost && !paused && (
+            <span className="sticker-text pointer-events-none absolute inset-0 grid place-items-center text-4xl text-neon-red glow-red">
+              LIFE LOST
+            </span>
+          )}
+
+          {!target && !paused && !lifeLost && (
+            <span className="sticker-sm pointer-events-none absolute inset-0 grid place-items-center text-sm tracking-[0.3em] text-arcade-text/75">
               GET READY…
             </span>
           )}

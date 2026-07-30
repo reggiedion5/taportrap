@@ -1,10 +1,5 @@
 export type HapticEvent =
-  | "success"
-  | "gold"
-  | "purple-first"
-  | "purple-done"
-  | "combo"
-  | "gameover";
+  "success" | "gold" | "purple-first" | "purple-done" | "combo" | "gameover";
 
 const PATTERNS: Record<HapticEvent, number | number[]> = {
   success: 18,

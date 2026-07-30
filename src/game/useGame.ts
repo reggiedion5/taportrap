@@ -6,7 +6,6 @@ import {
   type GameOverReason,
   type GamePhase,
   type GameSettings,
-  type LifetimeStats,
   type RunStats,
   type TargetColor,
 } from "./types";
@@ -17,32 +16,21 @@ import {
   spawnDelayFor,
   type DifficultyLevel,
 } from "./difficulty";
-import {
-  playSound,
-  resumeAudio,
-  setSoundEnabled,
-  suspendAudio,
-  unlockAudio,
-} from "./audio";
+import { playSound, resumeAudio, setSoundEnabled, suspendAudio, unlockAudio } from "./audio";
 import { setVibrationEnabled, vibrate } from "./haptics";
 import { gradeReaction, multiplierForCombo, resolveScore } from "./scoring";
 import { pickPlacement, targetSizeFor, type AreaBounds } from "./positioning";
-import {
-  DEFAULT_SETTINGS,
-  DEFAULT_STATS,
-  loadHighScore,
-  loadSettings,
-  loadStats,
-  saveHighScore,
-  saveSettings,
-  saveStats,
-} from "./storage";
+import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "./storage";
+import { MODE_CONFIG, type GameMode } from "./modes";
+import type { GameSessionResult } from "./progressionTypes";
 
 export { difficultyProgress } from "./difficulty";
 
 const EXIT_MS = 260;
 /** forgiving window for the second purple tap, measured from the first tap */
 const PURPLE_SECOND_WINDOW = 1000;
+/** protected pause after losing a life in Survival */
+const LIFE_LOST_MS = 900;
 
 interface Burst {
   id: number;
@@ -50,17 +38,31 @@ interface Burst {
   y: number;
 }
 
-export function useGame() {
+function newSessionId(): string {
+  try {
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+      return crypto.randomUUID();
+    }
+  } catch {
+    /* ignore */
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+export interface UseGameOptions {
+  mode: GameMode;
+  onComplete: (result: GameSessionResult) => void;
+}
+
+export function useGame({ mode, onComplete }: UseGameOptions) {
   const [phase, setPhase] = useState<GamePhase>("start");
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
-  const [highScore, setHighScore] = useState(0);
   const [target, setTarget] = useState<ActiveTarget | null>(null);
   const [feedback, setFeedback] = useState<FloatingFeedback[]>([]);
   const [reason, setReason] = useState<GameOverReason | null>(null);
   const [runStats, setRunStats] = useState<RunStats>(EMPTY_RUN_STATS);
-  const [lifetime, setLifetime] = useState<LifetimeStats>(DEFAULT_STATS);
   const [scorePulse, setScorePulse] = useState(0);
   const [comboFlash, setComboFlash] = useState<number | null>(null);
   const [levelUp, setLevelUp] = useState<DifficultyLevel | null>(null);
@@ -70,15 +72,30 @@ export function useGame() {
   const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS);
   const [systemReducedMotion, setSystemReducedMotion] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [lives, setLives] = useState<number | null>(null);
+  const [lifeLost, setLifeLost] = useState(false);
 
   // ---- refs: always-current gameplay values (no stale closures) ----
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+  const configRef = useRef(MODE_CONFIG[mode]);
+  configRef.current = MODE_CONFIG[mode];
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   const phaseRef = useRef<GamePhase>("start");
   const scoreRef = useRef(0);
   const comboRef = useRef(0);
+  const bestComboRef = useRef(0);
+  const bestMultiplierRef = useRef(1);
+  const livesRef = useRef<number>(1);
   const targetRef = useRef<ActiveTarget | null>(null);
   const endedRef = useRef(false);
   const runIdRef = useRef(0);
   const idRef = useRef(0);
+  const sessionIdRef = useRef("");
+  const startedAtRef = useRef(0);
   const levelRef = useRef(1);
   const historyRef = useRef<TargetColor[]>([]);
   const reactionsRef = useRef<number[]>([]);
@@ -86,20 +103,24 @@ export function useGame() {
   const lastPositionRef = useRef<{ x: number; y: number } | null>(null);
   const boundsRef = useRef<AreaBounds>({ width: 320, height: 480 });
   const settingsRef = useRef(settings);
-  const lifetimeRef = useRef(lifetime);
 
   // timers
   const spawnTimer = useRef<number | null>(null);
   const expireTimer = useRef<number | null>(null);
   const exitTimer = useRef<number | null>(null);
+  const lifeTimer = useRef<number | null>(null);
+  const clockTimer = useRef<number | null>(null);
   const decorTimers = useRef<number[]>([]);
   const expireAt = useRef(0);
   const spawnAt = useRef(0);
   const remainingTarget = useRef(0);
   const remainingSpawn = useRef(0);
+  // blitz clock
+  const clockRemaining = useRef(0);
+  const clockStartedAt = useRef(0);
+  const lastBeepSecond = useRef(-1);
 
   settingsRef.current = settings;
-  lifetimeRef.current = lifetime;
 
   const reducedMotion = settings.reducedMotion || systemReducedMotion;
 
@@ -109,8 +130,6 @@ export function useGame() {
     setSettings(stored);
     setSoundEnabled(stored.sound);
     setVibrationEnabled(stored.vibration);
-    setHighScore(loadHighScore());
-    setLifetime(loadStats());
     setHydrated(true);
 
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -150,14 +169,22 @@ export function useGame() {
   }, []);
 
   // ---------- timers ----------
+  const stopClock = useCallback(() => {
+    if (clockTimer.current !== null) window.clearInterval(clockTimer.current);
+    clockTimer.current = null;
+  }, []);
+
   const clearAllTimers = useCallback(() => {
     if (spawnTimer.current !== null) window.clearTimeout(spawnTimer.current);
     if (expireTimer.current !== null) window.clearTimeout(expireTimer.current);
     if (exitTimer.current !== null) window.clearTimeout(exitTimer.current);
+    if (lifeTimer.current !== null) window.clearTimeout(lifeTimer.current);
     spawnTimer.current = null;
     expireTimer.current = null;
     exitTimer.current = null;
-  }, []);
+    lifeTimer.current = null;
+    stopClock();
+  }, [stopClock]);
 
   const clearDecorTimers = useCallback(() => {
     decorTimers.current.forEach((t) => window.clearTimeout(t));
@@ -188,7 +215,7 @@ export function useGame() {
 
   // ---------- game over ----------
   const endGame = useCallback(
-    (why: GameOverReason) => {
+    (why: GameOverReason | null) => {
       if (endedRef.current) return; // never end twice
       endedRef.current = true;
       runIdRef.current += 1; // invalidate any in-flight callback
@@ -200,9 +227,7 @@ export function useGame() {
       const avg = reactions.length
         ? Math.round(reactions.reduce((a, b) => a + b, 0) / reactions.length)
         : null;
-      const fastest = reactions.length
-        ? Math.round(Math.min(...reactions))
-        : null;
+      const fastest = reactions.length ? Math.round(Math.min(...reactions)) : null;
       const stats: RunStats = {
         ...runStatsRef.current,
         avgReaction: avg,
@@ -214,43 +239,28 @@ export function useGame() {
       setPhase("over");
       phaseRef.current = "over";
 
-      if (!reducedMotion) {
+      if (!reducedMotion && why !== null) {
         setShake(true);
         setFlash(true);
         later(() => setShake(false), 500);
         later(() => setFlash(false), 320);
       }
-      playSound("gameover");
+      playSound(why === null ? "levelup" : "gameover");
       vibrate("gameover");
 
-      const finalScore = scoreRef.current;
-      const runBestCombo = Math.max(0, comboRef.current);
-      setHighScore((prev) => {
-        const next = Math.max(prev, finalScore);
-        if (next !== prev) saveHighScore(next);
-        return next;
-      });
-
-      setLifetime((prev) => {
-        const merged: LifetimeStats = {
-          gamesPlayed: prev.gamesPlayed + 1,
-          highestScore: Math.max(prev.highestScore, finalScore),
-          bestCombo: Math.max(prev.bestCombo, runBestCombo),
-          fastestReaction:
-            fastest === null
-              ? prev.fastestReaction
-              : prev.fastestReaction === null
-                ? fastest
-                : Math.min(prev.fastestReaction, fastest),
-          totalCorrect: prev.totalCorrect + stats.successes,
-          totalGold: prev.totalGold + stats.gold,
-          totalTrapsAvoided: prev.totalTrapsAvoided + stats.trapsAvoided,
-          totalPurpleCompletions:
-            prev.totalPurpleCompletions + stats.purpleCompletions,
-        };
-        saveStats(merged);
-        return merged;
-      });
+      const result: GameSessionResult = {
+        sessionId: sessionIdRef.current || newSessionId(),
+        mode: modeRef.current,
+        score: scoreRef.current,
+        bestCombo: bestComboRef.current,
+        bestMultiplier: bestMultiplierRef.current,
+        stats,
+        reason: why,
+        durationMs: Math.max(0, Math.round(performance.now() - startedAtRef.current)),
+        livesRemaining: Number.isFinite(livesRef.current) ? livesRef.current : null,
+        completed: why !== "quit",
+      };
+      if (why !== "quit") onCompleteRef.current(result);
     },
     [clearAllTimers, later, reducedMotion, setActiveTarget],
   );
@@ -258,48 +268,165 @@ export function useGame() {
   const endGameRef = useRef(endGame);
   endGameRef.current = endGame;
 
+  // ---------- blitz clock ----------
+  const tickClock = useCallback(() => {
+    if (endedRef.current || phaseRef.current !== "playing") return;
+    const elapsed = performance.now() - clockStartedAt.current;
+    const remaining = Math.max(0, clockRemaining.current - elapsed);
+    setTimeLeft(remaining);
+    const secs = Math.ceil(remaining / 1000);
+    if (secs <= 3 && secs > 0 && secs !== lastBeepSecond.current) {
+      lastBeepSecond.current = secs;
+      playSound("countdown");
+    }
+    if (remaining <= 0) {
+      clockRemaining.current = 0;
+      stopClock();
+      endGameRef.current(null);
+    }
+  }, [stopClock]);
+
+  const startClock = useCallback(() => {
+    stopClock();
+    if (configRef.current.timeLimitMs === null) return;
+    clockStartedAt.current = performance.now();
+    clockTimer.current = window.setInterval(tickClock, 100);
+  }, [stopClock, tickClock]);
+
+  const applyTimePenalty = useCallback(
+    (ms: number) => {
+      if (configRef.current.timeLimitMs === null) return;
+      const elapsed = performance.now() - clockStartedAt.current;
+      const remaining = Math.max(0, clockRemaining.current - elapsed - ms);
+      clockRemaining.current = remaining;
+      clockStartedAt.current = performance.now();
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        stopClock();
+        endGameRef.current(null);
+      }
+    },
+    [stopClock],
+  );
+
   // ---------- spawning ----------
   const spawnRef = useRef<() => void>(() => {});
 
-  const scheduleSpawn = useCallback(
-    (delay: number) => {
-      if (endedRef.current) return;
-      if (spawnTimer.current !== null) window.clearTimeout(spawnTimer.current);
-      const runId = runIdRef.current;
-      spawnAt.current = performance.now() + delay;
-      remainingSpawn.current = delay;
-      spawnTimer.current = window.setTimeout(() => {
-        spawnTimer.current = null;
-        if (runId !== runIdRef.current || endedRef.current) return;
-        if (phaseRef.current !== "playing") return;
-        spawnRef.current();
-      }, delay);
-    },
-    [],
-  );
+  const scheduleSpawn = useCallback((delay: number) => {
+    if (endedRef.current) return;
+    if (spawnTimer.current !== null) window.clearTimeout(spawnTimer.current);
+    const runId = runIdRef.current;
+    spawnAt.current = performance.now() + delay;
+    remainingSpawn.current = delay;
+    spawnTimer.current = window.setTimeout(() => {
+      spawnTimer.current = null;
+      if (runId !== runIdRef.current || endedRef.current) return;
+      if (phaseRef.current !== "playing") return;
+      spawnRef.current();
+    }, delay);
+  }, []);
 
-  const handleExpire = useCallback(
-    (targetId: number) => {
-      const current = targetRef.current;
-      if (!current || current.id !== targetId || current.resolved) return;
-      if (phaseRef.current !== "playing" || endedRef.current) return;
+  /** A mistake: ends the run, costs a life, or burns clock depending on mode. */
+  const registerMistake = useCallback(
+    (why: GameOverReason) => {
+      if (endedRef.current || phaseRef.current !== "playing") return;
+      const config = configRef.current;
 
-      if (current.color === "red") {
-        // resolving a red target by letting it expire is a success
-        resolveSuccessRef.current(current, 1, null, "TRAP AVOIDED");
+      comboRef.current = 0;
+      setCombo(0);
+
+      if (config.penalties) {
+        const penalty =
+          why === "tapped-trap"
+            ? config.penalties.trap
+            : why === "incomplete-purple"
+              ? config.penalties.purple
+              : why === "extra-tap"
+                ? config.penalties.extra
+                : config.penalties.missed;
+        playSound("gameover");
+        vibrate("gameover");
+        if (!reducedMotion) {
+          setFlash(true);
+          later(() => setFlash(false), 260);
+        }
+        const t = targetRef.current;
+        if (t) pushFeedback(`−${Math.round(penalty / 1000)}s`, undefined, t.x, t.y, "red");
+        applyTimePenalty(penalty);
+        if (endedRef.current) return;
+
+        if (expireTimer.current !== null) {
+          window.clearTimeout(expireTimer.current);
+          expireTimer.current = null;
+        }
+        setActiveTarget(null);
+        scheduleSpawn(spawnDelayFor(levelForScore(scoreRef.current)));
         return;
       }
-      if (current.color === "purple" && current.taps === 1) {
-        endGameRef.current("incomplete-purple");
+
+      if (livesRef.current > 1) {
+        livesRef.current -= 1;
+        setLives(livesRef.current);
+        playSound("gameover");
+        vibrate("gameover");
+        if (!reducedMotion) {
+          setShake(true);
+          setFlash(true);
+          later(() => setShake(false), 400);
+          later(() => setFlash(false), 260);
+        }
+        if (expireTimer.current !== null) {
+          window.clearTimeout(expireTimer.current);
+          expireTimer.current = null;
+        }
+        if (spawnTimer.current !== null) {
+          window.clearTimeout(spawnTimer.current);
+          spawnTimer.current = null;
+        }
+        setActiveTarget(null);
+        setLifeLost(true);
+        const runId = runIdRef.current;
+        lifeTimer.current = window.setTimeout(() => {
+          lifeTimer.current = null;
+          if (runId !== runIdRef.current || endedRef.current) return;
+          setLifeLost(false);
+          if (phaseRef.current === "playing") {
+            scheduleSpawn(spawnDelayFor(levelForScore(scoreRef.current)));
+          }
+        }, LIFE_LOST_MS);
         return;
       }
-      endGameRef.current("missed-target");
+
+      livesRef.current = 0;
+      setLives(configRef.current.lives > 1 ? 0 : null);
+      endGameRef.current(why);
     },
-    [],
+    [applyTimePenalty, later, pushFeedback, reducedMotion, scheduleSpawn, setActiveTarget],
   );
+
+  const registerMistakeRef = useRef(registerMistake);
+  registerMistakeRef.current = registerMistake;
+
+  const handleExpire = useCallback((targetId: number) => {
+    const current = targetRef.current;
+    if (!current || current.id !== targetId || current.resolved) return;
+    if (phaseRef.current !== "playing" || endedRef.current) return;
+
+    if (current.color === "red") {
+      // resolving a red target by letting it expire is a success
+      resolveSuccessRef.current(current, 1, null, "TRAP AVOIDED");
+      return;
+    }
+    if (current.color === "purple" && current.taps === 1) {
+      registerMistakeRef.current("incomplete-purple");
+      return;
+    }
+    registerMistakeRef.current("missed-target");
+  }, []);
 
   const spawn = useCallback(() => {
     if (endedRef.current || phaseRef.current !== "playing") return;
+    const config = configRef.current;
     const level = levelForScore(scoreRef.current);
     if (level.level !== levelRef.current) {
       levelRef.current = level.level;
@@ -308,7 +435,7 @@ export function useGame() {
       later(() => setLevelUp(null), 1100);
     }
 
-    const color = pickColor(historyRef.current);
+    const color = pickColor(historyRef.current, config.colors);
     historyRef.current = [color, ...historyRef.current].slice(0, 3);
 
     const bounds = boundsRef.current;
@@ -316,13 +443,15 @@ export function useGame() {
     const placement = pickPlacement(bounds, size, lastPositionRef.current);
     lastPositionRef.current = { x: placement.x, y: placement.y };
 
+    const duration = Math.max(420, Math.round(level.targetDuration * config.durationScale));
+
     const next: ActiveTarget = {
       id: ++idRef.current,
       color,
       x: placement.x,
       y: placement.y,
       size: placement.size,
-      duration: level.targetDuration,
+      duration,
       spawnedAt: performance.now(),
       taps: 0,
       state: "active",
@@ -344,12 +473,7 @@ export function useGame() {
 
   // ---------- success ----------
   const resolveSuccess = useCallback(
-    (
-      t: ActiveTarget,
-      base: number,
-      reaction: number | null,
-      label: string,
-    ) => {
+    (t: ActiveTarget, base: number, reaction: number | null, label: string) => {
       if (t.resolved || endedRef.current) return;
       const current = targetRef.current;
       if (!current || current.id !== t.id || current.resolved) return;
@@ -370,7 +494,9 @@ export function useGame() {
       const result = resolveScore(base, comboRef.current);
       comboRef.current = result.combo;
       setCombo(result.combo);
-      setBestCombo((prev) => Math.max(prev, result.combo));
+      bestComboRef.current = Math.max(bestComboRef.current, result.combo);
+      bestMultiplierRef.current = Math.max(bestMultiplierRef.current, result.multiplier);
+      setBestCombo(bestComboRef.current);
       scoreRef.current += result.total;
       setScore(scoreRef.current);
       setScorePulse((p) => p + 1);
@@ -389,13 +515,7 @@ export function useGame() {
       }
       setRunStats({ ...stats });
 
-      pushFeedback(
-        `+${result.total} • ${result.multiplier}X`,
-        label,
-        t.x,
-        t.y,
-        t.color,
-      );
+      pushFeedback(`+${result.total} • ${result.multiplier}X`, label, t.x, t.y, t.color);
 
       if (t.color === "gold") {
         setBurst({ id: t.id, x: t.x, y: t.y });
@@ -446,7 +566,7 @@ export function useGame() {
     // a second tap on a single-tap target (green/gold) is a mistake
     if (t.resolved) {
       if (t.color === "green" || t.color === "gold") {
-        endGameRef.current("extra-tap");
+        registerMistakeRef.current("extra-tap");
       }
       return;
     }
@@ -455,7 +575,7 @@ export function useGame() {
     const elapsed = now - t.spawnedAt;
 
     if (t.color === "red") {
-      endGameRef.current("tapped-trap");
+      registerMistakeRef.current("tapped-trap");
       return;
     }
 
@@ -468,10 +588,7 @@ export function useGame() {
         vibrate("purple-first");
         // forgiving: give a fresh window for the second tap
         if (expireTimer.current !== null) window.clearTimeout(expireTimer.current);
-        const remaining = Math.max(
-          PURPLE_SECOND_WINDOW,
-          t.spawnedAt + t.duration - now,
-        );
+        const remaining = Math.max(PURPLE_SECOND_WINDOW, t.spawnedAt + t.duration - now);
         expireAt.current = now + remaining;
         const runId = runIdRef.current;
         expireTimer.current = window.setTimeout(() => {
@@ -484,8 +601,7 @@ export function useGame() {
       // faster second taps are worth more
       const gap = now - (t.firstTapAt ?? t.spawnedAt);
       const base = gap < 280 ? 4 : gap < 550 ? 3 : 2;
-      const label =
-        base === 4 ? "LIGHTNING ×2" : base === 3 ? "QUICK ×2" : "DOUBLE TAP";
+      const label = base === 4 ? "LIGHTNING ×2" : base === 3 ? "QUICK ×2" : "DOUBLE TAP";
       resolveSuccess(t, base, elapsed, label);
       return;
     }
@@ -504,15 +620,25 @@ export function useGame() {
     resumeAudio();
     clearAllTimers();
     clearDecorTimers();
+    const config = MODE_CONFIG[modeRef.current];
+    configRef.current = config;
     runIdRef.current += 1;
     endedRef.current = false;
+    sessionIdRef.current = newSessionId();
+    startedAtRef.current = performance.now();
     scoreRef.current = 0;
     comboRef.current = 0;
+    bestComboRef.current = 0;
+    bestMultiplierRef.current = 1;
     levelRef.current = 1;
     historyRef.current = [];
     reactionsRef.current = [];
     runStatsRef.current = { ...EMPTY_RUN_STATS };
     lastPositionRef.current = null;
+    livesRef.current = config.lives;
+    lastBeepSecond.current = -1;
+    setLives(Number.isFinite(config.lives) ? config.lives : null);
+    setLifeLost(false);
     setScore(0);
     setCombo(0);
     setBestCombo(0);
@@ -527,19 +653,30 @@ export function useGame() {
     setActiveTarget(null);
     phaseRef.current = "playing";
     setPhase("playing");
+
+    if (config.timeLimitMs !== null) {
+      clockRemaining.current = config.timeLimitMs;
+      setTimeLeft(config.timeLimitMs);
+      startClock();
+    } else {
+      clockRemaining.current = 0;
+      setTimeLeft(null);
+    }
+
     scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0]));
-  }, [clearAllTimers, clearDecorTimers, scheduleSpawn, setActiveTarget]);
+  }, [clearAllTimers, clearDecorTimers, scheduleSpawn, setActiveTarget, startClock]);
 
   const pause = useCallback(() => {
     if (phaseRef.current !== "playing" || endedRef.current) return;
     const now = performance.now();
     const t = targetRef.current;
     remainingTarget.current =
-      t && !t.resolved && expireTimer.current !== null
-        ? Math.max(60, expireAt.current - now)
-        : 0;
-    remainingSpawn.current =
-      spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
+      t && !t.resolved && expireTimer.current !== null ? Math.max(60, expireAt.current - now) : 0;
+    remainingSpawn.current = spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
+    if (configRef.current.timeLimitMs !== null) {
+      clockRemaining.current = Math.max(0, clockRemaining.current - (now - clockStartedAt.current));
+      setTimeLeft(clockRemaining.current);
+    }
     clearAllTimers();
     suspendAudio();
     phaseRef.current = "paused";
@@ -554,6 +691,7 @@ export function useGame() {
     phaseRef.current = "playing";
     setPhase("playing");
     resumeAudio();
+    if (configRef.current.timeLimitMs !== null) startClock();
     const t = targetRef.current;
     if (t && !t.resolved && remainingTarget.current > 0) {
       const rem = remainingTarget.current;
@@ -580,7 +718,7 @@ export function useGame() {
     }
     remainingTarget.current = 0;
     remainingSpawn.current = 0;
-  }, [handleExpire, scheduleSpawn, setActiveTarget]);
+  }, [handleExpire, scheduleSpawn, setActiveTarget, startClock]);
 
   const goToMenu = useCallback(() => {
     runIdRef.current += 1;
@@ -592,11 +730,13 @@ export function useGame() {
     setBurst(null);
     setLevelUp(null);
     setReason(null);
+    setLifeLost(false);
+    setTimeLeft(null);
     phaseRef.current = "start";
     setPhase("start");
   }, [clearAllTimers, clearDecorTimers, setActiveTarget]);
 
-  /** Quit an active run — recorded as a quit, never as a failed reaction. */
+  /** Quit an active run — recorded as a quit, never as a completed session. */
   const quitRun = useCallback(() => {
     if (phaseRef.current === "playing" || phaseRef.current === "paused") {
       runIdRef.current += 1;
@@ -649,13 +789,11 @@ export function useGame() {
     score,
     combo,
     bestCombo,
-    highScore,
     multiplier,
     target,
     feedback,
     reason,
     runStats,
-    lifetime,
     scorePulse,
     comboFlash,
     levelUp,
@@ -665,6 +803,9 @@ export function useGame() {
     settings,
     reducedMotion,
     hydrated,
+    timeLeft,
+    lives,
+    lifeLost,
     registerArea,
     updateSettings,
     startGame,

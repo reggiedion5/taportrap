@@ -1,12 +1,12 @@
 import type { GameSettings, LifetimeStats } from "./types";
 
-const SETTINGS_KEY = "tap-or-trap-settings-v1";
+const SETTINGS_KEY = "tap-or-trap-preferences-v2";
 const STATS_KEY = "tap-or-trap-stats-v1";
 const HIGH_SCORE_KEY = "tap-or-trap-high-score-v1";
 
 /** legacy keys kept only for one-time migration */
 const LEGACY_HIGH_SCORE_KEY = "tap-or-trap:highscore";
-const LEGACY_SETTINGS_KEY = "tap-or-trap:settings";
+const LEGACY_SETTINGS_KEY = "tap-or-trap-settings-v1";
 
 export const DEFAULT_SETTINGS: GameSettings = {
   sound: true,
@@ -62,17 +62,12 @@ function write(key: string, value: unknown) {
 
 export function loadSettings(): GameSettings {
   const raw = read(SETTINGS_KEY) as Record<string, unknown> | null;
-  const legacy = raw
-    ? null
-    : (read(LEGACY_SETTINGS_KEY) as Record<string, unknown> | null);
+  const legacy = raw ? null : (read(LEGACY_SETTINGS_KEY) as Record<string, unknown> | null);
   const source = raw ?? legacy ?? {};
   return {
     sound: safeBool(source.sound, DEFAULT_SETTINGS.sound),
     vibration: safeBool(source.vibration, DEFAULT_SETTINGS.vibration),
-    reducedMotion: safeBool(
-      source.reducedMotion,
-      DEFAULT_SETTINGS.reducedMotion,
-    ),
+    reducedMotion: safeBool(source.reducedMotion, DEFAULT_SETTINGS.reducedMotion),
   };
 }
 
@@ -116,14 +111,8 @@ export function loadStats(): LifetimeStats {
     fastestReaction: safeOptionalNumber(source.fastestReaction),
     totalCorrect: Math.max(0, Math.floor(safeNumber(source.totalCorrect))),
     totalGold: Math.max(0, Math.floor(safeNumber(source.totalGold))),
-    totalTrapsAvoided: Math.max(
-      0,
-      Math.floor(safeNumber(source.totalTrapsAvoided)),
-    ),
-    totalPurpleCompletions: Math.max(
-      0,
-      Math.floor(safeNumber(source.totalPurpleCompletions)),
-    ),
+    totalTrapsAvoided: Math.max(0, Math.floor(safeNumber(source.totalTrapsAvoided))),
+    totalPurpleCompletions: Math.max(0, Math.floor(safeNumber(source.totalPurpleCompletions))),
   };
 }
 

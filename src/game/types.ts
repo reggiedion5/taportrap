@@ -3,20 +3,10 @@ export type TargetColor = "green" | "red" | "gold" | "purple";
 export type GamePhase = "start" | "playing" | "paused" | "over";
 
 export type GameOverReason =
-  | "tapped-trap"
-  | "missed-target"
-  | "incomplete-purple"
-  | "extra-tap"
-  | "quit";
+  "tapped-trap" | "missed-target" | "incomplete-purple" | "extra-tap" | "quit";
 
 /** Explicit lifecycle of a single target. Only one target exists at a time. */
-export type TargetState =
-  | "waiting"
-  | "entering"
-  | "active"
-  | "resolving"
-  | "exiting"
-  | "completed";
+export type TargetState = "waiting" | "entering" | "active" | "resolving" | "exiting" | "completed";
 
 export interface ActiveTarget {
   id: number;

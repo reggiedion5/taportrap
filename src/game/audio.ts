@@ -6,7 +6,9 @@ export type SoundName =
   | "avoid"
   | "combo"
   | "levelup"
-  | "gameover";
+  | "gameover"
+  | "countdown"
+  | "unlock";
 
 let ctx: AudioContext | null = null;
 let enabled = true;
@@ -38,8 +40,7 @@ function getCtx(): AudioContext | null {
   try {
     const Ctor =
       window.AudioContext ??
-      (window as unknown as { webkitAudioContext?: typeof AudioContext })
-        .webkitAudioContext;
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctor) return null;
     if (!ctx) ctx = new Ctor();
     if (ctx.state === "suspended") void ctx.resume().catch(() => {});
@@ -119,6 +120,14 @@ export function playSound(name: SoundName) {
       blip(520, 0, 0.09, "square", 0.09);
       blip(780, 0.09, 0.09, "square", 0.09);
       blip(1040, 0.18, 0.2, "square", 0.09);
+      break;
+    case "countdown":
+      blip(880, 0, 0.09, "square", 0.12);
+      break;
+    case "unlock":
+      blip(660, 0, 0.1, "triangle", 0.1);
+      blip(990, 0.1, 0.1, "triangle", 0.1);
+      blip(1320, 0.2, 0.22, "triangle", 0.1);
       break;
     case "gameover":
       blip(320, 0, 0.35, "sawtooth", 0.14, 80);

@@ -7,10 +7,8 @@ export function PauseOverlay({ onResume, onQuit }: PauseOverlayProps) {
   return (
     <div className="no-select absolute inset-0 z-30 grid place-items-center bg-arcade-bg-deep/85 backdrop-blur-sm">
       <div className="arcade-panel w-[min(88vw,360px)] p-7 text-center">
-        <h2 className="sticker-text text-4xl text-arcade-text glow-white">
-          PAUSED
-        </h2>
-        <p className="mt-3 text-sm font-bold text-arcade-muted">
+        <h2 className="sticker-text text-4xl text-arcade-text glow-white">PAUSED</h2>
+        <p className="mt-3 text-sm font-bold text-arcade-text/80">
           Timer's frozen. Catch your breath.
         </p>
         <div className="mt-7 grid gap-3">
@@ -29,7 +27,6 @@ export function PauseOverlay({ onResume, onQuit }: PauseOverlayProps) {
             Quit Game
           </button>
         </div>
-
       </div>
     </div>
   );

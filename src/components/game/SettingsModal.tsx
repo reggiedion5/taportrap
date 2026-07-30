@@ -28,12 +28,8 @@ function Toggle({
       className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-2xl border border-arcade-line bg-arcade-surface px-4 py-4 text-left"
     >
       <span className="min-w-0">
-        <span className="block text-base font-bold text-arcade-text">
-          {label}
-        </span>
-        <span className="block text-xs font-medium text-arcade-muted">
-          {description}
-        </span>
+        <span className="block text-base font-bold text-arcade-text">{label}</span>
+        <span className="block text-xs font-medium text-arcade-text/80">{description}</span>
       </span>
       <span
         className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
@@ -50,21 +46,14 @@ function Toggle({
   );
 }
 
-export function SettingsModal({
-  open,
-  settings,
-  onChange,
-  onClose,
-}: SettingsModalProps) {
+export function SettingsModal({ open, settings, onChange, onClose }: SettingsModalProps) {
   if (!open) return null;
 
   return (
     <div className="no-select fixed inset-0 z-50 grid place-items-center bg-arcade-bg-deep/85 p-5 backdrop-blur-sm">
       <div className="arcade-panel w-[min(90vw,400px)] p-6">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
-          <h2 className="truncate text-2xl font-black text-arcade-text">
-            Settings
-          </h2>
+          <h2 className="truncate text-2xl font-black text-arcade-text">Settings</h2>
           <button
             type="button"
             onClick={onClose}
