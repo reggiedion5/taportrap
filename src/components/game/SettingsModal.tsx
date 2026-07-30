@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ExternalLink, Mail, ShieldCheck, X } from "lucide-react";
+import { ExternalLink, Mail, MessageSquarePlus, ShieldCheck, Trash2, X } from "lucide-react";
 import type { GameSettings } from "@/game/types";
 import {
   APP_NAME,
@@ -18,14 +18,17 @@ import {
 } from "@/lib/urlSafety";
 import { storageDebugSummary } from "@/lib/storageHealth";
 import { formatReleaseReport, validateRelease } from "@/lib/releaseValidation";
+import { DataResetSheet, type ResetScope } from "./DataResetSheet";
 
 interface SettingsModalProps {
   open: boolean;
   settings: GameSettings;
   onChange: (next: Partial<GameSettings>) => void;
-  onResetAllData: () => void;
+  onReset: (scope: ResetScope) => void;
+  onOpenFeedback: () => void;
   onClose: () => void;
 }
+
 
 function Toggle({
   label,
