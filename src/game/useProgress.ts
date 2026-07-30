@@ -584,6 +584,7 @@ export function useProgress() {
     mode: snapshot.profile.selectedMode,
     modeConfig: MODE_CONFIG[snapshot.profile.selectedMode],
     reminder,
+    themeHint,
     nearestAchievement,
     setMode,
     setTheme,
