@@ -10,7 +10,7 @@ export function PauseOverlay({ onResume, onQuit }: PauseOverlayProps) {
         <h2 className="sticker-text text-4xl text-arcade-text glow-white">
           PAUSED
         </h2>
-        <p className="mt-3 text-sm font-bold text-arcade-muted">
+        <p className="mt-3 text-sm font-bold text-arcade-text/80">
           Timer's frozen. Catch your breath.
         </p>
         <div className="mt-7 grid gap-3">

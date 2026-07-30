@@ -31,7 +31,7 @@ function Toggle({
         <span className="block text-base font-bold text-arcade-text">
           {label}
         </span>
-        <span className="block text-xs font-medium text-arcade-muted">
+        <span className="block text-xs font-medium text-arcade-text/80">
           {description}
         </span>
       </span>

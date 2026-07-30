@@ -25,7 +25,7 @@ export function ScoreHeader({
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="flex min-w-0 items-end gap-5">
           <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-muted">
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
               SCORE
             </p>
             <p
@@ -36,7 +36,7 @@ export function ScoreHeader({
             </p>
           </div>
           <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-muted">
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
               BEST
             </p>
             <p className="sticker-sm text-lg leading-none text-neon-gold glow-gold tabular-nums">
@@ -44,7 +44,7 @@ export function ScoreHeader({
             </p>
           </div>
           <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-muted">
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
               COMBO
             </p>
             <p
@@ -78,7 +78,7 @@ export function ScoreHeader({
       </div>
 
       <div className="mt-3 flex items-center gap-3">
-        <span className="sticker-sm shrink-0 text-[10px] tracking-[0.2em] text-arcade-muted">
+        <span className="sticker-sm shrink-0 text-[10px] tracking-[0.2em] text-arcade-text/80">
           {diff.label.toUpperCase()}
         </span>
         <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-arcade-surface">
@@ -88,7 +88,7 @@ export function ScoreHeader({
           />
         </div>
         <span
-          className={`sticker-sm shrink-0 text-[10px] tracking-[0.2em] ${diff.isMax ? "text-neon-gold glow-gold" : "text-arcade-muted"}`}
+          className={`sticker-sm shrink-0 text-[10px] tracking-[0.2em] ${diff.isMax ? "text-neon-gold glow-gold" : "text-arcade-text/80"}`}
         >
           {diff.isMax ? "MAX!" : "NEXT"}
         </span>
