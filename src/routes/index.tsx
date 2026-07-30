@@ -44,7 +44,7 @@ function TapOrTrap() {
   const [modeIntro, setModeIntro] = useState(false);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [toasts, setToasts] = useState<Achievement[]>([]);
-  const [reminderDismissed, setReminderDismissed] = useState(false);
+  
   const pendingToasts = useRef<Achievement[]>([]);
 
   const handleComplete = useCallback(
