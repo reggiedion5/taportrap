@@ -37,7 +37,10 @@ export function Target({
   onTap,
 }: TargetProps) {
   const style = COLOR_STYLE[target.color];
-  const inactive = disabled || target.resolved;
+  // green/gold stay tappable briefly after resolving so an extra tap counts as a mistake
+  const punishExtraTap =
+    target.resolved && (target.color === "green" || target.color === "gold");
+  const inactive = disabled || (target.resolved && !punishExtraTap);
   const halfTapped = target.color === "purple" && target.taps === 1;
 
   return (
