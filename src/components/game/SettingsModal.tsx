@@ -101,11 +101,13 @@ export function SettingsModal({
   open,
   settings,
   onChange,
-  onResetAllData,
+  onReset,
+  onOpenFeedback,
   onClose,
 }: SettingsModalProps) {
-  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const [diagnostics, setDiagnostics] = useState<string | null>(null);
+
 
   if (!open) return null;
 
