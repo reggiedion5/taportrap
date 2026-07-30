@@ -286,6 +286,10 @@ export function useGame() {
     [buzz, clearTimers, pushFeedback, scheduleSpawn, setActiveTarget, sfx],
   );
 
+  awardRef.current = award;
+
+
+
   const tapTarget = useCallback(() => {
     const t = targetRef.current;
     if (!t) return;
