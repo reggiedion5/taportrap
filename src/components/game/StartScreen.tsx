@@ -9,30 +9,35 @@ const RULES = [
     text: "text-arcade-bg-deep",
     label: "TAP",
     title: "Green",
-    detail: "Tap once — 1 point",
+    tone: "text-neon-green glow-green",
+    detail: "Smash it. +1 point.",
   },
   {
     color: "bg-neon-red",
     text: "text-arcade-text",
     label: "TRAP",
     title: "Red",
-    detail: "Don't tap — let it vanish for 1 point",
+    tone: "text-neon-red glow-red",
+    detail: "Hands off. Let it die. +1 point.",
   },
   {
     color: "bg-neon-gold",
     text: "text-arcade-bg-deep",
     label: "BONUS",
     title: "Gold",
-    detail: "Tap once — 3 points, appears rarely",
+    tone: "text-neon-gold glow-gold",
+    detail: "Rare treasure. +3 points.",
   },
   {
     color: "bg-neon-purple",
     text: "text-arcade-text",
     label: "×2",
     title: "Purple",
-    detail: "Tap twice fast — 2 points",
+    tone: "text-neon-purple glow-purple",
+    detail: "Two taps, fast — or you're done.",
   },
 ];
+
 
 interface StartScreenProps {
   highScore: number;
