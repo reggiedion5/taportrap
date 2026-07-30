@@ -132,13 +132,225 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* ---------- Tap or Trap arcade design system ---------- */
+
+:root {
+  --arcade-bg: oklch(0.16 0.045 268);
+  --arcade-bg-deep: oklch(0.11 0.04 268);
+  --arcade-surface: oklch(0.23 0.05 268);
+  --arcade-line: oklch(0.36 0.05 268);
+  --arcade-text: oklch(0.99 0 0);
+  --arcade-muted: oklch(0.83 0.02 268);
+  --neon-green: oklch(0.86 0.24 145);
+  --neon-red: oklch(0.65 0.26 25);
+  --neon-gold: oklch(0.87 0.17 92);
+  --neon-purple: oklch(0.68 0.26 305);
+  --arcade-radius: 1.5rem;
+}
+
+@theme inline {
+  --color-arcade-bg: var(--arcade-bg);
+  --color-arcade-bg-deep: var(--arcade-bg-deep);
+  --color-arcade-surface: var(--arcade-surface);
+  --color-arcade-line: var(--arcade-line);
+  --color-arcade-text: var(--arcade-text);
+  --color-arcade-muted: var(--arcade-muted);
+  --color-neon-green: var(--neon-green);
+  --color-neon-red: var(--neon-red);
+  --color-neon-gold: var(--neon-gold);
+  --color-neon-purple: var(--neon-purple);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--arcade-bg-deep);
+    color: var(--arcade-text);
+    font-family: var(--font-display);
+    -webkit-tap-highlight-color: transparent;
   }
 }
+
+@utility no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+@utility arcade-panel {
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--arcade-surface) 92%, transparent),
+    color-mix(in oklab, var(--arcade-bg) 92%, transparent)
+  );
+  border: 1px solid color-mix(in oklab, var(--arcade-line) 70%, transparent);
+  border-radius: var(--arcade-radius);
+}
+
+@utility arcade-btn {
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  transition:
+    transform 120ms ease,
+    filter 160ms ease;
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: translate(-50%, -50%) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes target-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 currentColor,
+      0 0 34px 4px currentColor;
+  }
+  50% {
+    box-shadow:
+      0 0 0 10px transparent,
+      0 0 52px 10px currentColor;
+  }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+  25% {
+    transform: translate(-50%, -110%) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -260%) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-130%) rotate(18deg);
+  }
+  100% {
+    transform: translateX(130%) rotate(18deg);
+  }
+}
+
+@keyframes shake-hit {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-9px, 4px);
+  }
+  40% {
+    transform: translate(8px, -5px);
+  }
+  60% {
+    transform: translate(-6px, -3px);
+  }
+  80% {
+    transform: translate(5px, 4px);
+  }
+}
+
+@keyframes score-bump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes combo-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  35% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes particle-fly {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--px), var(--py)) scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes orb-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, -8%, 0) scale(1.15);
+  }
+}
+
+@keyframes flash-red {
+  0% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@utility animate-pop-in {
+  animation: pop-in 180ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@utility animate-float-up {
+  animation: float-up 800ms ease-out both;
+}
+@utility animate-shake-hit {
+  animation: shake-hit 460ms ease-in-out both;
+}
+@utility animate-score-bump {
+  animation: score-bump 320ms ease-out;
+}
+@utility animate-combo-burst {
+  animation: combo-burst 900ms ease-out both;
+}
+@utility animate-flash-red {
+  animation: flash-red 320ms ease-out both;
+}
+@utility animate-orb-drift {
+  animation: orb-drift 14s ease-in-out infinite;
+}
+
