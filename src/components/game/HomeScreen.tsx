@@ -1,5 +1,4 @@
 import { BarChart3, ChevronRight, HelpCircle, Palette, Settings2, Trophy } from "lucide-react";
-import type { GameModeConfig } from "@/game/modes";
 import type { DailyChallenge, DailyState, PlayerLevel } from "@/game/progressionTypes";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { DailyChallengeCard } from "./DailyChallengeCard";
@@ -7,8 +6,10 @@ import { XpProgressBar } from "./XpProgressBar";
 
 interface HomeScreenProps {
   level: PlayerLevel;
-  modeConfig: GameModeConfig;
-  modeHighScore: number;
+  modeName: string;
+  modeTagline: string;
+  modeBestLabel: string;
+  isTrainingMode: boolean;
   daily: DailyState;
   challenge: DailyChallenge;
   themeHint: string | null;
@@ -26,8 +27,10 @@ interface HomeScreenProps {
 
 export function HomeScreen({
   level,
-  modeConfig,
-  modeHighScore,
+  modeName,
+  modeTagline,
+  modeBestLabel,
+  isTrainingMode,
   daily,
   challenge,
   themeHint,
@@ -42,6 +45,7 @@ export function HomeScreen({
   achievementsUnlocked,
   achievementsTotal,
 }: HomeScreenProps) {
+
   return (
     <div className="no-select relative min-h-[100dvh] overflow-hidden">
       <ArcadeBackdrop />
