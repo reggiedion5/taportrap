@@ -44,7 +44,7 @@ function TapOrTrap() {
   const [modeIntro, setModeIntro] = useState(false);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [toasts, setToasts] = useState<Achievement[]>([]);
-  const [reminderDismissed, setReminderDismissed] = useState(false);
+  
   const pendingToasts = useRef<Achievement[]>([]);
 
   const handleComplete = useCallback(
@@ -127,7 +127,7 @@ function TapOrTrap() {
           modeHighScore={progress.records.highScore[progress.mode]}
           daily={progress.daily}
           challenge={progress.challenge}
-          reminder={reminderDismissed ? null : progress.reminder}
+          themeHint={progress.themeHint}
           reducedMotion={game.reducedMotion}
           achievementsUnlocked={progress.unlockedAchievementCount}
           achievementsTotal={ACHIEVEMENTS.length}
@@ -138,7 +138,7 @@ function TapOrTrap() {
           onOpenThemes={() => setOverlay("themes")}
           onOpenSettings={() => setOverlay("settings")}
           onOpenHowToPlay={() => setOverlay("howto")}
-          onDismissReminder={() => setReminderDismissed(true)}
+          
         />
       )}
 
