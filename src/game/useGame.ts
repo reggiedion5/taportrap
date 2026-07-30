@@ -23,6 +23,7 @@ import { pickPlacement, targetSizeFor, type AreaBounds } from "./positioning";
 import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "./storage";
 import { MODE_CONFIG, type GameMode } from "./modes";
 import type { GameSessionResult } from "./progressionTypes";
+import { onAppBackground } from "@/lib/appLifecycle";
 
 export { difficultyProgress } from "./difficulty";
 
@@ -56,6 +57,8 @@ export interface UseGameOptions {
 
 export function useGame({ mode, onComplete }: UseGameOptions) {
   const [phase, setPhase] = useState<GamePhase>("start");
+  /** Why the run is paused — drives the pause overlay copy. */
+  const [pauseSource, setPauseSource] = useState<"manual" | "system">("manual");
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
@@ -666,8 +669,9 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
     scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0]));
   }, [clearAllTimers, clearDecorTimers, scheduleSpawn, setActiveTarget, startClock]);
 
-  const pause = useCallback(() => {
+  const pause = useCallback((source: "manual" | "system" = "manual") => {
     if (phaseRef.current !== "playing" || endedRef.current) return;
+    setPauseSource(source);
     const now = performance.now();
     const t = targetRef.current;
     remainingTarget.current =
@@ -747,19 +751,16 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
   }, [clearAllTimers, goToMenu]);
 
   // ---------- interruptions ----------
+  // A single bus feeds browser visibility and native lifecycle events, so one
+  // interruption pauses the run exactly once. Returning never auto-resumes.
   useEffect(() => {
-    const onHidden = () => {
-      if (document.visibilityState === "hidden") pauseRef.current();
-    };
-    document.addEventListener("visibilitychange", onHidden);
-    window.addEventListener("blur", onHidden);
-    window.addEventListener("pagehide", onHidden);
-    return () => {
-      document.removeEventListener("visibilitychange", onHidden);
-      window.removeEventListener("blur", onHidden);
-      window.removeEventListener("pagehide", onHidden);
-    };
+    const off = onAppBackground(() => {
+      if (phaseRef.current !== "playing") return;
+      pauseRef.current("system");
+    });
+    return off;
   }, []);
+
 
   // lock body scroll while a run is on screen
   useEffect(() => {
@@ -811,6 +812,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
     startGame,
     tapTarget,
     pause,
+    pauseSource,
     resume,
     quitRun,
     goToMenu,
