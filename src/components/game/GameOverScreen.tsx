@@ -1,4 +1,8 @@
-import { GAME_OVER_MESSAGE, type GameOverReason } from "@/game/types";
+import {
+  GAME_OVER_HEADLINE,
+  GAME_OVER_MESSAGE,
+  type GameOverReason,
+} from "@/game/types";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 
 interface GameOverScreenProps {
@@ -71,14 +75,14 @@ export function GameOverScreen({
         <button
           type="button"
           onClick={onPlayAgain}
-          className="arcade-btn mt-7 w-full bg-neon-green py-5 text-xl text-arcade-bg-deep shadow-[0_0_40px_-8px_var(--neon-green)]"
+          className="arcade-btn sticker-sm mt-7 w-full bg-neon-green py-5 text-2xl tracking-tight text-arcade-bg-deep shadow-[0_0_40px_-8px_var(--neon-green)]"
         >
-          Play Again
+          Run It Back →
         </button>
         <button
           type="button"
           onClick={onMenu}
-          className="arcade-btn mt-3 w-full border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
+          className="arcade-btn sticker-sm mt-3 w-full border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
         >
           Main Menu
         </button>
@@ -98,10 +102,10 @@ function Stat({
 }) {
   return (
     <div className="rounded-2xl border border-arcade-line bg-arcade-surface/70 px-2 py-3">
-      <p className="text-[9px] font-bold tracking-[0.16em] text-arcade-muted">
+      <p className="sticker-sm text-[9px] tracking-[0.16em] text-arcade-muted">
         {label}
       </p>
-      <p className={`mt-1 text-lg font-black tabular-nums ${tone}`}>{value}</p>
+      <p className={`sticker-sm mt-1 text-lg tabular-nums ${tone}`}>{value}</p>
     </div>
   );
 }
