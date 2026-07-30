@@ -159,7 +159,8 @@
   --color-neon-red: var(--neon-red);
   --color-neon-gold: var(--neon-gold);
   --color-neon-purple: var(--neon-purple);
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Rubik", ui-sans-serif, system-ui, sans-serif;
+  --font-mono-display: "Space Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer base {
@@ -368,7 +369,8 @@
 }
 
 @utility sticker-sm {
-  font-weight: 900;
+  font-family: var(--font-mono-display);
+  font-weight: 700;
   paint-order: stroke fill;
   -webkit-text-stroke: 1px var(--arcade-bg-deep);
   text-shadow: 0 2px 0 var(--arcade-bg-deep);
