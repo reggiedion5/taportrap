@@ -276,6 +276,13 @@ export function useProgress() {
     }));
   }, []);
 
+  const clearDailyProgress = useCallback(() => {
+    const fresh = resetDailyProgress();
+    setSnapshot((prev) => ({ ...prev, daily: fresh }));
+  }, []);
+
+
+
   /* ---------------- session recording ---------------- */
 
   const recordSession = useCallback((result: GameSessionResult): SessionSummary | null => {
@@ -610,6 +617,7 @@ export function useProgress() {
     patchProfile,
     grantXp,
     clearStatistics,
+    clearDailyProgress,
     resetAllData: resetAllLocalData,
     recordSession,
   };
