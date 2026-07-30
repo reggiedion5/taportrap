@@ -359,18 +359,12 @@ export function useGame() {
       targetRef.current = shifted;
       setTarget(shifted);
       expireAt.current = performance.now() + rem;
-      expireTimer.current = window.setTimeout(() => {
-        const current = targetRef.current;
-        if (!current) return;
-        if (current.color === "red") award(current, 1, "TRAP AVOIDED", "avoid");
-        else if (current.color === "purple" && current.taps === 1)
-          endGame("purple-single");
-        else endGame("missed");
-      }, rem);
+      expireTimer.current = window.setTimeout(handleExpire, rem);
     } else {
       scheduleSpawn();
     }
-  }, [award, endGame, phase, scheduleSpawn]);
+  }, [handleExpire, phase, scheduleSpawn]);
+
 
   const quit = useCallback(() => {
     clearTimers();
