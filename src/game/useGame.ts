@@ -1,78 +1,51 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  DIFFICULTY_LEVELS,
+  EMPTY_RUN_STATS,
   type ActiveTarget,
   type FloatingFeedback,
   type GameOverReason,
   type GamePhase,
   type GameSettings,
+  type LifetimeStats,
+  type RunStats,
   type TargetColor,
 } from "./types";
-import { playSound, unlockAudio } from "./audio";
+import {
+  DIFFICULTY_LEVELS,
+  levelForScore,
+  pickColor,
+  spawnDelayFor,
+  type DifficultyLevel,
+} from "./difficulty";
+import {
+  playSound,
+  resumeAudio,
+  setSoundEnabled,
+  suspendAudio,
+  unlockAudio,
+} from "./audio";
+import { setVibrationEnabled, vibrate } from "./haptics";
+import { gradeReaction, multiplierForCombo, resolveScore } from "./scoring";
+import { pickPlacement, targetSizeFor, type AreaBounds } from "./positioning";
+import {
+  DEFAULT_SETTINGS,
+  DEFAULT_STATS,
+  loadHighScore,
+  loadSettings,
+  loadStats,
+  saveHighScore,
+  saveSettings,
+  saveStats,
+} from "./storage";
 
-const HIGH_SCORE_KEY = "tap-or-trap:highscore";
-const SETTINGS_KEY = "tap-or-trap:settings";
-const PURPLE_TAP_WINDOW = 600;
+export { difficultyProgress } from "./difficulty";
 
-const DISTRIBUTION: { color: TargetColor; weight: number }[] = [
-  { color: "green", weight: 48 },
-  { color: "red", weight: 32 },
-  { color: "gold", weight: 10 },
-  { color: "purple", weight: 10 },
-];
+const EXIT_MS = 140;
 
-function pickColor(history: TargetColor[]): TargetColor {
-  const lastThreeSame =
-    history.length >= 3 &&
-    history[0] === history[1] &&
-    history[1] === history[2]
-      ? history[0]
-      : null;
-  const pool = DISTRIBUTION.filter((d) => d.color !== lastThreeSame);
-  const total = pool.reduce((s, d) => s + d.weight, 0);
-  let r = Math.random() * total;
-  for (const d of pool) {
-    r -= d.weight;
-    if (r <= 0) return d.color;
-  }
-  return "green";
-}
-
-export function durationForScore(score: number): number {
-  let duration = DIFFICULTY_LEVELS[0].duration;
-  for (const level of DIFFICULTY_LEVELS) {
-    if (score >= level.minScore) duration = level.duration;
-  }
-  return duration;
-}
-
-export function difficultyProgress(score: number) {
-  const index = DIFFICULTY_LEVELS.reduce(
-    (acc, level, i) => (score >= level.minScore ? i : acc),
-    0,
-  );
-  const current = DIFFICULTY_LEVELS[index];
-  const next = DIFFICULTY_LEVELS[index + 1];
-  if (!next) return { label: current.label, progress: 1, isMax: true };
-  const span = next.minScore - current.minScore;
-  return {
-    label: current.label,
-    progress: Math.min(1, (score - current.minScore) / span),
-    isMax: false,
-  };
-}
-
-function multiplierFor(combo: number) {
-  if (combo >= 20) return 4;
-  if (combo >= 10) return 3;
-  if (combo >= 5) return 2;
-  return 1;
-}
-
-function reactionLabel(ms: number) {
-  if (ms < 250) return "PERFECT!";
-  if (ms <= 450) return "NICE!";
-  return "GOOD";
+interface Burst {
+  id: number;
+  x: number;
+  y: number;
 }
 
 export function useGame() {
@@ -84,295 +57,563 @@ export function useGame() {
   const [target, setTarget] = useState<ActiveTarget | null>(null);
   const [feedback, setFeedback] = useState<FloatingFeedback[]>([]);
   const [reason, setReason] = useState<GameOverReason | null>(null);
-  const [avgReaction, setAvgReaction] = useState<number | null>(null);
+  const [runStats, setRunStats] = useState<RunStats>(EMPTY_RUN_STATS);
+  const [lifetime, setLifetime] = useState<LifetimeStats>(DEFAULT_STATS);
   const [scorePulse, setScorePulse] = useState(0);
   const [comboFlash, setComboFlash] = useState<number | null>(null);
+  const [levelUp, setLevelUp] = useState<DifficultyLevel | null>(null);
   const [shake, setShake] = useState(false);
   const [flash, setFlash] = useState(false);
-  const [burst, setBurst] = useState<{ id: number; x: number; y: number } | null>(
-    null,
-  );
-  const [settings, setSettings] = useState<GameSettings>({
-    sound: true,
-    vibration: true,
-  });
+  const [burst, setBurst] = useState<Burst | null>(null);
+  const [settings, setSettings] = useState<GameSettings>(DEFAULT_SETTINGS);
+  const [systemReducedMotion, setSystemReducedMotion] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-  const spawnTimer = useRef<number | null>(null);
-  const expireTimer = useRef<number | null>(null);
-  const expireAt = useRef<number>(0);
-  const remaining = useRef<number>(0);
-  const purpleTimer = useRef<number | null>(null);
-  const history = useRef<TargetColor[]>([]);
-  const reactions = useRef<number[]>([]);
+  // ---- refs: always-current gameplay values (no stale closures) ----
+  const phaseRef = useRef<GamePhase>("start");
   const scoreRef = useRef(0);
   const comboRef = useRef(0);
-  const idRef = useRef(0);
   const targetRef = useRef<ActiveTarget | null>(null);
+  const endedRef = useRef(false);
+  const runIdRef = useRef(0);
+  const idRef = useRef(0);
+  const levelRef = useRef(1);
+  const historyRef = useRef<TargetColor[]>([]);
+  const reactionsRef = useRef<number[]>([]);
+  const runStatsRef = useRef<RunStats>({ ...EMPTY_RUN_STATS });
+  const lastPositionRef = useRef<{ x: number; y: number } | null>(null);
+  const boundsRef = useRef<AreaBounds>({ width: 320, height: 480 });
   const settingsRef = useRef(settings);
+  const lifetimeRef = useRef(lifetime);
+
+  // timers
+  const spawnTimer = useRef<number | null>(null);
+  const expireTimer = useRef<number | null>(null);
+  const exitTimer = useRef<number | null>(null);
+  const decorTimers = useRef<number[]>([]);
+  const expireAt = useRef(0);
+  const spawnAt = useRef(0);
+  const remainingTarget = useRef(0);
+  const remainingSpawn = useRef(0);
 
   settingsRef.current = settings;
+  lifetimeRef.current = lifetime;
 
+  const reducedMotion = settings.reducedMotion || systemReducedMotion;
+
+  // ---------- persistence ----------
   useEffect(() => {
-    try {
-      const hs = localStorage.getItem(HIGH_SCORE_KEY);
-      if (hs) setHighScore(Number(hs) || 0);
-      const st = localStorage.getItem(SETTINGS_KEY);
-      if (st) setSettings({ sound: true, vibration: true, ...JSON.parse(st) });
-    } catch {
-      /* ignore */
-    }
+    const stored = loadSettings();
+    setSettings(stored);
+    setSoundEnabled(stored.sound);
+    setVibrationEnabled(stored.vibration);
+    setHighScore(loadHighScore());
+    setLifetime(loadStats());
+    setHydrated(true);
+
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setSystemReducedMotion(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setSystemReducedMotion(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   const updateSettings = useCallback((next: Partial<GameSettings>) => {
     setSettings((prev) => {
       const merged = { ...prev, ...next };
-      try {
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
-      } catch {
-        /* ignore */
-      }
+      settingsRef.current = merged;
+      setSoundEnabled(merged.sound);
+      setVibrationEnabled(merged.vibration);
+      saveSettings(merged);
       return merged;
     });
   }, []);
 
-  const sfx = useCallback((name: Parameters<typeof playSound>[0]) => {
-    if (settingsRef.current.sound) playSound(name);
+  // ---------- play-area measurement ----------
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const registerArea = useCallback((el: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        boundsRef.current = { width: rect.width, height: rect.height };
+      }
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    observerRef.current = observer;
   }, []);
 
-  const buzz = useCallback((pattern: number | number[]) => {
-    if (!settingsRef.current.vibration) return;
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-      navigator.vibrate(pattern);
-    }
-  }, []);
-
-  const clearTimers = useCallback(() => {
-    if (spawnTimer.current) window.clearTimeout(spawnTimer.current);
-    if (expireTimer.current) window.clearTimeout(expireTimer.current);
-    if (purpleTimer.current) window.clearTimeout(purpleTimer.current);
+  // ---------- timers ----------
+  const clearAllTimers = useCallback(() => {
+    if (spawnTimer.current !== null) window.clearTimeout(spawnTimer.current);
+    if (expireTimer.current !== null) window.clearTimeout(expireTimer.current);
+    if (exitTimer.current !== null) window.clearTimeout(exitTimer.current);
     spawnTimer.current = null;
     expireTimer.current = null;
-    purpleTimer.current = null;
+    exitTimer.current = null;
   }, []);
 
-  const setActiveTarget = useCallback((t: ActiveTarget | null) => {
-    targetRef.current = t;
-    setTarget(t);
+  const clearDecorTimers = useCallback(() => {
+    decorTimers.current.forEach((t) => window.clearTimeout(t));
+    decorTimers.current = [];
+  }, []);
+
+  const later = useCallback((fn: () => void, ms: number) => {
+    const id = window.setTimeout(() => {
+      decorTimers.current = decorTimers.current.filter((t) => t !== id);
+      fn();
+    }, ms);
+    decorTimers.current.push(id);
+  }, []);
+
+  const setActiveTarget = useCallback((next: ActiveTarget | null) => {
+    targetRef.current = next;
+    setTarget(next);
   }, []);
 
   const pushFeedback = useCallback(
-    (text: string, x: number, y: number, tone: TargetColor) => {
+    (text: string, sub: string | undefined, x: number, y: number, tone: TargetColor) => {
       const id = ++idRef.current;
-      setFeedback((prev) => [...prev, { id, text, x, y, tone }]);
-      window.setTimeout(
-        () => setFeedback((prev) => prev.filter((f) => f.id !== id)),
-        800,
-      );
+      setFeedback((prev) => [...prev.slice(-4), { id, text, sub, x, y, tone }]);
+      later(() => setFeedback((prev) => prev.filter((f) => f.id !== id)), 800);
+    },
+    [later],
+  );
+
+  // ---------- game over ----------
+  const endGame = useCallback(
+    (why: GameOverReason) => {
+      if (endedRef.current) return; // never end twice
+      endedRef.current = true;
+      runIdRef.current += 1; // invalidate any in-flight callback
+      clearAllTimers();
+      setActiveTarget(null);
+      lastPositionRef.current = null;
+
+      const reactions = reactionsRef.current;
+      const avg = reactions.length
+        ? Math.round(reactions.reduce((a, b) => a + b, 0) / reactions.length)
+        : null;
+      const fastest = reactions.length
+        ? Math.round(Math.min(...reactions))
+        : null;
+      const stats: RunStats = {
+        ...runStatsRef.current,
+        avgReaction: avg,
+        fastestReaction: fastest,
+      };
+      runStatsRef.current = stats;
+      setRunStats(stats);
+      setReason(why);
+      setPhase("over");
+      phaseRef.current = "over";
+
+      if (!reducedMotion) {
+        setShake(true);
+        setFlash(true);
+        later(() => setShake(false), 500);
+        later(() => setFlash(false), 320);
+      }
+      playSound("gameover");
+      vibrate("gameover");
+
+      const finalScore = scoreRef.current;
+      const runBestCombo = Math.max(0, comboRef.current);
+      setHighScore((prev) => {
+        const next = Math.max(prev, finalScore);
+        if (next !== prev) saveHighScore(next);
+        return next;
+      });
+
+      setLifetime((prev) => {
+        const merged: LifetimeStats = {
+          gamesPlayed: prev.gamesPlayed + 1,
+          highestScore: Math.max(prev.highestScore, finalScore),
+          bestCombo: Math.max(prev.bestCombo, runBestCombo),
+          fastestReaction:
+            fastest === null
+              ? prev.fastestReaction
+              : prev.fastestReaction === null
+                ? fastest
+                : Math.min(prev.fastestReaction, fastest),
+          totalCorrect: prev.totalCorrect + stats.successes,
+          totalGold: prev.totalGold + stats.gold,
+          totalTrapsAvoided: prev.totalTrapsAvoided + stats.trapsAvoided,
+          totalPurpleCompletions:
+            prev.totalPurpleCompletions + stats.purpleCompletions,
+        };
+        saveStats(merged);
+        return merged;
+      });
+    },
+    [clearAllTimers, later, reducedMotion, setActiveTarget],
+  );
+
+  const endGameRef = useRef(endGame);
+  endGameRef.current = endGame;
+
+  // ---------- spawning ----------
+  const spawnRef = useRef<() => void>(() => {});
+
+  const scheduleSpawn = useCallback(
+    (delay: number) => {
+      if (endedRef.current) return;
+      if (spawnTimer.current !== null) window.clearTimeout(spawnTimer.current);
+      const runId = runIdRef.current;
+      spawnAt.current = performance.now() + delay;
+      remainingSpawn.current = delay;
+      spawnTimer.current = window.setTimeout(() => {
+        spawnTimer.current = null;
+        if (runId !== runIdRef.current || endedRef.current) return;
+        if (phaseRef.current !== "playing") return;
+        spawnRef.current();
+      }, delay);
     },
     [],
   );
 
-  const endGame = useCallback(
-    (why: GameOverReason) => {
-      clearTimers();
-      setActiveTarget(null);
-      setReason(why);
-      setPhase("over");
-      setShake(true);
-      setFlash(true);
-      window.setTimeout(() => setShake(false), 500);
-      window.setTimeout(() => setFlash(false), 320);
-      sfx("gameover");
-      buzz([60, 40, 120]);
-      const avg = reactions.current.length
-        ? Math.round(
-            reactions.current.reduce((a, b) => a + b, 0) /
-              reactions.current.length,
-          )
-        : null;
-      setAvgReaction(avg);
-      setHighScore((prev) => {
-        const next = Math.max(prev, scoreRef.current);
-        try {
-          localStorage.setItem(HIGH_SCORE_KEY, String(next));
-        } catch {
-          /* ignore */
-        }
-        return next;
-      });
-    },
-    [buzz, clearTimers, setActiveTarget, sfx],
-  );
+  const handleExpire = useCallback(
+    (targetId: number) => {
+      const current = targetRef.current;
+      if (!current || current.id !== targetId || current.resolved) return;
+      if (phaseRef.current !== "playing" || endedRef.current) return;
 
-  const awardRef = useRef<
-    (
-      t: ActiveTarget,
-      base: number,
-      text: string,
-      sound: Parameters<typeof playSound>[0],
-    ) => void
-  >(() => {});
-
-  const handleExpire = useCallback(() => {
-    const current = targetRef.current;
-    if (!current) return;
-    if (current.color === "red") {
-      awardRef.current(current, 1, "TRAP AVOIDED", "avoid");
-    } else if (current.color === "purple" && current.taps === 1) {
-      endGame("purple-single");
-    } else {
-      endGame("missed");
-    }
-  }, [endGame]);
-
-  const spawn = useCallback(() => {
-    const color = pickColor(history.current);
-    history.current = [color, ...history.current].slice(0, 3);
-    const duration = durationForScore(scoreRef.current);
-    const t: ActiveTarget = {
-      id: ++idRef.current,
-      color,
-      x: 12 + Math.random() * 76,
-      y: 20 + Math.random() * 66,
-      size: 0,
-      duration,
-      spawnedAt: performance.now(),
-      taps: 0,
-    };
-    setActiveTarget(t);
-    expireAt.current = performance.now() + duration;
-    expireTimer.current = window.setTimeout(handleExpire, duration);
-  }, [handleExpire, setActiveTarget]);
-
-  const scheduleSpawn = useCallback(() => {
-    const delay = 250 + Math.random() * 350;
-    spawnTimer.current = window.setTimeout(spawn, delay);
-  }, [spawn]);
-
-
-  const award = useCallback(
-    (
-      t: ActiveTarget,
-      base: number,
-      text: string,
-      sound: Parameters<typeof playSound>[0],
-    ) => {
-      clearTimers();
-      setActiveTarget(null);
-      const nextCombo = comboRef.current + 1;
-      comboRef.current = nextCombo;
-      setCombo(nextCombo);
-      setBestCombo((prev) => Math.max(prev, nextCombo));
-      const mult = multiplierFor(nextCombo);
-      const gained = base * mult;
-      scoreRef.current += gained;
-      setScore(scoreRef.current);
-      setScorePulse((p) => p + 1);
-      pushFeedback(text, t.x, t.y, t.color);
-      if (t.color === "gold") {
-        setBurst({ id: t.id, x: t.x, y: t.y });
-        window.setTimeout(() => setBurst(null), 700);
-      }
-      sfx(sound);
-      buzz(t.color === "red" ? 15 : 25);
-      if (nextCombo === 5 || nextCombo === 10 || nextCombo === 20) {
-        setComboFlash(mult);
-        window.setTimeout(() => setComboFlash(null), 900);
-        sfx("combo");
-        buzz([20, 40, 20]);
-      }
-      scheduleSpawn();
-    },
-    [buzz, clearTimers, pushFeedback, scheduleSpawn, setActiveTarget, sfx],
-  );
-
-  awardRef.current = award;
-
-
-
-  const tapTarget = useCallback(() => {
-    const t = targetRef.current;
-    if (!t) return;
-    const elapsed = performance.now() - t.spawnedAt;
-    if (t.color === "red") {
-      endGame("trap");
-      return;
-    }
-    if (t.color === "purple") {
-      if (t.taps === 0) {
-        const updated = { ...t, taps: 1 };
-        setActiveTarget(updated);
-        purpleTimer.current = window.setTimeout(() => {
-          const cur = targetRef.current;
-          if (cur && cur.id === updated.id && cur.taps === 1) {
-            endGame("purple-single");
-          }
-        }, PURPLE_TAP_WINDOW);
+      if (current.color === "red") {
+        // resolving a red target by letting it expire is a success
+        resolveSuccessRef.current(current, 1, null, "TRAP AVOIDED");
         return;
       }
-      reactions.current.push(elapsed);
-      award(t, 2, "DOUBLE TAP", "purple");
+      if (current.color === "purple" && current.taps === 1) {
+        endGameRef.current("incomplete-purple");
+        return;
+      }
+      endGameRef.current("missed-target");
+    },
+    [],
+  );
+
+  const spawn = useCallback(() => {
+    if (endedRef.current || phaseRef.current !== "playing") return;
+    const level = levelForScore(scoreRef.current);
+    if (level.level !== levelRef.current) {
+      levelRef.current = level.level;
+      setLevelUp(level);
+      playSound("levelup");
+      later(() => setLevelUp(null), 1100);
+    }
+
+    const color = pickColor(historyRef.current);
+    historyRef.current = [color, ...historyRef.current].slice(0, 3);
+
+    const bounds = boundsRef.current;
+    const size = targetSizeFor(bounds, level.targetSize);
+    const placement = pickPlacement(bounds, size, lastPositionRef.current);
+    lastPositionRef.current = { x: placement.x, y: placement.y };
+
+    const next: ActiveTarget = {
+      id: ++idRef.current,
+      color,
+      x: placement.x,
+      y: placement.y,
+      size: placement.size,
+      duration: level.targetDuration,
+      spawnedAt: performance.now(),
+      taps: 0,
+      state: "active",
+      resolved: false,
+    };
+    setActiveTarget(next);
+
+    expireAt.current = performance.now() + next.duration;
+    if (expireTimer.current !== null) window.clearTimeout(expireTimer.current);
+    const runId = runIdRef.current;
+    expireTimer.current = window.setTimeout(() => {
+      expireTimer.current = null;
+      if (runId !== runIdRef.current) return;
+      handleExpire(next.id);
+    }, next.duration);
+  }, [handleExpire, later, setActiveTarget]);
+
+  spawnRef.current = spawn;
+
+  // ---------- success ----------
+  const resolveSuccess = useCallback(
+    (
+      t: ActiveTarget,
+      base: number,
+      reaction: number | null,
+      label: string,
+    ) => {
+      if (t.resolved || endedRef.current) return;
+      const current = targetRef.current;
+      if (!current || current.id !== t.id || current.resolved) return;
+
+      // mark resolved immediately so extra pointer events are ignored
+      const resolvedTarget: ActiveTarget = {
+        ...current,
+        resolved: true,
+        state: "resolving",
+      };
+      targetRef.current = resolvedTarget;
+      setTarget(resolvedTarget);
+      if (expireTimer.current !== null) {
+        window.clearTimeout(expireTimer.current);
+        expireTimer.current = null;
+      }
+
+      const result = resolveScore(base, comboRef.current);
+      comboRef.current = result.combo;
+      setCombo(result.combo);
+      setBestCombo((prev) => Math.max(prev, result.combo));
+      scoreRef.current += result.total;
+      setScore(scoreRef.current);
+      setScorePulse((p) => p + 1);
+
+      const stats = runStatsRef.current;
+      stats.successes += 1;
+      if (t.color === "gold") stats.gold += 1;
+      if (t.color === "red") stats.trapsAvoided += 1;
+      if (t.color === "purple") stats.purpleCompletions += 1;
+      if (reaction !== null && Number.isFinite(reaction)) {
+        reactionsRef.current.push(reaction);
+        const grade = gradeReaction(reaction);
+        if (grade === "PERFECT") stats.perfect += 1;
+        else if (grade === "FAST") stats.fast += 1;
+        else stats.good += 1;
+      }
+      setRunStats({ ...stats });
+
+      pushFeedback(
+        `+${result.total} • ${result.multiplier}X`,
+        label,
+        t.x,
+        t.y,
+        t.color,
+      );
+
+      if (t.color === "gold") {
+        setBurst({ id: t.id, x: t.x, y: t.y });
+        later(() => setBurst(null), 700);
+        playSound("gold");
+        vibrate("gold");
+      } else if (t.color === "purple") {
+        playSound("purple-done");
+        vibrate("purple-done");
+      } else if (t.color === "red") {
+        playSound("avoid");
+        vibrate("success");
+      } else {
+        playSound("tap");
+        vibrate("success");
+      }
+
+      if (result.isMilestone) {
+        setComboFlash(result.multiplier);
+        later(() => setComboFlash(null), 900);
+        playSound("combo");
+        vibrate("combo");
+      }
+
+      // exit animation, then schedule the next target
+      const runId = runIdRef.current;
+      const level = levelForScore(scoreRef.current);
+      const delay = spawnDelayFor(level);
+      exitTimer.current = window.setTimeout(() => {
+        exitTimer.current = null;
+        if (runId !== runIdRef.current || endedRef.current) return;
+        if (targetRef.current?.id === resolvedTarget.id) setActiveTarget(null);
+      }, EXIT_MS);
+      scheduleSpawn(delay);
+    },
+    [later, pushFeedback, scheduleSpawn, setActiveTarget],
+  );
+
+  const resolveSuccessRef = useRef(resolveSuccess);
+  resolveSuccessRef.current = resolveSuccess;
+
+  // ---------- input ----------
+  const tapTarget = useCallback(() => {
+    if (endedRef.current || phaseRef.current !== "playing") return;
+    const t = targetRef.current;
+    if (!t || t.resolved) return;
+
+    const elapsed = performance.now() - t.spawnedAt;
+
+    if (t.color === "red") {
+      endGameRef.current("tapped-trap");
       return;
     }
-    reactions.current.push(elapsed);
-    if (t.color === "gold") {
-      award(t, 3, "+3", "gold");
-    } else {
-      award(t, 1, reactionLabel(elapsed), "tap");
-    }
-  }, [award, endGame, setActiveTarget]);
 
+    if (t.color === "purple") {
+      if (t.taps === 0) {
+        const updated: ActiveTarget = { ...t, taps: 1 };
+        targetRef.current = updated;
+        setTarget(updated);
+        playSound("purple-first");
+        vibrate("purple-first");
+        return;
+      }
+      resolveSuccess(t, 2, elapsed, "DOUBLE TAP");
+      return;
+    }
+
+    if (t.color === "gold") {
+      resolveSuccess(t, 3, elapsed, "BONUS");
+      return;
+    }
+
+    resolveSuccess(t, 1, elapsed, gradeReaction(elapsed));
+  }, [resolveSuccess]);
+
+  // ---------- session control ----------
   const startGame = useCallback(() => {
     unlockAudio();
-    clearTimers();
+    resumeAudio();
+    clearAllTimers();
+    clearDecorTimers();
+    runIdRef.current += 1;
+    endedRef.current = false;
     scoreRef.current = 0;
     comboRef.current = 0;
-    history.current = [];
-    reactions.current = [];
+    levelRef.current = 1;
+    historyRef.current = [];
+    reactionsRef.current = [];
+    runStatsRef.current = { ...EMPTY_RUN_STATS };
+    lastPositionRef.current = null;
     setScore(0);
     setCombo(0);
     setBestCombo(0);
-    setAvgReaction(null);
+    setRunStats(EMPTY_RUN_STATS);
     setReason(null);
     setFeedback([]);
+    setBurst(null);
+    setComboFlash(null);
+    setLevelUp(null);
+    setShake(false);
+    setFlash(false);
     setActiveTarget(null);
+    phaseRef.current = "playing";
     setPhase("playing");
-    scheduleSpawn();
-  }, [clearTimers, scheduleSpawn, setActiveTarget]);
+    scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0]));
+  }, [clearAllTimers, clearDecorTimers, scheduleSpawn, setActiveTarget]);
 
   const pause = useCallback(() => {
-    if (phase !== "playing") return;
-    remaining.current = targetRef.current
-      ? Math.max(80, expireAt.current - performance.now())
-      : 0;
-    clearTimers();
+    if (phaseRef.current !== "playing" || endedRef.current) return;
+    const now = performance.now();
+    const t = targetRef.current;
+    remainingTarget.current =
+      t && !t.resolved && expireTimer.current !== null
+        ? Math.max(60, expireAt.current - now)
+        : 0;
+    remainingSpawn.current =
+      spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
+    clearAllTimers();
+    suspendAudio();
+    phaseRef.current = "paused";
     setPhase("paused");
-  }, [clearTimers, phase]);
+  }, [clearAllTimers]);
+
+  const pauseRef = useRef(pause);
+  pauseRef.current = pause;
 
   const resume = useCallback(() => {
-    if (phase !== "paused") return;
+    if (phaseRef.current !== "paused" || endedRef.current) return;
+    phaseRef.current = "playing";
     setPhase("playing");
+    resumeAudio();
     const t = targetRef.current;
-    if (t && remaining.current > 0) {
-      const rem = remaining.current;
-      const shifted = { ...t, spawnedAt: performance.now() - (t.duration - rem) };
+    if (t && !t.resolved && remainingTarget.current > 0) {
+      const rem = remainingTarget.current;
+      const shifted: ActiveTarget = {
+        ...t,
+        spawnedAt: performance.now() - (t.duration - rem),
+      };
       targetRef.current = shifted;
       setTarget(shifted);
       expireAt.current = performance.now() + rem;
-      expireTimer.current = window.setTimeout(handleExpire, rem);
+      const runId = runIdRef.current;
+      expireTimer.current = window.setTimeout(() => {
+        expireTimer.current = null;
+        if (runId !== runIdRef.current) return;
+        handleExpire(shifted.id);
+      }, rem);
     } else {
-      scheduleSpawn();
+      setActiveTarget(null);
+      scheduleSpawn(
+        remainingSpawn.current > 0
+          ? remainingSpawn.current
+          : spawnDelayFor(levelForScore(scoreRef.current)),
+      );
     }
-  }, [handleExpire, phase, scheduleSpawn]);
+    remainingTarget.current = 0;
+    remainingSpawn.current = 0;
+  }, [handleExpire, scheduleSpawn, setActiveTarget]);
 
-
-  const quit = useCallback(() => {
-    clearTimers();
+  const goToMenu = useCallback(() => {
+    runIdRef.current += 1;
+    endedRef.current = true;
+    clearAllTimers();
+    clearDecorTimers();
     setActiveTarget(null);
+    setFeedback([]);
+    setBurst(null);
+    setLevelUp(null);
+    setReason(null);
+    phaseRef.current = "start";
     setPhase("start");
-  }, [clearTimers, setActiveTarget]);
+  }, [clearAllTimers, clearDecorTimers, setActiveTarget]);
 
-  useEffect(() => clearTimers, [clearTimers]);
+  /** Quit an active run — recorded as a quit, never as a failed reaction. */
+  const quitRun = useCallback(() => {
+    if (phaseRef.current === "playing" || phaseRef.current === "paused") {
+      runIdRef.current += 1;
+      endedRef.current = true;
+      clearAllTimers();
+    }
+    goToMenu();
+  }, [clearAllTimers, goToMenu]);
+
+  // ---------- interruptions ----------
+  useEffect(() => {
+    const onHidden = () => {
+      if (document.visibilityState === "hidden") pauseRef.current();
+    };
+    document.addEventListener("visibilitychange", onHidden);
+    window.addEventListener("blur", onHidden);
+    window.addEventListener("pagehide", onHidden);
+    return () => {
+      document.removeEventListener("visibilitychange", onHidden);
+      window.removeEventListener("blur", onHidden);
+      window.removeEventListener("pagehide", onHidden);
+    };
+  }, []);
+
+  // lock body scroll while a run is on screen
+  useEffect(() => {
+    const active = phase === "playing" || phase === "paused";
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = active ? "hidden" : previous || "";
+    return () => {
+      document.body.style.overflow = previous || "";
+    };
+  }, [phase]);
+
+  useEffect(
+    () => () => {
+      runIdRef.current += 1;
+      endedRef.current = true;
+      clearAllTimers();
+      clearDecorTimers();
+      observerRef.current?.disconnect();
+    },
+    [clearAllTimers, clearDecorTimers],
+  );
+
+  const multiplier = useMemo(() => multiplierForCombo(combo), [combo]);
 
   return {
     phase,
@@ -380,22 +621,28 @@ export function useGame() {
     combo,
     bestCombo,
     highScore,
-    multiplier: multiplierFor(combo),
+    multiplier,
     target,
     feedback,
     reason,
-    avgReaction,
+    runStats,
+    lifetime,
     scorePulse,
     comboFlash,
+    levelUp,
     shake,
     flash,
     burst,
     settings,
+    reducedMotion,
+    hydrated,
+    registerArea,
     updateSettings,
     startGame,
     tapTarget,
     pause,
     resume,
-    quit,
+    quitRun,
+    goToMenu,
   };
 }

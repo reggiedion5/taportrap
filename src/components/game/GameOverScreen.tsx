@@ -2,6 +2,8 @@ import {
   GAME_OVER_HEADLINE,
   GAME_OVER_MESSAGE,
   type GameOverReason,
+  type LifetimeStats,
+  type RunStats,
 } from "@/game/types";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 
@@ -9,7 +11,8 @@ interface GameOverScreenProps {
   score: number;
   highScore: number;
   bestCombo: number;
-  avgReaction: number | null;
+  stats: RunStats;
+  lifetime: LifetimeStats;
   reason: GameOverReason | null;
   onPlayAgain: () => void;
   onMenu: () => void;
@@ -19,7 +22,8 @@ export function GameOverScreen({
   score,
   highScore,
   bestCombo,
-  avgReaction,
+  stats,
+  lifetime,
   reason,
   onPlayAgain,
   onMenu,
@@ -27,7 +31,7 @@ export function GameOverScreen({
   const isRecord = score > 0 && score >= highScore;
 
   return (
-    <div className="no-select relative min-h-[100dvh] overflow-hidden">
+    <div className="no-select safe-area relative min-h-[100dvh] overflow-hidden">
       <ArcadeBackdrop />
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center px-5 py-10">
         <h1 className="text-center text-[clamp(42px,13vw,68px)] leading-none">
@@ -65,12 +69,37 @@ export function GameOverScreen({
             />
             <Stat
               label="AVG REACT"
-              value={avgReaction !== null ? `${avgReaction}ms` : "—"}
+              value={
+                stats.avgReaction !== null ? `${stats.avgReaction}ms` : "—"
+              }
               tone="text-neon-green glow-green"
             />
+            <Stat
+              label="FASTEST"
+              value={
+                stats.fastestReaction !== null
+                  ? `${stats.fastestReaction}ms`
+                  : "—"
+              }
+              tone="text-neon-green glow-green"
+            />
+            <Stat
+              label="PERFECT"
+              value={String(stats.perfect)}
+              tone="text-neon-gold glow-gold"
+            />
+            <Stat
+              label="TRAPS DODGED"
+              value={String(stats.trapsAvoided)}
+              tone="text-neon-red glow-red"
+            />
           </div>
-        </div>
 
+          <p className="sticker-sm mt-5 text-[10px] tracking-[0.18em] text-arcade-muted">
+            {lifetime.gamesPlayed} RUNS · {lifetime.totalCorrect} HITS · BEST{" "}
+            {lifetime.bestCombo}x
+          </p>
+        </div>
 
         <button
           type="button"
