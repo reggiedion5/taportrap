@@ -204,6 +204,27 @@ export function useGame() {
     [buzz, clearTimers, setActiveTarget, sfx],
   );
 
+  const awardRef = useRef<
+    (
+      t: ActiveTarget,
+      base: number,
+      text: string,
+      sound: Parameters<typeof playSound>[0],
+    ) => void
+  >(() => {});
+
+  const handleExpire = useCallback(() => {
+    const current = targetRef.current;
+    if (!current) return;
+    if (current.color === "red") {
+      awardRef.current(current, 1, "TRAP AVOIDED", "avoid");
+    } else if (current.color === "purple" && current.taps === 1) {
+      endGame("purple-single");
+    } else {
+      endGame("missed");
+    }
+  }, [endGame]);
+
   const spawn = useCallback(() => {
     const color = pickColor(history.current);
     history.current = [color, ...history.current].slice(0, 3);
@@ -220,24 +241,14 @@ export function useGame() {
     };
     setActiveTarget(t);
     expireAt.current = performance.now() + duration;
-    expireTimer.current = window.setTimeout(() => {
-      const current = targetRef.current;
-      if (!current) return;
-      if (current.color === "red") {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        award(current, 1, "TRAP AVOIDED", "avoid");
-      } else if (current.color === "purple" && current.taps === 1) {
-        endGame("purple-single");
-      } else {
-        endGame("missed");
-      }
-    }, duration);
-  }, [endGame, setActiveTarget]);
+    expireTimer.current = window.setTimeout(handleExpire, duration);
+  }, [handleExpire, setActiveTarget]);
 
   const scheduleSpawn = useCallback(() => {
     const delay = 250 + Math.random() * 350;
     spawnTimer.current = window.setTimeout(spawn, delay);
   }, [spawn]);
+
 
   const award = useCallback(
     (
