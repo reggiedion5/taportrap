@@ -26,33 +26,54 @@ const COLOR_STYLE: Record<
 interface TargetProps {
   target: ActiveTarget;
   disabled: boolean;
+  reducedMotion: boolean;
   onTap: () => void;
 }
 
-export function Target({ target, disabled, onTap }: TargetProps) {
+export function Target({
+  target,
+  disabled,
+  reducedMotion,
+  onTap,
+}: TargetProps) {
   const style = COLOR_STYLE[target.color];
+  const inactive = disabled || target.resolved;
+  const halfTapped = target.color === "purple" && target.taps === 1;
 
   return (
     <button
       type="button"
       aria-label={`${target.color} target: ${TARGET_LABEL[target.color]}`}
-      disabled={disabled}
+      disabled={inactive}
       onPointerDown={(e) => {
+        // pointer events fire once per touch/click — no synthetic double-fire
+        if (e.button !== 0 && e.pointerType === "mouse") return;
         e.preventDefault();
-        if (!disabled) onTap();
+        e.stopPropagation();
+        if (!inactive) onTap();
       }}
-      className={`no-select absolute grid size-[clamp(78px,22vw,132px)] place-items-center rounded-full ${style.ring} animate-pop-in active:scale-90`}
+      onContextMenu={(e) => e.preventDefault()}
+      className={`no-select absolute grid place-items-center rounded-full ${style.ring} ${
+        reducedMotion ? "" : "animate-pop-in active:scale-90"
+      } ${target.resolved ? "opacity-0 transition-opacity duration-150" : ""}`}
       style={{
-        left: `${target.x}%`,
-        top: `${target.y}%`,
+        left: target.x,
+        top: target.y,
+        width: target.size,
+        height: target.size,
         transform: "translate(-50%, -50%)",
+        touchAction: "manipulation",
       }}
     >
       <span
         className={`grid size-full place-items-center overflow-hidden rounded-full ${style.face}`}
-        style={{ animation: "target-pulse 1.1s ease-in-out infinite" }}
+        style={
+          reducedMotion
+            ? undefined
+            : { animation: "target-pulse 1.1s ease-in-out infinite" }
+        }
       >
-        {target.color === "gold" && (
+        {target.color === "gold" && !reducedMotion && (
           <span
             className="pointer-events-none absolute inset-y-0 w-1/3 bg-arcade-text/45 blur-[2px]"
             style={{ animation: "shimmer-sweep 1.1s linear infinite" }}
@@ -65,11 +86,11 @@ export function Target({ target, disabled, onTap }: TargetProps) {
         </span>
         {target.color === "purple" && (
           <span className="absolute bottom-3 text-[10px] font-bold tracking-[0.18em] text-arcade-text/85">
-            {target.taps === 1 ? "AGAIN!" : "2 TAPS"}
+            {halfTapped ? "AGAIN!" : "2 TAPS"}
           </span>
         )}
       </span>
-      {target.color === "purple" && target.taps === 1 && (
+      {halfTapped && (
         <span className="pointer-events-none absolute inset-[-10px] rounded-full border-4 border-neon-purple/70" />
       )}
     </button>
