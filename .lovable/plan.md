@@ -1,34 +1,19 @@
 ## Goal
 
-Make every screen's text louder and more fun: chunky sticker-style lettering with neon glow and light motion, plus snappier copy.
+Replace the generic default typeface (the grey body/description text) with a distinctive arcade pairing: **Space Mono** for headings/labels, **Rubik** for body copy.
 
-## Design system additions (src/styles.css)
+## Changes
 
-New reusable text utilities so the treatment stays consistent:
-- `.sticker-text` — heavy weight, tighter tracking, hard offset shadow + dark outline (via `-webkit-text-stroke` / layered `text-shadow`) for the comic-sticker feel.
-- `.neon-glow-green` / `-red` / `-gold` / `-purple` — colored `text-shadow` halos tied to existing neon tokens.
-- `.title-shimmer` — slow animated gradient sweep across the hero title.
-- `.wiggle` — subtle infinite tilt for accent words; `.pop-word` — spring-in entrance for staggered word reveals.
-- All motion respects `prefers-reduced-motion`.
+1. **`src/routes/__root.tsx`** — swap the Google Fonts `<link>` from Space Grotesk to `Space+Mono:wght@400;700` and `Rubik:wght@400;500;700;900`.
 
-## Start screen
+2. **`src/styles.css`**
+   - Add `--font-mono-display: "Space Mono", ui-monospace, monospace;` and set `--font-display: "Rubik", ui-sans-serif, system-ui, sans-serif;` in the `@theme` block.
+   - Keep `body { font-family: var(--font-display) }` so all body/grey text becomes Rubik.
+   - Point the sticker/label styles (`.sticker-sm`, tracking-heavy uppercase labels like SCORE, HIGH SCORE, REACTION ARCADE) at Space Mono so the HUD reads like an arcade cabinet.
+   - Leave `.sticker-text` big headline treatment on the heavy Rubik weight (900) so "Tap or Trap" keeps its chunky sticker look with glow/outline intact.
 
-- Hero: "Tap" green + glow, "or" white and smaller/rotated, "Trap" red + glow — each word sticker-styled with slight opposing rotation and a staggered pop-in on mount; "Trap" gets a slow wiggle.
-- Section eyebrow, rule titles, HIGH SCORE label, and Start button get sticker weight and tracking; high-score number gets a gold glow.
-- Copy punch-up (tagline, rule details, how-to-play text) — e.g. tagline "Green good. Red bad. Don't blink.", Red rule "Hands off. Let it die.", Purple "Two taps, fast — or you're done."
+3. No component logic changes — only font tokens and the two utility classes, so every screen (Start, HUD, Pause, Settings, Game Over) picks it up automatically.
 
-## In-game screen
+## Verification
 
-- Score and combo numbers get sticker weight + glow; combo multiplier text pulses when it levels up.
-- Floating feedback popups (PERFECT / FAST / GOOD, +points) get sticker outline and color-matched glow so they read against the backdrop.
-- Punchier feedback words where appropriate (e.g. "PERFECT!", "NICE", "TOO SLOW").
-
-## Game over screen
-
-- Headline becomes a big sticker-styled reaction line driven by the mistake reason (e.g. "TRAPPED!", "TOO SLOW!", "ONE TAP SHORT!") with red glow and a shake-in entrance.
-- Final score huge with gold glow; stat labels sticker-cased; new-high-score line gets shimmer.
-- Buttons restyled to match the Start button's punch.
-
-## Notes
-
-Pure presentation change — no gameplay logic, scoring, or state changes. Only `src/styles.css` and the game component files' text/classNames are touched.
+Screenshot the start screen and game screen at mobile width to confirm the mono labels stay legible and nothing wraps or overflows.
