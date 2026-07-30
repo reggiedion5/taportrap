@@ -8,7 +8,7 @@
 
 import { APP_BUILD, APP_NAME, APP_VERSION, SUPPORT_EMAIL } from "@/lib/appConfig";
 import { isValidSupportEmail } from "@/lib/urlSafety";
-import { platformName } from "@/lib/nativePlatform";
+import { getPlatform } from "@/lib/nativePlatform";
 import type { FeedbackCategory } from "./trainingTypes";
 
 export interface FeedbackCategoryOption {
@@ -36,7 +36,7 @@ export interface FeedbackInput {
 export function feedbackContext(): string[] {
   return [
     `App: ${APP_NAME} ${APP_VERSION} (build ${APP_BUILD})`,
-    `Platform: ${platformName()}`,
+    `Platform: ${getPlatform()}`,
   ];
 }
 
