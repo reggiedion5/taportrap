@@ -127,7 +127,7 @@ function TapOrTrap() {
           modeHighScore={progress.records.highScore[progress.mode]}
           daily={progress.daily}
           challenge={progress.challenge}
-          reminder={reminderDismissed ? null : progress.reminder}
+          themeHint={progress.themeHint}
           reducedMotion={game.reducedMotion}
           achievementsUnlocked={progress.unlockedAchievementCount}
           achievementsTotal={ACHIEVEMENTS.length}
