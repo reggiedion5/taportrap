@@ -546,6 +546,18 @@ export function useProgress() {
     return null;
   }, [hydrated, snapshot.daily, level, themeContext, unlockedAchievementCount]);
 
+  /** Secondary hint shown on the Themes nav tile while a theme is still locked. */
+  const themeHint = useMemo(() => {
+    if (!hydrated) return null;
+    const lockedTheme = THEMES.find(
+      (t) => !isThemeUnlocked(t, themeContext) && t.unlock.kind === "achievements",
+    );
+    if (!lockedTheme || lockedTheme.unlock.kind !== "achievements") return null;
+    const left = lockedTheme.unlock.value - unlockedAchievementCount;
+    if (left <= 0) return null;
+    return `${lockedTheme.name} · ${left} achievement${left === 1 ? "" : "s"} away`;
+  }, [hydrated, themeContext, unlockedAchievementCount]);
+
   const nearestAchievement = useMemo(() => {
     const open = achievementList
       .filter((a) => !a.unlocked && a.value > 0)
