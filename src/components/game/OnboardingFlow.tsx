@@ -76,10 +76,16 @@ export function OnboardingFlow({ reducedMotion, onFinish, onSkip }: OnboardingFl
         <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
           {panel.demo.map((color, i) => {
             const style = DEMO_STYLE[color];
+            const size =
+              color === "purple"
+                ? "text-[32px]"
+                : color === "gold"
+                  ? "text-[17px]"
+                  : "text-[22px]";
             return (
               <span
                 key={`${index}-${color}-${i}`}
-                className={`grid size-24 place-items-center rounded-full ${style.bg} ${style.text} sticker-sm text-sm ${
+                className={`grid size-28 place-items-center rounded-full ${style.bg} ${style.text} font-black tracking-widest ${size} ${
                   reducedMotion ? "" : "animate-pop-word"
                 }`}
                 style={{ animationDelay: `${i * 140}ms` }}
