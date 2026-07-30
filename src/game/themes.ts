@@ -63,10 +63,7 @@ export interface ThemeUnlockContext {
   achievementsUnlocked: number;
 }
 
-export function isThemeUnlocked(
-  theme: ThemeDefinition,
-  ctx: ThemeUnlockContext,
-): boolean {
+export function isThemeUnlocked(theme: ThemeDefinition, ctx: ThemeUnlockContext): boolean {
   switch (theme.unlock.kind) {
     case "default":
       return true;

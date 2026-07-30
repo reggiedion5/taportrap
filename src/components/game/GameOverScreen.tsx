@@ -47,8 +47,7 @@ export function GameOverScreen({
   }, [stage, reducedMotion]);
 
   const has = (key: PersonalRecordKey) => summary.newRecords.includes(key);
-  const showReason =
-    result.reason !== null && !(result.mode === "blitz" && result.reason === null);
+  const showReason = result.reason !== null && !(result.mode === "blitz" && result.reason === null);
 
   return (
     <div
@@ -64,9 +63,7 @@ export function GameOverScreen({
           <span
             className={`sticker-text text-neon-red glow-red ${reducedMotion ? "" : "animate-slam"}`}
           >
-            {result.reason
-              ? GAME_OVER_HEADLINE[result.reason]
-              : config.overTitle.toUpperCase()}
+            {result.reason ? GAME_OVER_HEADLINE[result.reason] : config.overTitle.toUpperCase()}
           </span>
         </h1>
         {showReason && result.reason && (
@@ -89,11 +86,7 @@ export function GameOverScreen({
 
           {stage >= 1 && (
             <div className="mt-5 grid grid-cols-3 gap-3">
-              <Stat
-                label="BEST COMBO"
-                value={`${result.bestCombo}x`}
-                isRecord={has("bestCombo")}
-              />
+              <Stat label="BEST COMBO" value={`${result.bestCombo}x`} isRecord={has("bestCombo")} />
               <Stat
                 label="AVG REACT"
                 value={formatMsValue(result.stats.avgReaction)}
@@ -167,9 +160,7 @@ export function GameOverScreen({
                 <p className="sticker-sm text-[10px] tracking-[0.22em] text-neon-gold glow-gold">
                   DAILY CHALLENGE
                 </p>
-                <p className="mt-1 text-sm font-bold text-arcade-text">
-                  {dailyObjective}
-                </p>
+                <p className="mt-1 text-sm font-bold text-arcade-text">{dailyObjective}</p>
                 <p className="sticker-sm mt-1 text-xs tracking-[0.14em] text-arcade-text/85">
                   {summary.dailyProgress.completed
                     ? "COMPLETED · New challenge tomorrow"
@@ -220,9 +211,7 @@ export function GameOverScreen({
                 <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
                   NEXT RUN MISSION
                 </p>
-                <p className="mt-1 text-sm font-black text-arcade-text">
-                  {summary.mission.label}
-                </p>
+                <p className="mt-1 text-sm font-black text-arcade-text">{summary.mission.label}</p>
               </div>
             )}
           </div>
@@ -294,11 +283,7 @@ export function GameOverScreen({
 }
 
 function Badge({ label }: { label: string }) {
-  return (
-    <p className="sticker-sm shimmer-text mt-2 text-sm tracking-[0.2em]">
-      {label}
-    </p>
-  );
+  return <p className="sticker-sm shimmer-text mt-2 text-sm tracking-[0.2em]">{label}</p>;
 }
 
 function Stat({
@@ -316,12 +301,8 @@ function Stat({
         isRecord ? "border-neon-gold" : "border-arcade-line"
       }`}
     >
-      <p className="sticker-sm text-[9px] tracking-[0.16em] text-arcade-text/75">
-        {label}
-      </p>
-      <p className="sticker-sm mt-1 text-lg text-arcade-text tabular-nums">
-        {value}
-      </p>
+      <p className="sticker-sm text-[9px] tracking-[0.16em] text-arcade-text/75">{label}</p>
+      <p className="sticker-sm mt-1 text-lg text-arcade-text tabular-nums">{value}</p>
       {isRecord && (
         <p className="sticker-sm mt-1 text-[8px] tracking-[0.18em] text-neon-gold glow-gold">
           NEW BEST

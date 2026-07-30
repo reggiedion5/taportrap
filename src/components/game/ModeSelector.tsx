@@ -11,13 +11,7 @@ interface ModeSelectorProps {
   onClose: () => void;
 }
 
-export function ModeSelector({
-  open,
-  selected,
-  records,
-  onSelect,
-  onClose,
-}: ModeSelectorProps) {
+export function ModeSelector({ open, selected, records, onSelect, onClose }: ModeSelectorProps) {
   return (
     <Sheet open={open} title="Choose a Mode" onClose={onClose}>
       <div className="grid gap-4">
@@ -73,12 +67,7 @@ interface ModeInfoModalProps {
 }
 
 /** Shown the first time a player launches a given mode. */
-export function ModeInfoModal({
-  open,
-  mode,
-  onStart,
-  onClose,
-}: ModeInfoModalProps) {
+export function ModeInfoModal({ open, mode, onStart, onClose }: ModeInfoModalProps) {
   if (!open) return null;
   const config = MODE_CONFIG[mode];
   return (
@@ -89,15 +78,9 @@ export function ModeInfoModal({
       aria-label={`${config.name} rules`}
     >
       <div className="arcade-panel w-[min(92vw,420px)] p-6">
-        <p className="sticker-sm text-[10px] tracking-[0.28em] text-arcade-text/75">
-          MODE RULES
-        </p>
-        <h2 className="sticker-text mt-1 text-4xl text-neon-green glow-green">
-          {config.name}
-        </h2>
-        <p className="mt-3 text-sm font-bold text-arcade-text">
-          {config.description}
-        </p>
+        <p className="sticker-sm text-[10px] tracking-[0.28em] text-arcade-text/75">MODE RULES</p>
+        <h2 className="sticker-text mt-1 text-4xl text-neon-green glow-green">{config.name}</h2>
+        <p className="mt-3 text-sm font-bold text-arcade-text">{config.description}</p>
         <ul className="mt-4 space-y-2">
           {config.rules.map((rule) => (
             <li key={rule} className="text-sm font-semibold text-arcade-text/90">

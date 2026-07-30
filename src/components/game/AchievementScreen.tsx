@@ -1,13 +1,6 @@
 import { Lock, Trophy } from "lucide-react";
-import {
-  ACHIEVEMENTS,
-  ACHIEVEMENT_CATEGORIES,
-  TIER_LABEL,
-} from "@/game/achievements";
-import type {
-  Achievement,
-  AchievementProgress,
-} from "@/game/progressionTypes";
+import { ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES, TIER_LABEL } from "@/game/achievements";
+import type { Achievement, AchievementProgress } from "@/game/progressionTypes";
 import { Sheet } from "./Sheet";
 
 const TIER_BORDER: Record<Achievement["tier"], string> = {
@@ -71,10 +64,7 @@ export function AchievementCard({ achievement, progress }: AchievementCardProps)
           aria-valuenow={progress.value}
           aria-label={`${achievement.title} progress`}
         >
-          <div
-            className="h-full rounded-full bg-neon-green"
-            style={{ width: `${pct}%` }}
-          />
+          <div className="h-full rounded-full bg-neon-green" style={{ width: `${pct}%` }} />
         </div>
       )}
     </li>
@@ -87,11 +77,7 @@ interface AchievementScreenProps {
   onClose: () => void;
 }
 
-export function AchievementScreen({
-  open,
-  progress,
-  onClose,
-}: AchievementScreenProps) {
+export function AchievementScreen({ open, progress, onClose }: AchievementScreenProps) {
   const byId = new Map(progress.map((p) => [p.id, p]));
   const unlockedCount = progress.filter((p) => p.unlocked).length;
 

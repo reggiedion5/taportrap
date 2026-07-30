@@ -25,9 +25,7 @@ export function ScoreHeader({
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="flex min-w-0 items-end gap-5">
           <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
-              SCORE
-            </p>
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">SCORE</p>
             <p
               key={scorePulse}
               className="sticker-sm animate-score-bump text-4xl leading-none text-arcade-text glow-white tabular-nums"
@@ -36,36 +34,27 @@ export function ScoreHeader({
             </p>
           </div>
           <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
-              BEST
-            </p>
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">BEST</p>
             <p className="sticker-sm text-lg leading-none text-neon-gold glow-gold tabular-nums">
               {highScore}
             </p>
           </div>
           <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
-              COMBO
-            </p>
+            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">COMBO</p>
             <p
               className={`sticker-sm text-lg leading-none tabular-nums ${
-                multiplier > 1
-                  ? "text-neon-purple glow-purple"
-                  : "text-arcade-text"
+                multiplier > 1 ? "text-neon-purple glow-purple" : "text-arcade-text"
               }`}
             >
               {combo}{" "}
               <span
                 key={multiplier}
-                className={
-                  multiplier > 1 ? "animate-score-bump inline-block" : ""
-                }
+                className={multiplier > 1 ? "animate-score-bump inline-block" : ""}
               >
                 ×{multiplier}
               </span>
             </p>
           </div>
-
         </div>
         <button
           type="button"

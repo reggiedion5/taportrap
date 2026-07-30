@@ -179,14 +179,9 @@ export function challengeRunValue(
   }
 }
 
-export function isChallengeMet(
-  challenge: DailyChallenge,
-  value: number,
-): boolean {
+export function isChallengeMet(challenge: DailyChallenge, value: number): boolean {
   if (!Number.isFinite(value)) return false;
-  return challenge.lowerIsBetter
-    ? value <= challenge.target
-    : value >= challenge.target;
+  return challenge.lowerIsBetter ? value <= challenge.target : value >= challenge.target;
 }
 
 /** Merge a new run value into stored progress (best-so-far semantics). */
@@ -206,9 +201,7 @@ export function mergeChallengeProgress(
 /** Streak update applied exactly once, when a challenge is completed. */
 export function advanceStreak(state: DailyState, date: string): DailyState {
   if (state.lastCompletedDate === date) return state;
-  const gap = state.lastCompletedDate
-    ? dayDifference(state.lastCompletedDate, date)
-    : null;
+  const gap = state.lastCompletedDate ? dayDifference(state.lastCompletedDate, date) : null;
   const current = gap === 1 ? Math.max(1, state.currentStreak) + 1 : 1;
   return {
     ...state,

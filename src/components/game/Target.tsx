@@ -1,10 +1,7 @@
 import type { ActiveTarget } from "@/game/types";
 import { TARGET_LABEL } from "@/game/types";
 
-const COLOR_STYLE: Record<
-  ActiveTarget["color"],
-  { ring: string; face: string; text: string }
-> = {
+const COLOR_STYLE: Record<ActiveTarget["color"], { ring: string; face: string; text: string }> = {
   green: {
     ring: "text-neon-green",
     face: "bg-neon-green",
@@ -30,16 +27,10 @@ interface TargetProps {
   onTap: () => void;
 }
 
-export function Target({
-  target,
-  disabled,
-  reducedMotion,
-  onTap,
-}: TargetProps) {
+export function Target({ target, disabled, reducedMotion, onTap }: TargetProps) {
   const style = COLOR_STYLE[target.color];
   // green/gold stay tappable briefly after resolving so an extra tap counts as a mistake
-  const punishExtraTap =
-    target.resolved && (target.color === "green" || target.color === "gold");
+  const punishExtraTap = target.resolved && (target.color === "green" || target.color === "gold");
   const inactive = disabled || (target.resolved && !punishExtraTap);
   const halfTapped = target.color === "purple" && target.taps === 1;
 
@@ -70,11 +61,7 @@ export function Target({
     >
       <span
         className={`grid size-full place-items-center overflow-hidden rounded-full ${style.face}`}
-        style={
-          reducedMotion
-            ? undefined
-            : { animation: "target-pulse 1.1s ease-in-out infinite" }
-        }
+        style={reducedMotion ? undefined : { animation: "target-pulse 1.1s ease-in-out infinite" }}
       >
         {target.color === "gold" && !reducedMotion && (
           <span

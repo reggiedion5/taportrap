@@ -49,9 +49,7 @@ export function ConfirmationModal({
       aria-label={title}
     >
       <div className="arcade-panel w-[min(92vw,420px)] p-6">
-        <h2 className="sticker-sm text-xl tracking-tight text-neon-red glow-red">
-          {title}
-        </h2>
+        <h2 className="sticker-sm text-xl tracking-tight text-neon-red glow-red">{title}</h2>
         <p className="mt-3 text-sm font-semibold text-arcade-text">{body}</p>
         {bullets && bullets.length > 0 && (
           <ul className="mt-3 space-y-1 text-sm font-semibold text-arcade-text/85">

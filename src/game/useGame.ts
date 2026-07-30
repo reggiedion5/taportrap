@@ -16,13 +16,7 @@ import {
   spawnDelayFor,
   type DifficultyLevel,
 } from "./difficulty";
-import {
-  playSound,
-  resumeAudio,
-  setSoundEnabled,
-  suspendAudio,
-  unlockAudio,
-} from "./audio";
+import { playSound, resumeAudio, setSoundEnabled, suspendAudio, unlockAudio } from "./audio";
 import { setVibrationEnabled, vibrate } from "./haptics";
 import { gradeReaction, multiplierForCombo, resolveScore } from "./scoring";
 import { pickPlacement, targetSizeFor, type AreaBounds } from "./positioning";
@@ -233,9 +227,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       const avg = reactions.length
         ? Math.round(reactions.reduce((a, b) => a + b, 0) / reactions.length)
         : null;
-      const fastest = reactions.length
-        ? Math.round(Math.min(...reactions))
-        : null;
+      const fastest = reactions.length ? Math.round(Math.min(...reactions)) : null;
       const stats: RunStats = {
         ...runStatsRef.current,
         avgReaction: avg,
@@ -409,14 +401,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       setLives(configRef.current.lives > 1 ? 0 : null);
       endGameRef.current(why);
     },
-    [
-      applyTimePenalty,
-      later,
-      pushFeedback,
-      reducedMotion,
-      scheduleSpawn,
-      setActiveTarget,
-    ],
+    [applyTimePenalty, later, pushFeedback, reducedMotion, scheduleSpawn, setActiveTarget],
   );
 
   const registerMistakeRef = useRef(registerMistake);
@@ -458,10 +443,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
     const placement = pickPlacement(bounds, size, lastPositionRef.current);
     lastPositionRef.current = { x: placement.x, y: placement.y };
 
-    const duration = Math.max(
-      420,
-      Math.round(level.targetDuration * config.durationScale),
-    );
+    const duration = Math.max(420, Math.round(level.targetDuration * config.durationScale));
 
     const next: ActiveTarget = {
       id: ++idRef.current,
@@ -513,10 +495,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       comboRef.current = result.combo;
       setCombo(result.combo);
       bestComboRef.current = Math.max(bestComboRef.current, result.combo);
-      bestMultiplierRef.current = Math.max(
-        bestMultiplierRef.current,
-        result.multiplier,
-      );
+      bestMultiplierRef.current = Math.max(bestMultiplierRef.current, result.multiplier);
       setBestCombo(bestComboRef.current);
       scoreRef.current += result.total;
       setScore(scoreRef.current);
@@ -536,13 +515,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       }
       setRunStats({ ...stats });
 
-      pushFeedback(
-        `+${result.total} • ${result.multiplier}X`,
-        label,
-        t.x,
-        t.y,
-        t.color,
-      );
+      pushFeedback(`+${result.total} • ${result.multiplier}X`, label, t.x, t.y, t.color);
 
       if (t.color === "gold") {
         setBurst({ id: t.id, x: t.x, y: t.y });
@@ -615,10 +588,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
         vibrate("purple-first");
         // forgiving: give a fresh window for the second tap
         if (expireTimer.current !== null) window.clearTimeout(expireTimer.current);
-        const remaining = Math.max(
-          PURPLE_SECOND_WINDOW,
-          t.spawnedAt + t.duration - now,
-        );
+        const remaining = Math.max(PURPLE_SECOND_WINDOW, t.spawnedAt + t.duration - now);
         expireAt.current = now + remaining;
         const runId = runIdRef.current;
         expireTimer.current = window.setTimeout(() => {
@@ -631,8 +601,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       // faster second taps are worth more
       const gap = now - (t.firstTapAt ?? t.spawnedAt);
       const base = gap < 280 ? 4 : gap < 550 ? 3 : 2;
-      const label =
-        base === 4 ? "LIGHTNING ×2" : base === 3 ? "QUICK ×2" : "DOUBLE TAP";
+      const label = base === 4 ? "LIGHTNING ×2" : base === 3 ? "QUICK ×2" : "DOUBLE TAP";
       resolveSuccess(t, base, elapsed, label);
       return;
     }
@@ -702,16 +671,10 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
     const now = performance.now();
     const t = targetRef.current;
     remainingTarget.current =
-      t && !t.resolved && expireTimer.current !== null
-        ? Math.max(60, expireAt.current - now)
-        : 0;
-    remainingSpawn.current =
-      spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
+      t && !t.resolved && expireTimer.current !== null ? Math.max(60, expireAt.current - now) : 0;
+    remainingSpawn.current = spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
     if (configRef.current.timeLimitMs !== null) {
-      clockRemaining.current = Math.max(
-        0,
-        clockRemaining.current - (now - clockStartedAt.current),
-      );
+      clockRemaining.current = Math.max(0, clockRemaining.current - (now - clockStartedAt.current));
       setTimeLeft(clockRemaining.current);
     }
     clearAllTimers();

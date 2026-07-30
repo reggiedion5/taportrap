@@ -48,8 +48,7 @@ export const MODE_CONFIG: Record<GameMode, GameModeConfig> = {
     id: "blitz",
     name: "Blitz",
     tagline: "Score as many points as possible in 30 seconds.",
-    description:
-      "Mistakes burn clock instead of ending the run. Play until time runs out.",
+    description: "Mistakes burn clock instead of ending the run. Play until time runs out.",
     rules: [
       "30 second clock",
       "Missed target: −2 seconds",

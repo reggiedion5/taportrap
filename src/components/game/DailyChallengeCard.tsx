@@ -8,11 +8,7 @@ interface DailyChallengeCardProps {
   reducedMotion: boolean;
 }
 
-export function DailyChallengeCard({
-  challenge,
-  daily,
-  reducedMotion,
-}: DailyChallengeCardProps) {
+export function DailyChallengeCard({ challenge, daily, reducedMotion }: DailyChallengeCardProps) {
   const target = challenge.target;
   const value = daily.progress;
   const pct = challenge.lowerIsBetter
@@ -46,9 +42,7 @@ export function DailyChallengeCard({
         </span>
       </div>
 
-      <p className="mt-3 text-base font-black text-arcade-text">
-        {challenge.objective}
-      </p>
+      <p className="mt-3 text-base font-black text-arcade-text">{challenge.objective}</p>
 
       {daily.completed ? (
         <p className="sticker-sm mt-3 text-sm tracking-[0.12em] text-neon-green glow-green">

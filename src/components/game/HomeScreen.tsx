@@ -1,18 +1,6 @@
-import {
-  BarChart3,
-  ChevronRight,
-  HelpCircle,
-  Palette,
-  Settings2,
-  Trophy,
-  X,
-} from "lucide-react";
+import { BarChart3, ChevronRight, HelpCircle, Palette, Settings2, Trophy, X } from "lucide-react";
 import type { GameModeConfig } from "@/game/modes";
-import type {
-  DailyChallenge,
-  DailyState,
-  PlayerLevel,
-} from "@/game/progressionTypes";
+import type { DailyChallenge, DailyState, PlayerLevel } from "@/game/progressionTypes";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { DailyChallengeCard } from "./DailyChallengeCard";
 import { XpProgressBar } from "./XpProgressBar";
@@ -98,16 +86,14 @@ export function HomeScreen({
             compact
           />
           <p className="sticker-sm mt-3 text-[11px] tracking-[0.16em] text-arcade-text/80">
-            STREAK {daily.currentStreak} · BEST {daily.bestStreak} · TROPHIES{" "}
-            {achievementsUnlocked}/{achievementsTotal}
+            STREAK {daily.currentStreak} · BEST {daily.bestStreak} · TROPHIES {achievementsUnlocked}
+            /{achievementsTotal}
           </p>
         </div>
 
         {reminder && (
           <div className="mt-3 flex items-center gap-3 rounded-2xl border border-neon-gold/60 bg-arcade-surface px-4 py-3">
-            <p className="min-w-0 flex-1 text-sm font-bold text-arcade-text">
-              {reminder}
-            </p>
+            <p className="min-w-0 flex-1 text-sm font-bold text-arcade-text">{reminder}</p>
             <button
               type="button"
               onClick={onDismissReminder}
@@ -160,11 +146,7 @@ export function HomeScreen({
 
         {/* ---- lower ---- */}
         <div className="mt-5 grid gap-3 pb-4">
-          <DailyChallengeCard
-            challenge={challenge}
-            daily={daily}
-            reducedMotion={reducedMotion}
-          />
+          <DailyChallengeCard challenge={challenge} daily={daily} reducedMotion={reducedMotion} />
 
           <div className="grid grid-cols-2 gap-3">
             <NavTile
@@ -219,9 +201,7 @@ function NavTile({
         {icon}
         <span className="sticker-sm truncate text-sm tracking-tight">{label}</span>
       </span>
-      <span className="truncate text-xs font-semibold text-arcade-text/80">
-        {sub}
-      </span>
+      <span className="truncate text-xs font-semibold text-arcade-text/80">{sub}</span>
     </button>
   );
 }

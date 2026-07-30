@@ -62,9 +62,7 @@ const CANDIDATES: Candidate[] = [
   },
 ];
 
-export function generatePostGameMission(
-  result: GameSessionResult,
-): PostGameMission {
+export function generatePostGameMission(result: GameSessionResult): PostGameMission {
   const pool = CANDIDATES.filter((c) => !c.allows || c.allows(result.mode));
   const pick = pool[Math.floor(Math.random() * pool.length)];
   const target = Math.max(1, Math.round(pick.target(result)));
@@ -106,14 +104,9 @@ export function missionRunValue(
   }
 }
 
-export function isMissionComplete(
-  mission: PostGameMission,
-  value: number | null,
-): boolean {
+export function isMissionComplete(mission: PostGameMission, value: number | null): boolean {
   if (value === null || !Number.isFinite(value)) return false;
-  return mission.lowerIsBetter
-    ? value <= mission.target
-    : value >= mission.target;
+  return mission.lowerIsBetter ? value <= mission.target : value >= mission.target;
 }
 
 export function shouldReplaceMission(mission: PostGameMission): boolean {

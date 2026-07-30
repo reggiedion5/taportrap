@@ -62,17 +62,12 @@ function write(key: string, value: unknown) {
 
 export function loadSettings(): GameSettings {
   const raw = read(SETTINGS_KEY) as Record<string, unknown> | null;
-  const legacy = raw
-    ? null
-    : (read(LEGACY_SETTINGS_KEY) as Record<string, unknown> | null);
+  const legacy = raw ? null : (read(LEGACY_SETTINGS_KEY) as Record<string, unknown> | null);
   const source = raw ?? legacy ?? {};
   return {
     sound: safeBool(source.sound, DEFAULT_SETTINGS.sound),
     vibration: safeBool(source.vibration, DEFAULT_SETTINGS.vibration),
-    reducedMotion: safeBool(
-      source.reducedMotion,
-      DEFAULT_SETTINGS.reducedMotion,
-    ),
+    reducedMotion: safeBool(source.reducedMotion, DEFAULT_SETTINGS.reducedMotion),
   };
 }
 
@@ -116,14 +111,8 @@ export function loadStats(): LifetimeStats {
     fastestReaction: safeOptionalNumber(source.fastestReaction),
     totalCorrect: Math.max(0, Math.floor(safeNumber(source.totalCorrect))),
     totalGold: Math.max(0, Math.floor(safeNumber(source.totalGold))),
-    totalTrapsAvoided: Math.max(
-      0,
-      Math.floor(safeNumber(source.totalTrapsAvoided)),
-    ),
-    totalPurpleCompletions: Math.max(
-      0,
-      Math.floor(safeNumber(source.totalPurpleCompletions)),
-    ),
+    totalTrapsAvoided: Math.max(0, Math.floor(safeNumber(source.totalTrapsAvoided))),
+    totalPurpleCompletions: Math.max(0, Math.floor(safeNumber(source.totalPurpleCompletions))),
   };
 }
 

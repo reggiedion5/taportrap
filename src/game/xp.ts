@@ -31,14 +31,8 @@ export interface LevelUpResult {
   levelsGained: number;
 }
 
-export function applyXp(
-  profile: PlayerProfile,
-  amount: number,
-): LevelUpResult {
-  const gain = Math.max(
-    0,
-    Math.floor(Number.isFinite(amount) ? amount : 0),
-  );
+export function applyXp(profile: PlayerProfile, amount: number): LevelUpResult {
+  const gain = Math.max(0, Math.floor(Number.isFinite(amount) ? amount : 0));
   let level = Math.max(1, Math.floor(profile.level) || 1);
   let currentXp = Math.max(0, Math.floor(profile.currentXp) || 0) + gain;
   let levelsGained = 0;
@@ -50,8 +44,7 @@ export function applyXp(
     level += 1;
     levelsGained += 1;
   }
-  const lifetimeXp =
-    Math.max(0, Math.floor(profile.lifetimeXp) || 0) + gain;
+  const lifetimeXp = Math.max(0, Math.floor(profile.lifetimeXp) || 0) + gain;
   return { level, currentXp, lifetimeXp, levelsGained };
 }
 
@@ -60,10 +53,7 @@ interface XpContext {
   isNewModeHighScore: boolean;
 }
 
-export function calculateXpRewards({
-  result,
-  isNewModeHighScore,
-}: XpContext): XpRewardBreakdown {
+export function calculateXpRewards({ result, isNewModeHighScore }: XpContext): XpRewardBreakdown {
   const entries: { label: string; xp: number }[] = [];
   const { stats, score, bestCombo, mode } = result;
   const add = (label: string, xp: number) => {
@@ -85,11 +75,7 @@ export function calculateXpRewards({
     if (mode !== "survival") add("Perfect reactions", stats.perfect);
     if (mode === "classic" && bestCombo >= 10) add("Combo 10 reached", 10);
     if (mode === "survival" && stats.successes >= 25) add("25+ reactions", 15);
-    if (
-      mode === "focus" &&
-      stats.avgReaction !== null &&
-      stats.avgReaction < 350
-    ) {
+    if (mode === "focus" && stats.avgReaction !== null && stats.avgReaction < 350) {
       add("Sub-350ms average", 20);
     }
   }

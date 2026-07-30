@@ -12,13 +12,7 @@ interface ThemeCardProps {
   onSelect: (id: string) => void;
 }
 
-export function ThemeCard({
-  theme,
-  unlocked,
-  selected,
-  context,
-  onSelect,
-}: ThemeCardProps) {
+export function ThemeCard({ theme, unlocked, selected, context, onSelect }: ThemeCardProps) {
   const progress = themeUnlockProgress(theme, context);
   return (
     <li>
@@ -32,9 +26,7 @@ export function ThemeCard({
         } ${unlocked ? "" : "cursor-not-allowed opacity-80"}`}
       >
         <span className="flex items-center justify-between gap-3">
-          <span className="sticker-sm text-base tracking-tight text-arcade-text">
-            {theme.name}
-          </span>
+          <span className="sticker-sm text-base tracking-tight text-arcade-text">{theme.name}</span>
           <span className="sticker-sm flex shrink-0 items-center gap-1 text-[10px] tracking-[0.16em] text-arcade-text">
             {!unlocked ? (
               <>
@@ -82,18 +74,11 @@ interface ThemeScreenProps {
   onClose: () => void;
 }
 
-export function ThemeScreen({
-  open,
-  selectedTheme,
-  context,
-  onSelect,
-  onClose,
-}: ThemeScreenProps) {
+export function ThemeScreen({ open, selectedTheme, context, onSelect, onClose }: ThemeScreenProps) {
   return (
     <Sheet open={open} title="Themes" onClose={onClose}>
       <p className="text-sm font-semibold text-arcade-text/85">
-        Themes change presentation only. Target colours and labels stay identical
-        in every theme.
+        Themes change presentation only. Target colours and labels stay identical in every theme.
       </p>
       <ul className="mt-4 grid gap-3">
         {THEMES.map((theme) => (

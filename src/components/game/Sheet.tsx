@@ -59,9 +59,7 @@ export function Sheet({ open, title, onClose, children, footer }: SheetProps) {
         className="safe-area flex h-full w-full max-w-lg flex-col bg-arcade-bg-deep"
       >
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-arcade-line/60 px-5 py-4">
-          <h2 className="sticker-sm truncate text-lg tracking-tight text-arcade-text">
-            {title}
-          </h2>
+          <h2 className="sticker-sm truncate text-lg tracking-tight text-arcade-text">{title}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -74,9 +72,7 @@ export function Sheet({ open, title, onClose, children, footer }: SheetProps) {
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">
           {children}
         </div>
-        {footer && (
-          <div className="border-t border-arcade-line/60 px-5 py-4">{footer}</div>
-        )}
+        {footer && <div className="border-t border-arcade-line/60 px-5 py-4">{footer}</div>}
       </div>
     </div>
   );

@@ -86,9 +86,7 @@ export function spawnDelayFor(level: DifficultyLevel): number {
 
 export function difficultyProgress(score: number) {
   const current = levelForScore(score);
-  const next = DIFFICULTY_LEVELS[current.level] as
-    | DifficultyLevel
-    | undefined;
+  const next = DIFFICULTY_LEVELS[current.level] as DifficultyLevel | undefined;
   if (!next) return { label: current.label, progress: 1, isMax: true };
   const span = next.minimumScore - current.minimumScore;
   return {
@@ -128,12 +126,7 @@ export function pickColor(
   const available = DISTRIBUTION.filter((d) => allowed.includes(d.color));
   const pool = available.length ? available : DISTRIBUTION;
   const blocked =
-    recent.length >= 3 &&
-    recent[0] === recent[1] &&
-    recent[1] === recent[2]
-      ? recent[0]
-      : null;
+    recent.length >= 3 && recent[0] === recent[1] && recent[1] === recent[2] ? recent[0] : null;
   const filtered = blocked ? pool.filter((d) => d.color !== blocked) : pool;
   return weightedPick(filtered.length ? filtered : pool);
 }
-

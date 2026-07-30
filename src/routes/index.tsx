@@ -35,14 +35,7 @@ export const Route = createFileRoute("/")({
   component: TapOrTrap,
 });
 
-type Overlay =
-  | "none"
-  | "modes"
-  | "achievements"
-  | "statistics"
-  | "themes"
-  | "howto"
-  | "settings";
+type Overlay = "none" | "modes" | "achievements" | "statistics" | "themes" | "howto" | "settings";
 
 function TapOrTrap() {
   const progress = useProgress();
@@ -102,8 +95,7 @@ function TapOrTrap() {
     beginRun();
   }, [beginRun, progress.mode, progress.profile.seenModeIntros]);
 
-  const showOnboarding =
-    progress.hydrated && (tutorial || !progress.profile.onboardingCompleted);
+  const showOnboarding = progress.hydrated && (tutorial || !progress.profile.onboardingCompleted);
 
   if (showOnboarding) {
     return (

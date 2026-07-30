@@ -109,9 +109,7 @@ export function GameScreen(props: GameScreenProps) {
                   <Heart
                     key={i}
                     className={`size-6 ${
-                      i < lives
-                        ? "fill-neon-red text-neon-red"
-                        : "text-arcade-line"
+                      i < lives ? "fill-neon-red text-neon-red" : "text-arcade-line"
                     }`}
                     aria-hidden
                   />
@@ -131,12 +129,7 @@ export function GameScreen(props: GameScreenProps) {
           className="relative mx-3 mt-4 mb-4 flex-1 overflow-hidden rounded-3xl border border-arcade-line/60 bg-arcade-bg/40"
         >
           {target && !paused && (
-            <Target
-              target={target}
-              disabled={paused}
-              reducedMotion={reducedMotion}
-              onTap={onTap}
-            />
+            <Target target={target} disabled={paused} reducedMotion={reducedMotion} onTap={onTap} />
           )}
 
           {feedback.map((f) => (
@@ -147,9 +140,7 @@ export function GameScreen(props: GameScreenProps) {
             >
               {f.text}
               {f.sub && (
-                <span className="block text-[10px] tracking-[0.2em] opacity-80">
-                  {f.sub}
-                </span>
+                <span className="block text-[10px] tracking-[0.2em] opacity-80">{f.sub}</span>
               )}
             </span>
           ))}

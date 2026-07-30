@@ -100,10 +100,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     tier: "platinum",
     rewardXp: 250,
     target: 1,
-    value: (c) =>
-      c.records.fastestReaction !== null && c.records.fastestReaction < 180
-        ? 1
-        : 0,
+    value: (c) => (c.records.fastestReaction !== null && c.records.fastestReaction < 180 ? 1 : 0),
     format: () => "",
   },
   // ---- target mastery ----

@@ -100,12 +100,7 @@ export type PersonalRecordKey =
 export type AchievementTier = "bronze" | "silver" | "gold" | "platinum";
 
 export type AchievementCategory =
-  | "beginner"
-  | "combo"
-  | "reaction"
-  | "mastery"
-  | "modes"
-  | "progression";
+  "beginner" | "combo" | "reaction" | "mastery" | "modes" | "progression";
 
 export interface Achievement {
   id: string;
@@ -203,15 +198,7 @@ export interface PostGameMission {
   mode: GameMode;
   label: string;
   target: number;
-  metric:
-    | "score"
-    | "combo"
-    | "perfect"
-    | "traps"
-    | "gold"
-    | "purple"
-    | "successes"
-    | "avgReaction";
+  metric: "score" | "combo" | "perfect" | "traps" | "gold" | "purple" | "successes" | "avgReaction";
   lowerIsBetter: boolean;
   attempts: number;
 }

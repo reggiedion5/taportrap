@@ -190,9 +190,7 @@ function parseProfile(raw: unknown): PlayerProfile {
   const src = asRecord(raw);
   const base = defaultProfile();
   const theme = typeof src.selectedTheme === "string" ? src.selectedTheme : "";
-  const seen = Array.isArray(src.seenModeIntros)
-    ? src.seenModeIntros.filter(isGameMode)
-    : [];
+  const seen = Array.isArray(src.seenModeIntros) ? src.seenModeIntros.filter(isGameMode) : [];
   return {
     version: STORAGE_VERSION,
     level: Math.max(1, int(src.level, 1) || 1),
@@ -305,9 +303,7 @@ function parseDaily(raw: unknown): DailyState {
   const today = localDateString();
   const base = defaultDaily(today);
   const storedDate = isValidDateString(src.currentDate) ? src.currentDate : today;
-  const lastCompleted = isValidDateString(src.lastCompletedDate)
-    ? src.lastCompletedDate
-    : null;
+  const lastCompleted = isValidDateString(src.lastCompletedDate) ? src.lastCompletedDate : null;
 
   let state: DailyState = {
     version: STORAGE_VERSION,
@@ -392,10 +388,7 @@ function migrateLegacy(
     ),
     bestCombo: Math.max(stats.bestCombo, int(legacyStats.bestCombo)),
     totalGold: Math.max(stats.totalGold, int(legacyStats.totalGold)),
-    totalTrapsAvoided: Math.max(
-      stats.totalTrapsAvoided,
-      int(legacyStats.totalTrapsAvoided),
-    ),
+    totalTrapsAvoided: Math.max(stats.totalTrapsAvoided, int(legacyStats.totalTrapsAvoided)),
     totalPurpleCompletions: Math.max(
       stats.totalPurpleCompletions,
       int(legacyStats.totalPurpleCompletions),
@@ -403,9 +396,7 @@ function migrateLegacy(
     fastestReaction: (() => {
       const legacy = optionalMs(legacyStats.fastestReaction);
       if (legacy === null) return stats.fastestReaction;
-      return stats.fastestReaction === null
-        ? legacy
-        : Math.min(stats.fastestReaction, legacy);
+      return stats.fastestReaction === null ? legacy : Math.min(stats.fastestReaction, legacy);
     })(),
   };
 
@@ -414,15 +405,9 @@ function migrateLegacy(
     ...nextStats.modes,
     classic: {
       ...nextStats.modes.classic,
-      gamesPlayed: Math.max(
-        nextStats.modes.classic.gamesPlayed,
-        int(legacyStats.gamesPlayed),
-      ),
+      gamesPlayed: Math.max(nextStats.modes.classic.gamesPlayed, int(legacyStats.gamesPlayed)),
       highScore: Math.max(nextStats.modes.classic.highScore, legacyBest),
-      bestCombo: Math.max(
-        nextStats.modes.classic.bestCombo,
-        int(legacyStats.bestCombo),
-      ),
+      bestCombo: Math.max(nextStats.modes.classic.bestCombo, int(legacyStats.bestCombo)),
     },
   };
 

@@ -48,11 +48,7 @@ interface OnboardingFlowProps {
 }
 
 /** Tutorial demos are purely visual — they never touch game statistics. */
-export function OnboardingFlow({
-  reducedMotion,
-  onFinish,
-  onSkip,
-}: OnboardingFlowProps) {
+export function OnboardingFlow({ reducedMotion, onFinish, onSkip }: OnboardingFlowProps) {
   const [index, setIndex] = useState(0);
   const panel = PANELS[index];
   const isLast = index === PANELS.length - 1;
@@ -97,10 +93,7 @@ export function OnboardingFlow({
 
         <ul className="arcade-panel mt-10 space-y-3 p-5">
           {panel.points.map((point) => (
-            <li
-              key={point}
-              className="text-base font-bold text-arcade-text"
-            >
+            <li key={point} className="text-base font-bold text-arcade-text">
               • {point}
             </li>
           ))}

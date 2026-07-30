@@ -41,11 +41,7 @@ interface HowToPlayModalProps {
   onReplayTutorial: () => void;
 }
 
-export function HowToPlayModal({
-  open,
-  onClose,
-  onReplayTutorial,
-}: HowToPlayModalProps) {
+export function HowToPlayModal({ open, onClose, onReplayTutorial }: HowToPlayModalProps) {
   return (
     <Sheet open={open} title="How to Play" onClose={onClose}>
       <div className="arcade-panel divide-y divide-arcade-line/50">
@@ -60,9 +56,7 @@ export function HowToPlayModal({
               <span className={`sticker-sm block text-base tracking-tight ${r.tone}`}>
                 {r.title}
               </span>
-              <span className="block text-sm font-semibold text-arcade-text/85">
-                {r.detail}
-              </span>
+              <span className="block text-sm font-semibold text-arcade-text/85">{r.detail}</span>
             </span>
           </div>
         ))}
@@ -80,8 +74,8 @@ export function HowToPlayModal({
           <span className="text-neon-green glow-green">PERFECT!</span>
         </p>
         <p>
-          Each mode changes the failure rules — Blitz burns clock, Survival costs
-          lives, Focus removes traps entirely.
+          Each mode changes the failure rules — Blitz burns clock, Survival costs lives, Focus
+          removes traps entirely.
         </p>
       </div>
 

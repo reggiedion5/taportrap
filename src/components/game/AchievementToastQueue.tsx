@@ -52,9 +52,7 @@ export function AchievementToastQueue({
           <p className="sticker-sm text-[10px] tracking-[0.22em]">
             {TIER_LABEL[current.tier].toUpperCase()} UNLOCKED
           </p>
-          <p className="truncate text-base font-black text-arcade-text">
-            {current.title}
-          </p>
+          <p className="truncate text-base font-black text-arcade-text">{current.title}</p>
           <p className="truncate text-xs font-semibold text-arcade-text/80">
             +{current.rewardXp} XP
           </p>
