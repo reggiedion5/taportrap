@@ -3,6 +3,10 @@
 Capacitor does not generate icons for you. Produce one master image and let
 Xcode's single-size App Icon slot handle the rest.
 
+The master image already exists in this repo at **`resources/app-icon-1024.png`**
+— a neon-green target disc on the arcade navy `#07080f` field with a thin neon
+red trap arc. Drag it into Xcode's App Icon slot.
+
 ## Master asset
 
 | Property | Value |
@@ -11,7 +15,8 @@ Xcode's single-size App Icon slot handle the rest.
 | Format | PNG, no alpha channel, no transparency |
 | Colour space | sRGB |
 | Corners | Square — iOS applies the rounded mask itself |
-| File | `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png` |
+| Source | `resources/app-icon-1024.png` |
+| Destination | `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png` |
 
 ## Design direction
 
