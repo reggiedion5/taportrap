@@ -38,6 +38,10 @@ export interface GameSettings {
   sound: boolean;
   vibration: boolean;
   reducedMotion: boolean;
+  /** Zen-only accessibility preset: larger, slower, gentler. */
+  kidsAssist: boolean;
+  /** After the first countdown of an app session, use the short READY / GO. */
+  skipCountdown: boolean;
 }
 
 export interface LifetimeStats {

@@ -12,7 +12,11 @@ export const DEFAULT_SETTINGS: GameSettings = {
   sound: true,
   vibration: true,
   reducedMotion: false,
+  kidsAssist: false,
+  skipCountdown: false,
 };
+
+export const SETTINGS_STORAGE_KEY = SETTINGS_KEY;
 
 export const DEFAULT_STATS: LifetimeStats = {
   gamesPlayed: 0,
@@ -68,6 +72,8 @@ export function loadSettings(): GameSettings {
     sound: safeBool(source.sound, DEFAULT_SETTINGS.sound),
     vibration: safeBool(source.vibration, DEFAULT_SETTINGS.vibration),
     reducedMotion: safeBool(source.reducedMotion, DEFAULT_SETTINGS.reducedMotion),
+    kidsAssist: safeBool(source.kidsAssist, DEFAULT_SETTINGS.kidsAssist),
+    skipCountdown: safeBool(source.skipCountdown, DEFAULT_SETTINGS.skipCountdown),
   };
 }
 
