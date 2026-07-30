@@ -113,7 +113,7 @@ export function StartScreen({
           {RULES.map((r) => (
             <div key={r.title} className="flex items-center gap-4 p-4">
               <span
-                className={`sticker-sm grid size-14 shrink-0 place-items-center rounded-full ${r.color} ${r.text} text-[11px] tracking-wider`}
+                className={`grid size-14 shrink-0 place-items-center rounded-full ${r.color} ${r.text} text-[11px] font-black tracking-wider`}
               >
                 {r.label}
               </span>
