@@ -40,7 +40,9 @@ import {
 
 export { difficultyProgress } from "./difficulty";
 
-const EXIT_MS = 140;
+const EXIT_MS = 260;
+/** forgiving window for the second purple tap, measured from the first tap */
+const PURPLE_SECOND_WINDOW = 1000;
 
 interface Burst {
   id: number;
@@ -439,9 +441,18 @@ export function useGame() {
   const tapTarget = useCallback(() => {
     if (endedRef.current || phaseRef.current !== "playing") return;
     const t = targetRef.current;
-    if (!t || t.resolved) return;
+    if (!t) return;
 
-    const elapsed = performance.now() - t.spawnedAt;
+    // a second tap on a single-tap target (green/gold) is a mistake
+    if (t.resolved) {
+      if (t.color === "green" || t.color === "gold") {
+        endGameRef.current("extra-tap");
+      }
+      return;
+    }
+
+    const now = performance.now();
+    const elapsed = now - t.spawnedAt;
 
     if (t.color === "red") {
       endGameRef.current("tapped-trap");
@@ -450,14 +461,32 @@ export function useGame() {
 
     if (t.color === "purple") {
       if (t.taps === 0) {
-        const updated: ActiveTarget = { ...t, taps: 1 };
+        const updated: ActiveTarget = { ...t, taps: 1, firstTapAt: now };
         targetRef.current = updated;
         setTarget(updated);
         playSound("purple-first");
         vibrate("purple-first");
+        // forgiving: give a fresh window for the second tap
+        if (expireTimer.current !== null) window.clearTimeout(expireTimer.current);
+        const remaining = Math.max(
+          PURPLE_SECOND_WINDOW,
+          t.spawnedAt + t.duration - now,
+        );
+        expireAt.current = now + remaining;
+        const runId = runIdRef.current;
+        expireTimer.current = window.setTimeout(() => {
+          expireTimer.current = null;
+          if (runId !== runIdRef.current) return;
+          handleExpire(updated.id);
+        }, remaining);
         return;
       }
-      resolveSuccess(t, 2, elapsed, "DOUBLE TAP");
+      // faster second taps are worth more
+      const gap = now - (t.firstTapAt ?? t.spawnedAt);
+      const base = gap < 280 ? 4 : gap < 550 ? 3 : 2;
+      const label =
+        base === 4 ? "LIGHTNING ×2" : base === 3 ? "QUICK ×2" : "DOUBLE TAP";
+      resolveSuccess(t, base, elapsed, label);
       return;
     }
 
@@ -467,7 +496,7 @@ export function useGame() {
     }
 
     resolveSuccess(t, 1, elapsed, gradeReaction(elapsed));
-  }, [resolveSuccess]);
+  }, [handleExpire, resolveSuccess]);
 
   // ---------- session control ----------
   const startGame = useCallback(() => {

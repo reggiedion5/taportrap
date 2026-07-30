@@ -6,6 +6,7 @@ export type GameOverReason =
   | "tapped-trap"
   | "missed-target"
   | "incomplete-purple"
+  | "extra-tap"
   | "quit";
 
 /** Explicit lifecycle of a single target. Only one target exists at a time. */
@@ -28,6 +29,8 @@ export interface ActiveTarget {
   duration: number;
   spawnedAt: number;
   taps: number;
+  /** timestamp of the first purple tap, used for the forgiving second-tap window */
+  firstTapAt?: number;
   state: TargetState;
   resolved: boolean;
 }
@@ -93,6 +96,7 @@ export const GAME_OVER_HEADLINE: Record<GameOverReason, string> = {
   "tapped-trap": "TRAPPED!",
   "missed-target": "TOO SLOW!",
   "incomplete-purple": "ONE TAP SHORT!",
+  "extra-tap": "ONE TAP TOO MANY!",
   quit: "RUN ENDED",
 };
 
@@ -100,5 +104,6 @@ export const GAME_OVER_MESSAGE: Record<GameOverReason, string> = {
   "tapped-trap": "You tapped a trap.",
   "missed-target": "You missed the target.",
   "incomplete-purple": "Purple needed two taps.",
+  "extra-tap": "That one only wanted a single tap.",
   quit: "You quit this run.",
 };
