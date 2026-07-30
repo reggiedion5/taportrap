@@ -6,6 +6,7 @@ export type GameOverReason =
   | "tapped-trap"
   | "missed-target"
   | "incomplete-purple"
+  | "extra-tap"
   | "quit";
 
 /** Explicit lifecycle of a single target. Only one target exists at a time. */
@@ -28,6 +29,8 @@ export interface ActiveTarget {
   duration: number;
   spawnedAt: number;
   taps: number;
+  /** timestamp of the first purple tap, used for the forgiving second-tap window */
+  firstTapAt?: number;
   state: TargetState;
   resolved: boolean;
 }
