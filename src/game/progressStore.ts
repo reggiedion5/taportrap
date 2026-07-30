@@ -1,0 +1,488 @@
+import { GAME_MODES, isGameMode, type GameMode } from "./modes";
+import {
+  generateDailyChallenge,
+  isValidDateString,
+  localDateString,
+  normalizeStreak,
+} from "./daily";
+import { DEFAULT_THEME_ID, THEMES } from "./themes";
+import {
+  STORAGE_VERSION,
+  type AchievementStore,
+  type DailyState,
+  type ModeStatistics,
+  type PersonalRecords,
+  type PlayerProfile,
+  type PlayerStatistics,
+  type PostGameMission,
+} from "./progressionTypes";
+
+export const KEYS = {
+  profile: "tap-or-trap-profile-v2",
+  statistics: "tap-or-trap-statistics-v2",
+  achievements: "tap-or-trap-achievements-v2",
+  daily: "tap-or-trap-daily-v2",
+  records: "tap-or-trap-records-v2",
+  mission: "tap-or-trap-mission-v2",
+  migrated: "tap-or-trap-migrated-v2",
+} as const;
+
+const LEGACY_STATS_KEY = "tap-or-trap-stats-v1";
+const LEGACY_HIGH_SCORE_KEY = "tap-or-trap-high-score-v1";
+
+/* ---------------- safe primitives ---------------- */
+
+function num(value: unknown, fallback = 0): number {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function int(value: unknown, fallback = 0): number {
+  return Math.max(0, Math.floor(num(value, fallback)));
+}
+
+function optionalMs(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+}
+
+function bool(value: unknown, fallback = false): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function readJson(key: string): unknown {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function writeJson(key: string, value: unknown) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* storage unavailable — never crash */
+  }
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+/* ---------------- defaults ---------------- */
+
+export function emptyModeStats(): ModeStatistics {
+  return {
+    gamesPlayed: 0,
+    highScore: 0,
+    totalScore: 0,
+    totalSuccessfulReactions: 0,
+    bestCombo: 0,
+    totalReactionTime: 0,
+    reactionSampleCount: 0,
+    fastestReaction: null,
+    bestAvgReaction: null,
+    perfectCount: 0,
+    fastCount: 0,
+    goodCount: 0,
+    bestPerfectInRun: 0,
+    longestRun: 0,
+    totalPlayTime: 0,
+    overReasons: {},
+  };
+}
+
+function emptyModeMap(): Record<GameMode, ModeStatistics> {
+  return {
+    classic: emptyModeStats(),
+    blitz: emptyModeStats(),
+    survival: emptyModeStats(),
+    focus: emptyModeStats(),
+  };
+}
+
+export function defaultProfile(): PlayerProfile {
+  const now = Date.now();
+  return {
+    version: STORAGE_VERSION,
+    level: 1,
+    currentXp: 0,
+    lifetimeXp: 0,
+    selectedTheme: DEFAULT_THEME_ID,
+    selectedMode: "classic",
+    onboardingCompleted: false,
+    seenModeIntros: [],
+    createdAt: now,
+    lastPlayedAt: now,
+    lastOpenedDate: localDateString(),
+    totalAchievementsUnlocked: 0,
+  };
+}
+
+export function defaultStatistics(): PlayerStatistics {
+  return {
+    version: STORAGE_VERSION,
+    gamesPlayed: 0,
+    totalScore: 0,
+    totalSuccessfulReactions: 0,
+    bestCombo: 0,
+    totalReactionTime: 0,
+    reactionSampleCount: 0,
+    fastestReaction: null,
+    perfectCount: 0,
+    fastCount: 0,
+    goodCount: 0,
+    totalGold: 0,
+    totalTrapsAvoided: 0,
+    totalPurpleCompletions: 0,
+    totalPlayTime: 0,
+    modes: emptyModeMap(),
+  };
+}
+
+export function defaultRecords(): PersonalRecords {
+  return {
+    version: STORAGE_VERSION,
+    highScore: { classic: 0, blitz: 0, survival: 0, focus: 0 },
+    bestCombo: 0,
+    fastestReaction: null,
+    bestAvgReaction: null,
+    mostPerfectInRun: 0,
+    mostGoldInRun: 0,
+    mostTrapsAvoidedInRun: 0,
+    mostPurpleInRun: 0,
+    longestSurvivalRun: 0,
+    focusTunnelVision: false,
+  };
+}
+
+export function defaultAchievements(): AchievementStore {
+  return { version: STORAGE_VERSION, unlocked: {} };
+}
+
+export function defaultDaily(date = localDateString()): DailyState {
+  return {
+    version: STORAGE_VERSION,
+    currentDate: date,
+    challengeId: generateDailyChallenge(date).id,
+    progress: 0,
+    completed: false,
+    rewardClaimed: false,
+    completedDate: null,
+    currentStreak: 0,
+    bestStreak: 0,
+    lastCompletedDate: null,
+    totalCompleted: 0,
+  };
+}
+
+/* ---------------- parsing ---------------- */
+
+function parseProfile(raw: unknown): PlayerProfile {
+  const src = asRecord(raw);
+  const base = defaultProfile();
+  const theme = typeof src.selectedTheme === "string" ? src.selectedTheme : "";
+  const seen = Array.isArray(src.seenModeIntros)
+    ? src.seenModeIntros.filter(isGameMode)
+    : [];
+  return {
+    version: STORAGE_VERSION,
+    level: Math.max(1, int(src.level, 1) || 1),
+    currentXp: int(src.currentXp),
+    lifetimeXp: int(src.lifetimeXp),
+    selectedTheme: THEMES.some((t) => t.id === theme) ? theme : DEFAULT_THEME_ID,
+    selectedMode: isGameMode(src.selectedMode) ? src.selectedMode : "classic",
+    onboardingCompleted: bool(src.onboardingCompleted),
+    seenModeIntros: seen,
+    createdAt: int(src.createdAt, base.createdAt) || base.createdAt,
+    lastPlayedAt: int(src.lastPlayedAt, base.lastPlayedAt) || base.lastPlayedAt,
+    lastOpenedDate: isValidDateString(src.lastOpenedDate)
+      ? src.lastOpenedDate
+      : base.lastOpenedDate,
+    totalAchievementsUnlocked: int(src.totalAchievementsUnlocked),
+  };
+}
+
+function parseModeStats(raw: unknown): ModeStatistics {
+  const src = asRecord(raw);
+  const reasons = asRecord(src.overReasons);
+  const overReasons: ModeStatistics["overReasons"] = {};
+  for (const [key, value] of Object.entries(reasons)) {
+    const count = int(value);
+    if (count > 0) {
+      (overReasons as Record<string, number>)[key] = count;
+    }
+  }
+  return {
+    gamesPlayed: int(src.gamesPlayed),
+    highScore: int(src.highScore),
+    totalScore: int(src.totalScore),
+    totalSuccessfulReactions: int(src.totalSuccessfulReactions),
+    bestCombo: int(src.bestCombo),
+    totalReactionTime: int(src.totalReactionTime),
+    reactionSampleCount: int(src.reactionSampleCount),
+    fastestReaction: optionalMs(src.fastestReaction),
+    bestAvgReaction: optionalMs(src.bestAvgReaction),
+    perfectCount: int(src.perfectCount),
+    fastCount: int(src.fastCount),
+    goodCount: int(src.goodCount),
+    bestPerfectInRun: int(src.bestPerfectInRun),
+    longestRun: int(src.longestRun),
+    totalPlayTime: int(src.totalPlayTime),
+    overReasons,
+  };
+}
+
+function parseStatistics(raw: unknown): PlayerStatistics {
+  const src = asRecord(raw);
+  const modesSrc = asRecord(src.modes);
+  const modes = emptyModeMap();
+  for (const mode of GAME_MODES) {
+    modes[mode] = parseModeStats(modesSrc[mode]);
+  }
+  return {
+    version: STORAGE_VERSION,
+    gamesPlayed: int(src.gamesPlayed),
+    totalScore: int(src.totalScore),
+    totalSuccessfulReactions: int(src.totalSuccessfulReactions),
+    bestCombo: int(src.bestCombo),
+    totalReactionTime: int(src.totalReactionTime),
+    reactionSampleCount: int(src.reactionSampleCount),
+    fastestReaction: optionalMs(src.fastestReaction),
+    perfectCount: int(src.perfectCount),
+    fastCount: int(src.fastCount),
+    goodCount: int(src.goodCount),
+    totalGold: int(src.totalGold),
+    totalTrapsAvoided: int(src.totalTrapsAvoided),
+    totalPurpleCompletions: int(src.totalPurpleCompletions),
+    totalPlayTime: int(src.totalPlayTime),
+    modes,
+  };
+}
+
+function parseRecords(raw: unknown): PersonalRecords {
+  const src = asRecord(raw);
+  const high = asRecord(src.highScore);
+  const base = defaultRecords();
+  for (const mode of GAME_MODES) {
+    base.highScore[mode] = int(high[mode]);
+  }
+  return {
+    ...base,
+    bestCombo: int(src.bestCombo),
+    fastestReaction: optionalMs(src.fastestReaction),
+    bestAvgReaction: optionalMs(src.bestAvgReaction),
+    mostPerfectInRun: int(src.mostPerfectInRun),
+    mostGoldInRun: int(src.mostGoldInRun),
+    mostTrapsAvoidedInRun: int(src.mostTrapsAvoidedInRun),
+    mostPurpleInRun: int(src.mostPurpleInRun),
+    longestSurvivalRun: int(src.longestSurvivalRun),
+    focusTunnelVision: bool(src.focusTunnelVision),
+  };
+}
+
+function parseAchievements(raw: unknown): AchievementStore {
+  const src = asRecord(raw);
+  const unlockedSrc = asRecord(src.unlocked);
+  const unlocked: Record<string, number> = {};
+  for (const [id, at] of Object.entries(unlockedSrc)) {
+    const stamp = int(at);
+    unlocked[id] = stamp > 0 ? stamp : Date.now();
+  }
+  return { version: STORAGE_VERSION, unlocked };
+}
+
+function parseDaily(raw: unknown): DailyState {
+  const src = asRecord(raw);
+  const today = localDateString();
+  const base = defaultDaily(today);
+  const storedDate = isValidDateString(src.currentDate) ? src.currentDate : today;
+  const lastCompleted = isValidDateString(src.lastCompletedDate)
+    ? src.lastCompletedDate
+    : null;
+
+  let state: DailyState = {
+    version: STORAGE_VERSION,
+    currentDate: storedDate,
+    challengeId:
+      typeof src.challengeId === "string" && src.challengeId
+        ? src.challengeId
+        : generateDailyChallenge(storedDate).id,
+    progress: Math.max(0, num(src.progress)),
+    completed: bool(src.completed),
+    rewardClaimed: bool(src.rewardClaimed),
+    completedDate: isValidDateString(src.completedDate) ? src.completedDate : null,
+    currentStreak: int(src.currentStreak),
+    bestStreak: int(src.bestStreak),
+    lastCompletedDate: lastCompleted,
+    totalCompleted: int(src.totalCompleted),
+  };
+
+  if (state.currentDate !== today) {
+    state = {
+      ...state,
+      currentDate: today,
+      challengeId: generateDailyChallenge(today).id,
+      progress: 0,
+      completed: false,
+      rewardClaimed: false,
+      completedDate: null,
+    };
+  }
+  state = normalizeStreak(state, today);
+  state.bestStreak = Math.max(state.bestStreak, state.currentStreak);
+  return { ...base, ...state };
+}
+
+function parseMission(raw: unknown): PostGameMission | null {
+  const src = asRecord(raw);
+  if (!isGameMode(src.mode) || typeof src.label !== "string") return null;
+  const metric = src.metric;
+  const allowed = [
+    "score",
+    "combo",
+    "perfect",
+    "traps",
+    "gold",
+    "purple",
+    "successes",
+    "avgReaction",
+  ];
+  if (typeof metric !== "string" || !allowed.includes(metric)) return null;
+  return {
+    id: typeof src.id === "string" ? src.id : `${src.mode}:${metric}`,
+    mode: src.mode,
+    label: src.label,
+    target: Math.max(1, int(src.target, 1)),
+    metric: metric as PostGameMission["metric"],
+    lowerIsBetter: bool(src.lowerIsBetter),
+    attempts: int(src.attempts),
+  };
+}
+
+/* ---------------- migration ---------------- */
+
+/** One-time import of Phase 2 data. Never destroys the legacy keys. */
+function migrateLegacy(
+  stats: PlayerStatistics,
+  records: PersonalRecords,
+): { stats: PlayerStatistics; records: PersonalRecords } {
+  if (typeof window === "undefined") return { stats, records };
+  if (window.localStorage.getItem(KEYS.migrated) === "1") {
+    return { stats, records };
+  }
+
+  const legacyStats = asRecord(readJson(LEGACY_STATS_KEY));
+  const legacyHigh = int(readJson(LEGACY_HIGH_SCORE_KEY));
+
+  const nextStats: PlayerStatistics = {
+    ...stats,
+    gamesPlayed: Math.max(stats.gamesPlayed, int(legacyStats.gamesPlayed)),
+    totalSuccessfulReactions: Math.max(
+      stats.totalSuccessfulReactions,
+      int(legacyStats.totalCorrect),
+    ),
+    bestCombo: Math.max(stats.bestCombo, int(legacyStats.bestCombo)),
+    totalGold: Math.max(stats.totalGold, int(legacyStats.totalGold)),
+    totalTrapsAvoided: Math.max(
+      stats.totalTrapsAvoided,
+      int(legacyStats.totalTrapsAvoided),
+    ),
+    totalPurpleCompletions: Math.max(
+      stats.totalPurpleCompletions,
+      int(legacyStats.totalPurpleCompletions),
+    ),
+    fastestReaction: (() => {
+      const legacy = optionalMs(legacyStats.fastestReaction);
+      if (legacy === null) return stats.fastestReaction;
+      return stats.fastestReaction === null
+        ? legacy
+        : Math.min(stats.fastestReaction, legacy);
+    })(),
+  };
+
+  const legacyBest = Math.max(legacyHigh, int(legacyStats.highestScore));
+  nextStats.modes = {
+    ...nextStats.modes,
+    classic: {
+      ...nextStats.modes.classic,
+      gamesPlayed: Math.max(
+        nextStats.modes.classic.gamesPlayed,
+        int(legacyStats.gamesPlayed),
+      ),
+      highScore: Math.max(nextStats.modes.classic.highScore, legacyBest),
+      bestCombo: Math.max(
+        nextStats.modes.classic.bestCombo,
+        int(legacyStats.bestCombo),
+      ),
+    },
+  };
+
+  const nextRecords: PersonalRecords = {
+    ...records,
+    highScore: {
+      ...records.highScore,
+      classic: Math.max(records.highScore.classic, legacyBest),
+    },
+    bestCombo: Math.max(records.bestCombo, int(legacyStats.bestCombo)),
+    fastestReaction: nextStats.fastestReaction,
+  };
+
+  try {
+    window.localStorage.setItem(KEYS.migrated, "1");
+  } catch {
+    /* ignore */
+  }
+  writeJson(KEYS.statistics, nextStats);
+  writeJson(KEYS.records, nextRecords);
+  return { stats: nextStats, records: nextRecords };
+}
+
+/* ---------------- public loaders ---------------- */
+
+export interface ProgressSnapshot {
+  profile: PlayerProfile;
+  statistics: PlayerStatistics;
+  records: PersonalRecords;
+  achievements: AchievementStore;
+  daily: DailyState;
+  mission: PostGameMission | null;
+}
+
+export function loadProgress(): ProgressSnapshot {
+  const profile = parseProfile(readJson(KEYS.profile));
+  const parsedStats = parseStatistics(readJson(KEYS.statistics));
+  const parsedRecords = parseRecords(readJson(KEYS.records));
+  const { stats, records } = migrateLegacy(parsedStats, parsedRecords);
+  return {
+    profile,
+    statistics: stats,
+    records,
+    achievements: parseAchievements(readJson(KEYS.achievements)),
+    daily: parseDaily(readJson(KEYS.daily)),
+    mission: parseMission(readJson(KEYS.mission)),
+  };
+}
+
+export function resetStatistics(): {
+  statistics: PlayerStatistics;
+  records: PersonalRecords;
+  achievements: AchievementStore;
+} {
+  const statistics = defaultStatistics();
+  const records = defaultRecords();
+  const achievements = defaultAchievements();
+  writeJson(KEYS.statistics, statistics);
+  writeJson(KEYS.records, records);
+  writeJson(KEYS.achievements, achievements);
+  writeJson(KEYS.mission, null);
+  return { statistics, records, achievements };
+}
