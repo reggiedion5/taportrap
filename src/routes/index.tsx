@@ -2,8 +2,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useGame } from "@/game/useGame";
 import { useProgress, type SessionSummary } from "@/game/useProgress";
+import { useTraining } from "@/game/useTraining";
 import type { Achievement, GameSessionResult } from "@/game/progressionTypes";
+import { isGameMode, MODE_CONFIG, type GameMode } from "@/game/modes";
+import { MODE_CATALOG } from "@/game/trainingConfig";
+import type {
+  PlayableMode,
+  TrainerSessionResult,
+  TrainingDifficulty,
+  TrainingMode,
+  TrainingModule,
+  TrainingRewardResult,
+  ZenSessionResult,
+} from "@/game/trainingTypes";
 import { playSound } from "@/game/audio";
+import { formatCount } from "@/game/format";
 import { HomeScreen } from "@/components/game/HomeScreen";
 import { GameScreen } from "@/components/game/GameScreen";
 import { GameOverScreen } from "@/components/game/GameOverScreen";
@@ -16,11 +29,17 @@ import { ThemeScreen } from "@/components/game/ThemeScreen";
 import { HowToPlayModal } from "@/components/game/HowToPlayModal";
 import { AchievementToastQueue } from "@/components/game/AchievementToastQueue";
 import { AppBootstrap } from "@/components/game/AppBootstrap";
+import { TrainingScreen } from "@/components/game/TrainingScreen";
+import { TrainingSetupModal } from "@/components/game/TrainingSetupModal";
+import { TrainingSummaryScreen } from "@/components/game/TrainingSummaryScreen";
+import { FeedbackModal } from "@/components/game/FeedbackModal";
+import { PreGameCountdown } from "@/components/game/PreGameCountdown";
+import type { ResetScope } from "@/components/game/DataResetSheet";
 import { ACHIEVEMENTS } from "@/game/achievements";
 
 const TITLE = "Tap or Trap — Neon Reaction Arcade Game";
 const DESCRIPTION =
-  "Four game modes, daily challenges, XP levels, unlockable themes and achievements. Hit green and gold, dodge red traps and chase your best score.";
+  "Six ways to play: four competitive modes plus Zen and a Reflex Trainer. Daily challenges, XP levels, unlockable themes and 28 achievements.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,16 +55,40 @@ export const Route = createFileRoute("/")({
   component: TapOrTrap,
 });
 
-type Overlay = "none" | "modes" | "achievements" | "statistics" | "themes" | "howto" | "settings";
+type Overlay =
+  | "none"
+  | "modes"
+  | "achievements"
+  | "statistics"
+  | "themes"
+  | "howto"
+  | "settings"
+  | "feedback"
+  | "trainingSetup";
+
+/** Non-competitive play runs on its own screen stack. */
+type TrainingPhase = "idle" | "playing" | "summary";
 
 function TapOrTrap() {
   const progress = useProgress();
+  const training = useTraining(progress.grantXp);
+
   const [overlay, setOverlay] = useState<Overlay>("none");
   const [tutorial, setTutorial] = useState(false);
   const [modeIntro, setModeIntro] = useState(false);
+  const [countdown, setCountdown] = useState(false);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [toasts, setToasts] = useState<Achievement[]>([]);
-  
+
+  // selected playable mode (competitive modes live in progress, training here)
+  const [playableMode, setPlayableMode] = useState<PlayableMode>(progress.mode);
+  const [trainingPhase, setTrainingPhase] = useState<TrainingPhase>("idle");
+  const [trainingModule, setTrainingModule] = useState<TrainingModule>("mixed");
+  const [trainingDifficulty, setTrainingDifficulty] = useState<TrainingDifficulty>("standard");
+  const [zenResult, setZenResult] = useState<ZenSessionResult | null>(null);
+  const [trainerResult, setTrainerResult] = useState<TrainerSessionResult | null>(null);
+  const [trainingReward, setTrainingReward] = useState<TrainingRewardResult | null>(null);
+
   const pendingToasts = useRef<Achievement[]>([]);
 
   const handleComplete = useCallback(
@@ -61,6 +104,9 @@ function TapOrTrap() {
 
   const game = useGame({ mode: progress.mode, onComplete: handleComplete });
 
+  const isTrainingMode = playableMode === "zen" || playableMode === "trainer";
+  const catalogEntry = MODE_CATALOG[playableMode];
+
   // achievement toasts are only shown once the run is over
   useEffect(() => {
     if (game.phase === "over" && pendingToasts.current.length > 0) {
@@ -69,7 +115,6 @@ function TapOrTrap() {
     }
   }, [game.phase]);
 
-  // apply the selected theme to the document
   useEffect(() => {
     document.documentElement.dataset.theme = progress.activeTheme.id;
   }, [progress.activeTheme.id]);
@@ -82,32 +127,116 @@ function TapOrTrap() {
     }
   }, [game.reducedMotion]);
 
+  /* ---------------- mode selection ---------------- */
+
+  const selectMode = useCallback(
+    (mode: PlayableMode) => {
+      setPlayableMode(mode);
+      if (isGameMode(mode)) {
+        progress.setMode(mode);
+        training.setLastCompetitiveMode(mode);
+      }
+    },
+    [progress, training],
+  );
+
+  /* ---------------- competitive flow ---------------- */
+
   const beginRun = useCallback(() => {
     setSummary(null);
     setModeIntro(false);
+    setCountdown(false);
     game.startGame();
   }, [game]);
 
+  const launchCompetitive = useCallback(() => {
+    setSummary(null);
+    setModeIntro(false);
+    if (game.settings.skipCountdown) {
+      beginRun();
+      return;
+    }
+    setCountdown(true);
+  }, [beginRun, game.settings.skipCountdown]);
+
+  /* ---------------- training flow ---------------- */
+
+  const startTraining = useCallback(() => {
+    setZenResult(null);
+    setTrainerResult(null);
+    setTrainingReward(null);
+    setOverlay("none");
+    setTrainingPhase("playing");
+  }, []);
+
+  const handleZenComplete = useCallback(
+    (result: ZenSessionResult) => {
+      setZenResult(result);
+      setTrainerResult(null);
+      setTrainingReward(training.recordZenSession(result));
+      setTrainingPhase("summary");
+    },
+    [training],
+  );
+
+  const handleTrainerComplete = useCallback(
+    (result: TrainerSessionResult) => {
+      setTrainerResult(result);
+      setZenResult(null);
+      setTrainingReward(training.recordTrainerSession(result));
+      setTrainingPhase("summary");
+    },
+    [training],
+  );
+
   const handlePlay = useCallback(() => {
+    if (isTrainingMode) {
+      setOverlay("trainingSetup");
+      return;
+    }
     if (!progress.profile.seenModeIntros.includes(progress.mode)) {
       setModeIntro(true);
       return;
     }
-    beginRun();
-  }, [beginRun, progress.mode, progress.profile.seenModeIntros]);
+    launchCompetitive();
+  }, [isTrainingMode, launchCompetitive, progress.mode, progress.profile.seenModeIntros]);
 
-  const handleResetAllData = useCallback(() => {
-    progress.resetAllData();
-    if (typeof window !== "undefined") window.location.reload();
-  }, [progress]);
+  const goToMenu = useCallback(() => {
+    setTrainingPhase("idle");
+    setCountdown(false);
+    game.goToMenu();
+  }, [game]);
+
+  /* ---------------- data resets ---------------- */
+
+  const handleReset = useCallback(
+    (scope: ResetScope) => {
+      switch (scope) {
+        case "statistics":
+          progress.clearStatistics();
+          break;
+        case "training":
+          training.resetTraining();
+          break;
+        case "daily":
+          progress.clearDailyProgress();
+          break;
+        case "everything":
+          progress.resetAllData();
+          if (typeof window !== "undefined") window.location.reload();
+          break;
+      }
+    },
+    [progress, training],
+  );
 
   const showOnboarding = progress.hydrated && (tutorial || !progress.profile.onboardingCompleted);
 
   const shell = (content: React.ReactNode) => (
     <AppBootstrap
-      dataHydrated={progress.hydrated}
+      dataHydrated={progress.hydrated && training.ready}
       themeId={progress.activeTheme.id}
-      onReturnToMenu={game.goToMenu}
+      onReturnToMenu={goToMenu}
     >
       {content}
     </AppBootstrap>
@@ -132,15 +261,30 @@ function TapOrTrap() {
     );
   }
 
+  const bestLabel = isTrainingMode
+    ? playableMode === "zen"
+      ? `BEST ${formatCount(training.training.zen.bestTapCount)} TAPS`
+      : `BEST ${Math.round(
+          Math.max(
+            0,
+            ...Object.values(training.training.trainer.modules).map((m) => m.bestAccuracy),
+          ) * 100,
+        )}%`
+    : `BEST ${formatCount(progress.records.highScore[playableMode as GameMode])}`;
+
+  const showHome = game.phase === "start" && trainingPhase === "idle" && !countdown;
+
   return shell(
     <main className="min-h-[100dvh] bg-arcade-bg-deep">
       <h1 className="sr-only">Tap or Trap — reaction arcade game</h1>
 
-      {game.phase === "start" && (
+      {showHome && (
         <HomeScreen
           level={progress.level}
-          modeConfig={progress.modeConfig}
-          modeHighScore={progress.records.highScore[progress.mode]}
+          modeName={catalogEntry.name}
+          modeTagline={catalogEntry.description}
+          modeBestLabel={bestLabel}
+          isTrainingMode={isTrainingMode}
           daily={progress.daily}
           challenge={progress.challenge}
           themeHint={progress.themeHint}
@@ -154,7 +298,43 @@ function TapOrTrap() {
           onOpenThemes={() => setOverlay("themes")}
           onOpenSettings={() => setOverlay("settings")}
           onOpenHowToPlay={() => setOverlay("howto")}
-          
+        />
+      )}
+
+      {countdown && (
+        <PreGameCountdown
+          title={`${MODE_CONFIG[progress.mode].name} mode`}
+          reducedMotion={game.reducedMotion}
+          onDone={beginRun}
+          onCancel={() => setCountdown(false)}
+        />
+      )}
+
+      {trainingPhase === "playing" && isTrainingMode && (
+        <TrainingScreen
+          mode={playableMode as TrainingMode}
+          module={trainingModule}
+          difficulty={trainingDifficulty}
+          kidsAssist={game.settings.kidsAssist}
+          reducedMotion={game.reducedMotion}
+          shortCountdown={game.settings.skipCountdown}
+          onZenComplete={handleZenComplete}
+          onTrainerComplete={handleTrainerComplete}
+          onQuit={goToMenu}
+        />
+      )}
+
+      {trainingPhase === "summary" && (
+        <TrainingSummaryScreen
+          zen={zenResult}
+          trainer={trainerResult}
+          reward={trainingReward}
+          onAgain={startTraining}
+          onChangeMode={() => {
+            setTrainingPhase("idle");
+            setOverlay("modes");
+          }}
+          onMenu={goToMenu}
         />
       )}
 
@@ -194,21 +374,37 @@ function TapOrTrap() {
           levelCurrentXp={progress.level.currentXp}
           levelXpForNext={progress.level.xpForNext}
           dailyObjective={progress.challenge.objective}
+          playerLevel={progress.level.level}
           reducedMotion={game.reducedMotion}
-          onPlayAgain={beginRun}
+          onPlayAgain={launchCompetitive}
           onChangeMode={() => {
             game.goToMenu();
             setOverlay("modes");
           }}
-          onMenu={game.goToMenu}
+          onMenu={goToMenu}
         />
       )}
 
       <ModeSelector
         open={overlay === "modes"}
-        selected={progress.mode}
+        selected={playableMode}
         records={progress.records}
-        onSelect={progress.setMode}
+        training={training.training}
+        onSelect={selectMode}
+        onClose={() => setOverlay("none")}
+      />
+
+      <TrainingSetupModal
+        open={overlay === "trainingSetup" && isTrainingMode}
+        mode={playableMode as TrainingMode}
+        module={trainingModule}
+        difficulty={trainingDifficulty}
+        kidsAssist={game.settings.kidsAssist}
+        training={training.training}
+        onModuleChange={setTrainingModule}
+        onDifficultyChange={setTrainingDifficulty}
+        onKidsAssistChange={(v) => game.updateSettings({ kidsAssist: v })}
+        onStart={startTraining}
         onClose={() => setOverlay("none")}
       />
 
@@ -250,16 +446,19 @@ function TapOrTrap() {
         open={overlay === "settings"}
         settings={game.settings}
         onChange={game.updateSettings}
-        onResetAllData={handleResetAllData}
+        onReset={handleReset}
+        onOpenFeedback={() => setOverlay("feedback")}
         onClose={() => setOverlay("none")}
       />
+
+      <FeedbackModal open={overlay === "feedback"} onClose={() => setOverlay("none")} />
 
       <ModeInfoModal
         open={modeIntro}
         mode={progress.mode}
         onStart={() => {
           progress.markModeIntroSeen(progress.mode);
-          beginRun();
+          launchCompetitive();
         }}
         onClose={() => setModeIntro(false)}
       />

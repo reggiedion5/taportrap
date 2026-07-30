@@ -1,5 +1,4 @@
 import { BarChart3, ChevronRight, HelpCircle, Palette, Settings2, Trophy } from "lucide-react";
-import type { GameModeConfig } from "@/game/modes";
 import type { DailyChallenge, DailyState, PlayerLevel } from "@/game/progressionTypes";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { DailyChallengeCard } from "./DailyChallengeCard";
@@ -7,8 +6,10 @@ import { XpProgressBar } from "./XpProgressBar";
 
 interface HomeScreenProps {
   level: PlayerLevel;
-  modeConfig: GameModeConfig;
-  modeHighScore: number;
+  modeName: string;
+  modeTagline: string;
+  modeBestLabel: string;
+  isTrainingMode: boolean;
   daily: DailyState;
   challenge: DailyChallenge;
   themeHint: string | null;
@@ -26,8 +27,10 @@ interface HomeScreenProps {
 
 export function HomeScreen({
   level,
-  modeConfig,
-  modeHighScore,
+  modeName,
+  modeTagline,
+  modeBestLabel,
+  isTrainingMode,
   daily,
   challenge,
   themeHint,
@@ -42,6 +45,7 @@ export function HomeScreen({
   achievementsUnlocked,
   achievementsTotal,
 }: HomeScreenProps) {
+
   return (
     <div className="no-select relative min-h-[100dvh] overflow-hidden">
       <ArcadeBackdrop />
@@ -96,20 +100,25 @@ export function HomeScreen({
           className="mt-3 w-full rounded-2xl border border-arcade-line bg-arcade-surface px-4 py-3 text-left"
         >
           <span className="sticker-sm block text-[10px] tracking-[0.24em] text-arcade-text/70">
-            MODE
+            {isTrainingMode ? "TRAINING" : "MODE"}
           </span>
           <span className="mt-1 grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3">
-            <span className="sticker-sm min-w-0 truncate text-lg text-neon-green">
-              {modeConfig.name}
+            <span
+              className={`sticker-sm min-w-0 truncate text-lg ${
+                isTrainingMode ? "text-neon-purple" : "text-neon-green"
+              }`}
+            >
+              {modeName}
             </span>
-            <span className="sticker-sm shrink-0 text-sm tracking-[0.14em] text-arcade-text/75 tabular-nums">
-              BEST <span className="text-xl text-neon-gold">{modeHighScore}</span>
+            <span className="sticker-sm shrink-0 text-sm tracking-[0.14em] text-neon-gold tabular-nums">
+              {modeBestLabel}
             </span>
             <ChevronRight className="size-5 shrink-0 text-arcade-text/70" aria-hidden />
           </span>
           <span className="mt-1 block truncate text-xs font-semibold text-arcade-text/75">
-            {modeConfig.tagline}
+            {modeTagline}
           </span>
+
         </button>
 
         {/* ---- play ---- */}

@@ -16,6 +16,7 @@ import {
   loadProgress,
   resetAllLocalData,
   resetStatistics,
+  resetDailyProgress,
   writeJson,
   type ProgressSnapshot,
 } from "./progressStore";
@@ -243,6 +244,22 @@ export function useProgress() {
     });
   }, []);
 
+  /** Grants XP outside of a competitive run (training rewards). */
+  const grantXp = useCallback((amount: number) => {
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    setSnapshot((prev) => {
+      const applied = applyXp(prev.profile, amount);
+      const profile = {
+        ...prev.profile,
+        level: applied.level,
+        currentXp: applied.currentXp,
+        lifetimeXp: applied.lifetimeXp,
+      };
+      writeJson(KEYS.profile, profile);
+      return { ...prev, profile };
+    });
+  }, []);
+
   const clearStatistics = useCallback(() => {
     const fresh = resetStatistics();
     processedSessions.current.clear();
@@ -259,6 +276,13 @@ export function useProgress() {
       })(),
     }));
   }, []);
+
+  const clearDailyProgress = useCallback(() => {
+    const fresh = resetDailyProgress();
+    setSnapshot((prev) => ({ ...prev, daily: fresh }));
+  }, []);
+
+
 
   /* ---------------- session recording ---------------- */
 
@@ -592,7 +616,9 @@ export function useProgress() {
     completeOnboarding,
     markModeIntroSeen,
     patchProfile,
+    grantXp,
     clearStatistics,
+    clearDailyProgress,
     resetAllData: resetAllLocalData,
     recordSession,
   };
