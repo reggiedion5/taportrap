@@ -3,6 +3,7 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { useAppStartup } from "@/hooks/useAppStartup";
 import { useNativeStatusBar } from "@/hooks/useNativeStatusBar";
 import { resetAllLocalData } from "@/game/progressStore";
+import { startTypographyGuard } from "@/lib/typographyGuard";
 
 interface AppBootstrapProps {
   /** True once local progress has been read from storage. */
