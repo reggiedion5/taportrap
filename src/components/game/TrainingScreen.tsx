@@ -75,7 +75,7 @@ export function TrainingScreen(props: TrainingScreenProps) {
       <div className="relative mx-auto flex w-full max-w-lg flex-1 flex-col">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 pt-3">
           <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.24em] text-arcade-text/70">
+            <p className="sticker-sm text-[11px] tracking-[0.2em] text-arcade-muted">
               {mode === "zen" ? (kidsAssist ? "ZEN · KIDS ASSIST" : "ZEN MODE") : "REFLEX TRAINER"}
             </p>
             <p className="truncate text-sm font-black tracking-tight text-arcade-text">
@@ -99,7 +99,7 @@ export function TrainingScreen(props: TrainingScreenProps) {
             <>
               <p className="sticker-sm text-4xl leading-none text-neon-green glow-green tabular-nums">
                 {session.taps}
-                <span className="ml-2 text-xs tracking-[0.18em] text-arcade-text/70">TAPS</span>
+                <span className="ml-2 text-[12px] tracking-[0.16em] text-arcade-muted">TAPS</span>
               </p>
               {!kidsAssist && (
                 <p className="sticker-sm text-sm tracking-[0.16em] text-arcade-text/80 tabular-nums">
@@ -121,7 +121,7 @@ export function TrainingScreen(props: TrainingScreenProps) {
         </div>
 
         {mode === "trainer" && (
-          <p className="mt-1 px-4 text-xs font-bold text-arcade-text/75">{moduleConfig.rule}</p>
+          <p className="ui-body-tight mt-1 px-4 text-[14px] text-arcade-muted">{moduleConfig.rule}</p>
         )}
 
         <div
@@ -145,7 +145,7 @@ export function TrainingScreen(props: TrainingScreenProps) {
             >
               {f.text}
               {f.sub && (
-                <span className="block text-[10px] tracking-[0.2em] opacity-80">{f.sub}</span>
+                <span className="block text-[11px] tracking-[0.16em] opacity-90">{f.sub}</span>
               )}
             </span>
           ))}
@@ -168,7 +168,7 @@ export function TrainingScreen(props: TrainingScreenProps) {
         <div className="px-4 pb-4">
           {session.coachMessage && (
             <p
-              className="mb-3 rounded-2xl border border-arcade-line bg-arcade-surface px-4 py-3 text-center text-sm font-bold text-arcade-text"
+              className="mb-3 rounded-2xl border border-arcade-line bg-arcade-surface px-4 py-3 text-center text-[15px] font-semibold text-arcade-text"
               aria-live="polite"
             >
               {session.coachMessage}
@@ -184,7 +184,7 @@ export function TrainingScreen(props: TrainingScreenProps) {
             </button>
           )}
           {mode === "zen" && kidsAssist && (
-            <p className="mt-2 text-center text-[11px] font-semibold text-arcade-text/65">
+            <p className="ui-body mt-2 text-center text-[13px] text-arcade-muted">
               {KIDS_ASSIST_CONFIG.note}
             </p>
           )}

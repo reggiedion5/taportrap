@@ -63,7 +63,7 @@ export function OnboardingFlow({ reducedMotion, onFinish, onSkip }: OnboardingFl
           <button
             type="button"
             onClick={onSkip}
-            className="arcade-btn sticker-sm border border-arcade-line bg-arcade-surface px-4 py-2 text-xs text-arcade-text"
+            className="arcade-btn ui-title min-h-11 border border-arcade-line bg-arcade-surface px-4 py-2 text-[15px] text-arcade-text"
           >
             Skip Tutorial
           </button>
@@ -99,7 +99,7 @@ export function OnboardingFlow({ reducedMotion, onFinish, onSkip }: OnboardingFl
 
         <ul className="arcade-panel mt-10 space-y-3 p-5">
           {panel.points.map((point) => (
-            <li key={point} className="text-base font-bold text-arcade-text">
+            <li key={point} className="ui-body text-[16px] font-semibold text-arcade-text">
               • {point}
             </li>
           ))}
@@ -127,7 +127,7 @@ export function OnboardingFlow({ reducedMotion, onFinish, onSkip }: OnboardingFl
             <button
               type="button"
               onClick={() => setIndex(index - 1)}
-              className="arcade-btn sticker-sm mt-3 w-full border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
+              className="arcade-btn ui-title mt-3 min-h-12 w-full border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
             >
               Back
             </button>

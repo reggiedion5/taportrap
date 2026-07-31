@@ -22,7 +22,7 @@ interface TrainingSummaryScreenProps {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-arcade-line bg-arcade-surface/70 px-2 py-3 text-center">
-      <p className="sticker-sm text-[9px] tracking-[0.16em] text-arcade-text/75">{label}</p>
+      <p className="sticker-sm text-[11px] tracking-[0.12em] text-arcade-muted">{label}</p>
       <p className="sticker-sm mt-1 text-lg text-arcade-text tabular-nums">{value}</p>
     </div>
   );
@@ -101,12 +101,12 @@ export function TrainingSummaryScreen({
                 <Stat label="TIME" value={formatPlayTime(trainer.durationMs)} />
               </div>
               {trainer.module === "red" && (
-                <p className="mt-4 text-xs font-semibold text-arcade-text/75">
+                <p className="ui-body mt-4 text-[14px] text-arcade-muted">
                   Traps avoided {trainer.trapsAvoided} · traps tapped {trainer.trapTaps}
                 </p>
               )}
               {trainer.module === "purple" && (
-                <p className="mt-4 text-xs font-semibold text-arcade-text/75">
+                <p className="ui-body mt-4 text-[14px] text-arcade-muted">
                   Doubles completed {trainer.purpleCompleted} · single taps {trainer.purpleOneTap}
                 </p>
               )}
@@ -128,7 +128,7 @@ export function TrainingSummaryScreen({
               {reward.reasons.map((r) => (
                 <li
                   key={r.label}
-                  className="flex justify-between text-xs font-bold text-arcade-text/85"
+                  className="ui-body flex justify-between text-[14px] text-arcade-text/95"
                 >
                   <span>{r.label}</span>
                   <span className="tabular-nums">+{r.xp}</span>
@@ -156,14 +156,14 @@ export function TrainingSummaryScreen({
             <button
               type="button"
               onClick={onChangeMode}
-              className="arcade-btn sticker-sm min-h-12 border border-arcade-line bg-arcade-surface py-4 text-sm text-arcade-text"
+              className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
             >
               Change Mode
             </button>
             <button
               type="button"
               onClick={onMenu}
-              className="arcade-btn sticker-sm min-h-12 border border-arcade-line bg-arcade-surface py-4 text-sm text-arcade-text"
+              className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
             >
               Main Menu
             </button>

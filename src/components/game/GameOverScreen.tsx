@@ -91,7 +91,7 @@ export function GameOverScreen({
           </span>
         </h1>
         {result.reason && (
-          <p className="mt-2 text-center text-sm font-black tracking-tight text-arcade-text/90">
+          <p className="ui-body mt-2.5 text-center text-[15px] font-semibold text-arcade-text">
             {GAME_OVER_MESSAGE[result.reason]}
           </p>
         )}
@@ -125,14 +125,14 @@ export function GameOverScreen({
             <button
               type="button"
               onClick={onChangeMode}
-              className="arcade-btn sticker-sm min-h-12 border border-arcade-line bg-arcade-surface py-4 text-sm text-arcade-text"
+              className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
             >
               Change Mode
             </button>
             <button
               type="button"
               onClick={onMenu}
-              className="arcade-btn sticker-sm min-h-12 border border-arcade-line bg-arcade-surface py-4 text-sm text-arcade-text"
+              className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
             >
               Main Menu
             </button>
@@ -182,7 +182,7 @@ export function GameOverScreen({
               type="button"
               aria-expanded={detailsOpen}
               onClick={() => setDetailsOpen((v) => !v)}
-              className="arcade-btn sticker-sm flex min-h-12 w-full items-center justify-center gap-2 border border-arcade-line bg-arcade-surface py-3 text-xs tracking-[0.18em] text-arcade-text"
+              className="arcade-btn ui-title flex min-h-12 w-full items-center justify-center gap-2 border border-arcade-line bg-arcade-surface py-3 text-[15px] text-arcade-text"
             >
               {detailsOpen ? "Hide run details" : "Run details"}
               <ChevronDown
@@ -231,7 +231,7 @@ export function GameOverScreen({
                       {summary.xp.entries.map((entry) => (
                         <li
                           key={entry.label}
-                          className="flex justify-between text-xs font-bold text-arcade-text/85"
+                          className="ui-body flex justify-between text-[14px] text-arcade-text/95"
                         >
                           <span>{entry.label}</span>
                           <span className="tabular-nums">+{entry.xp}</span>
@@ -246,7 +246,9 @@ export function GameOverScreen({
                     <p className="sticker-sm text-[10px] tracking-[0.22em] text-neon-gold glow-gold">
                       DAILY CHALLENGE
                     </p>
-                    <p className="mt-1 text-sm font-bold text-arcade-text">{dailyObjective}</p>
+                    <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
+                      {dailyObjective}
+                    </p>
                     <p className="sticker-sm mt-1 text-xs tracking-[0.14em] text-arcade-text/85">
                       {summary.dailyProgress.completed
                         ? "COMPLETED · New challenge tomorrow"
@@ -262,7 +264,7 @@ export function GameOverScreen({
                     </p>
                     <ul className="mt-1 space-y-1">
                       {summary.unlockedAchievements.map((a) => (
-                        <li key={a.id} className="text-sm font-bold text-arcade-text">
+                        <li key={a.id} className="ui-body text-[15px] font-semibold text-arcade-text">
                           {a.title} · +{a.rewardXp} XP
                         </li>
                       ))}
@@ -275,7 +277,7 @@ export function GameOverScreen({
                     <p className="sticker-sm text-[10px] tracking-[0.22em] text-neon-green glow-green">
                       THEME UNLOCKED
                     </p>
-                    <p className="mt-1 text-sm font-bold text-arcade-text">
+                    <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
                       {summary.unlockedThemes.join(", ")}
                     </p>
                   </div>
@@ -286,7 +288,7 @@ export function GameOverScreen({
                     <p className="sticker-sm text-[10px] tracking-[0.22em] text-neon-green glow-green">
                       MISSION COMPLETE
                     </p>
-                    <p className="mt-1 text-sm font-bold text-arcade-text">
+                    <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
                       {summary.missionCompleted.label}
                     </p>
                   </div>
@@ -301,7 +303,9 @@ export function GameOverScreen({
             <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
               NEXT RUN MISSION
             </p>
-            <p className="mt-1 text-sm font-black text-arcade-text">{summary.mission.label}</p>
+            <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
+              {summary.mission.label}
+            </p>
           </div>
         )}
 
@@ -328,10 +332,10 @@ function Stat({
         isRecord ? "border-neon-gold" : "border-arcade-line"
       }`}
     >
-      <p className="sticker-sm text-[9px] tracking-[0.16em] text-arcade-text/75">{label}</p>
+      <p className="sticker-sm text-[11px] tracking-[0.12em] text-arcade-muted">{label}</p>
       <p className="sticker-sm mt-1 text-lg text-arcade-text tabular-nums">{value}</p>
       {isRecord && (
-        <p className="sticker-sm mt-1 text-[8px] tracking-[0.18em] text-neon-gold glow-gold">
+        <p className="sticker-sm mt-1 text-[10px] tracking-[0.14em] text-neon-gold glow-gold">
           NEW BEST
         </p>
       )}

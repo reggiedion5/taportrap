@@ -33,12 +33,12 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
   return (
     <Sheet open={open} title="Send Feedback" onClose={onClose}>
       {!available ? (
-        <p className="text-sm font-semibold text-arcade-text/85">
+        <p className="ui-body text-[15px] text-arcade-text/95">
           Feedback isn't available yet because no support inbox has been configured for this build.
         </p>
       ) : (
         <>
-          <p className="text-sm font-semibold text-arcade-text/85">
+          <p className="ui-body text-[15px] text-arcade-text/95">
             Your feedback opens in your own email app. Nothing is sent automatically and no
             personal data is collected.
           </p>
@@ -61,7 +61,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
                   }`}
                 >
                   <span className="block text-sm font-black text-arcade-text">{option.label}</span>
-                  <span className="block text-xs font-semibold text-arcade-text/70">
+                  <span className="ui-body-tight block text-[13px] text-arcade-muted">
                     {option.hint}
                   </span>
                 </button>
@@ -79,24 +79,24 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
               onChange={(e) => setMessage(e.target.value)}
               rows={5}
               placeholder="What happened, and what did you expect instead?"
-              className="mt-2 w-full rounded-2xl border border-arcade-line bg-arcade-surface px-4 py-3 text-sm font-semibold text-arcade-text outline-none focus:border-neon-green"
+              className="mt-2 w-full rounded-2xl border border-arcade-line bg-arcade-surface px-4 py-3 text-[15px] font-medium text-arcade-text outline-none focus:border-neon-green"
             />
-            <span className="mt-1 block text-right text-[11px] font-semibold text-arcade-text/60 tabular-nums">
+            <span className="ui-body mt-1 block text-right text-[12px] text-arcade-muted tabular-nums">
               {trimmed.length}/{FEEDBACK_MAX_LENGTH}
             </span>
           </label>
 
           <details className="mt-3 rounded-2xl border border-arcade-line bg-arcade-surface/60 px-4 py-3">
-            <summary className="cursor-pointer text-xs font-black tracking-tight text-arcade-text/85">
+            <summary className="ui-title cursor-pointer text-[14px] text-arcade-text/95">
               Preview exactly what will be sent
             </summary>
-            <p className="sticker-sm mt-2 text-[10px] tracking-[0.14em] text-arcade-text/70">
+            <p className="sticker-sm mt-2 text-[11px] tracking-[0.12em] text-arcade-muted">
               SUBJECT
             </p>
-            <p className="text-xs font-semibold text-arcade-text/85">
+            <p className="ui-body text-[14px] text-arcade-text/95">
               {feedbackSubject(category)}
             </p>
-            <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-arcade-text/80">
+            <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-[12px] leading-relaxed text-arcade-muted">
               {preview}
             </pre>
           </details>
@@ -117,7 +117,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
           </button>
           {sent && (
             <p
-              className="sticker-sm mt-2 text-center text-xs tracking-[0.16em] text-neon-green glow-green"
+              className="sticker-sm mt-2 text-center text-[12px] tracking-[0.14em] text-neon-green"
               aria-live="polite"
             >
               Opened your email app — thank you!

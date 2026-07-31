@@ -74,12 +74,12 @@ export function ModeSelector({
             </span>
           )}
         </span>
-        <span className="mt-2 block text-sm font-semibold text-arcade-text/85">
+        <span className="ui-body-tight mt-2.5 block text-[15px] text-arcade-text/95">
           {entry.category === "competitive"
             ? MODE_CONFIG[mode as GameMode].tagline
             : entry.description}
         </span>
-        <span className="mt-3 block text-xs font-semibold text-arcade-text/70">
+        <span className="ui-body mt-2.5 block text-[13.5px] text-arcade-muted">
           {rules.join(" · ")}
         </span>
       </button>
@@ -92,7 +92,7 @@ export function ModeSelector({
         <h3 className="sticker-sm text-[11px] tracking-[0.26em] text-arcade-text/80">
           COMPETITIVE
         </h3>
-        <p className="mt-1 text-xs font-semibold text-arcade-text/65">
+        <p className="ui-body mt-1.5 text-[14px] text-arcade-muted">
           Counts towards high scores, achievements and full XP.
         </p>
         <div className="mt-3 grid gap-4">{GAME_MODES.map(renderCard)}</div>
@@ -102,7 +102,7 @@ export function ModeSelector({
         <h3 className="sticker-sm flex items-center gap-2 text-[11px] tracking-[0.26em] text-arcade-text/80">
           TRAINING & RELAX
         </h3>
-        <p className="mt-1 text-xs font-semibold text-arcade-text/65">{TRAINING_DISCLAIMER}</p>
+        <p className="ui-body mt-1.5 text-[14px] text-arcade-muted">{TRAINING_DISCLAIMER}</p>
         <div className="mt-3 grid gap-4">{TRAINING_MODE_IDS.map(renderCard)}</div>
       </section>
     </Sheet>
@@ -130,10 +130,10 @@ export function ModeInfoModal({ open, mode, onStart, onClose }: ModeInfoModalPro
       <div className="arcade-panel w-[min(92vw,420px)] p-6">
         <p className="sticker-sm text-[10px] tracking-[0.28em] text-arcade-text/75">MODE RULES</p>
         <h2 className="sticker-text mt-1 text-4xl text-neon-green glow-green">{config.name}</h2>
-        <p className="mt-3 text-sm font-bold text-arcade-text">{config.description}</p>
+        <p className="ui-body mt-3 text-[15px] text-arcade-text">{config.description}</p>
         <ul className="mt-4 space-y-2">
           {config.rules.map((rule) => (
-            <li key={rule} className="text-sm font-semibold text-arcade-text/90">
+            <li key={rule} className="ui-body text-[15px] text-arcade-text/95">
               • {rule}
             </li>
           ))}
@@ -149,7 +149,7 @@ export function ModeInfoModal({ open, mode, onStart, onClose }: ModeInfoModalPro
           <button
             type="button"
             onClick={onClose}
-            className="arcade-btn sticker-sm border border-arcade-line bg-arcade-surface py-3 text-base text-arcade-text"
+            className="arcade-btn ui-title border border-arcade-line bg-arcade-surface py-3 text-base text-arcade-text"
           >
             Back
           </button>

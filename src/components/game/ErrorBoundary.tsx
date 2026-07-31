@@ -58,27 +58,27 @@ export class ErrorBoundary extends Component<Props, State> {
       >
         <div className="arcade-panel w-full max-w-sm p-7 text-center">
           <h1 className="sticker-text text-3xl text-neon-red glow-red">Tap or Trap! hit a snag.</h1>
-          <p className="mt-4 text-sm font-bold text-arcade-text/85">
+          <p className="ui-body mt-4 text-[15px] text-arcade-text/95">
             Your saved progress should still be available.
           </p>
 
           {this.state.confirmingReset ? (
             <div className="mt-6 grid gap-3">
-              <p className="text-sm font-bold text-neon-red">
+              <p className="ui-body text-[15px] font-semibold text-neon-red">
                 Reset local data? This permanently deletes scores, XP, achievements, statistics and
                 unlocked themes on this device.
               </p>
               <button
                 type="button"
                 onClick={this.resetData}
-                className="arcade-btn sticker-sm min-h-12 border border-neon-red bg-neon-red/15 py-3 text-base text-neon-red"
+                className="arcade-btn ui-title min-h-12 border border-neon-red bg-neon-red/15 py-3 text-base text-neon-red"
               >
                 Yes, reset local data
               </button>
               <button
                 type="button"
                 onClick={() => this.setState({ confirmingReset: false })}
-                className="arcade-btn sticker-sm min-h-12 border border-arcade-line bg-arcade-surface py-3 text-base text-arcade-text"
+                className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-3 text-base text-arcade-text"
               >
                 Cancel
               </button>
@@ -95,14 +95,14 @@ export class ErrorBoundary extends Component<Props, State> {
               <button
                 type="button"
                 onClick={this.toMenu}
-                className="arcade-btn sticker-sm min-h-12 border border-arcade-line bg-arcade-surface py-3 text-base text-arcade-text"
+                className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-3 text-base text-arcade-text"
               >
                 Return to Main Menu
               </button>
               <button
                 type="button"
                 onClick={() => this.setState({ confirmingReset: true })}
-                className="min-h-12 text-sm font-bold text-neon-red underline underline-offset-4"
+                className="ui-title min-h-12 text-[15px] text-neon-red underline underline-offset-4"
               >
                 Reset Local Data
               </button>

@@ -74,7 +74,7 @@ export function HomeScreen({
             <span className="text-[0.55em] text-arcade-text glow-white">or</span>
             <span className="text-neon-red glow-red">Trap!</span>
           </h1>
-          <p className="mt-2 text-base font-black tracking-tight text-arcade-text/90">
+          <p className="ui-body mt-4 text-[15px] font-semibold text-arcade-text">
             Tap fast. Think faster.
           </p>
         </div>
@@ -115,7 +115,7 @@ export function HomeScreen({
             </span>
             <ChevronRight className="size-5 shrink-0 text-arcade-text/70" aria-hidden />
           </span>
-          <span className="mt-1 block truncate text-xs font-semibold text-arcade-text/75">
+          <span className="ui-body-tight mt-2 block text-[15px] text-arcade-muted">
             {modeTagline}
           </span>
 
@@ -181,13 +181,13 @@ function NavTile({
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-16 flex-col justify-center gap-0.5 rounded-2xl border border-arcade-line/70 bg-arcade-surface/80 px-3.5 py-2.5 text-left text-arcade-text transition-colors active:bg-arcade-surface"
+      className="flex min-h-16 flex-col justify-center gap-1 rounded-2xl border border-arcade-line/70 bg-arcade-surface/80 px-3.5 py-2.5 text-left text-arcade-text transition-colors active:bg-arcade-surface"
     >
       <span className="flex items-center gap-2">
-        <span className="text-arcade-text/80">{icon}</span>
-        <span className="truncate text-sm font-black tracking-tight">{label}</span>
+        <span className="shrink-0 text-arcade-text/85">{icon}</span>
+        <span className="ui-title min-w-0 truncate text-base">{label}</span>
       </span>
-      <span className="truncate text-[11px] font-semibold text-arcade-text/70">{sub}</span>
+      <span className="ui-body-tight text-[13.5px] text-arcade-muted">{sub}</span>
     </button>
   );
 }

@@ -49,10 +49,10 @@ export function ConfirmationModal({
       aria-label={title}
     >
       <div className="arcade-panel w-[min(92vw,420px)] p-6">
-        <h2 className="sticker-sm text-xl tracking-tight text-neon-red glow-red">{title}</h2>
-        <p className="mt-3 text-sm font-semibold text-arcade-text">{body}</p>
+        <h2 className="ui-title text-xl font-extrabold text-neon-red">{title}</h2>
+        <p className="ui-body mt-3 text-[15px] text-arcade-text">{body}</p>
         {bullets && bullets.length > 0 && (
-          <ul className="mt-3 space-y-1 text-sm font-semibold text-arcade-text/85">
+          <ul className="ui-body mt-3 space-y-1.5 text-[15px] text-arcade-muted">
             {bullets.map((b) => (
               <li key={b}>• {b}</li>
             ))}
@@ -79,14 +79,14 @@ export function ConfirmationModal({
               }
               onConfirm();
             }}
-            className="arcade-btn sticker-sm bg-neon-red py-4 text-base text-arcade-text"
+            className="arcade-btn ui-title min-h-12 bg-neon-red py-4 text-base text-arcade-text"
           >
             {needsSecond ? confirmLabel : `Yes — ${confirmLabel}`}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="arcade-btn sticker-sm border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
+            className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
           >
             Cancel
           </button>

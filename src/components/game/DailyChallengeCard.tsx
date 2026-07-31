@@ -42,18 +42,20 @@ export function DailyChallengeCard({ challenge, daily, reducedMotion }: DailyCha
         </span>
       </div>
 
-      <p className={`${daily.completed ? "mt-2 text-sm" : "mt-3 text-base"} font-black text-arcade-text`}>
+      <p
+        className={`ui-body-tight ${
+          daily.completed ? "mt-2.5 text-[15px]" : "mt-3 text-base"
+        } font-bold text-arcade-text`}
+      >
         {challenge.objective}
       </p>
 
       {daily.completed ? (
         <>
-          <p className="sticker-sm mt-2 text-xs tracking-[0.12em] text-neon-green glow-green">
+          <p className="sticker-sm mt-2.5 text-xs tracking-[0.12em] text-neon-green">
             ✓ COMPLETED · +{DAILY_XP_REWARD} XP
           </p>
-          <p className="mt-1 text-[11px] font-semibold text-arcade-text/70">
-            New challenge tomorrow
-          </p>
+          <p className="ui-body mt-1.5 text-[14px] text-arcade-muted">New challenge tomorrow</p>
         </>
       ) : (
         <>
@@ -73,7 +75,7 @@ export function DailyChallengeCard({ challenge, daily, reducedMotion }: DailyCha
               }}
             />
           </div>
-          <p className="mt-2 text-xs font-bold text-arcade-text/85 tabular-nums">
+          <p className="ui-body mt-2.5 text-[14px] font-semibold text-arcade-text/95 tabular-nums">
             {progressLabel} · Reward {DAILY_XP_REWARD} XP
           </p>
         </>
