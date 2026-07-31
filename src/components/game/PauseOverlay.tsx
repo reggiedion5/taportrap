@@ -17,7 +17,7 @@ export function PauseOverlay({ source = "manual", onResume, onQuit }: PauseOverl
     >
       <div className="arcade-panel w-[min(88vw,360px)] p-7 text-center">
         <h2 className="sticker-text text-4xl text-arcade-text glow-white">PAUSED</h2>
-        <p className="mt-3 text-sm font-bold text-arcade-text/80">
+        <p className="ui-body mt-3 text-[15px] text-arcade-text/95">
           {interrupted
             ? "Something interrupted your run. Nothing was lost — your timer is frozen."
             : "Timer's frozen. Catch your breath."}
@@ -33,7 +33,7 @@ export function PauseOverlay({ source = "manual", onResume, onQuit }: PauseOverl
           <button
             type="button"
             onClick={onQuit}
-            className="arcade-btn sticker-sm min-h-14 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
+            className="arcade-btn ui-title min-h-14 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
           >
             Quit Game
           </button>

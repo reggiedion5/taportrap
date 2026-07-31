@@ -47,16 +47,16 @@ export function TrainingSetupModal({
 
   return (
     <Sheet open={open} title={entry.name} onClose={onClose}>
-      <p className="text-sm font-bold text-arcade-text">{entry.description}</p>
-      <p className="mt-2 text-xs font-semibold text-arcade-text/70">{TRAINING_DISCLAIMER}</p>
+      <p className="ui-body text-[15px] font-semibold text-arcade-text">{entry.description}</p>
+      <p className="ui-body mt-2 text-[14px] text-arcade-muted">{TRAINING_DISCLAIMER}</p>
 
       {mode === "zen" ? (
         <>
           <div className="mt-6 grid gap-2">
-            <p className="text-sm font-semibold text-arcade-text/85">
+            <p className="ui-body text-[15px] text-arcade-text/95">
               Green targets only. No traps, no timer, no game over — finish whenever you like.
             </p>
-            <p className="text-xs font-semibold text-arcade-text/65">
+            <p className="ui-body text-[14px] text-arcade-muted">
               Up to {ZEN_CONFIG.xpDailyCap} XP per day for sessions of at least{" "}
               {ZEN_CONFIG.xpSessionSeconds}s and {ZEN_CONFIG.xpSessionTaps} taps.
             </p>
@@ -72,10 +72,10 @@ export function TrainingSetupModal({
             }`}
           >
             <span className="min-w-0">
-              <span className="block text-base font-black text-arcade-text">
+              <span className="ui-title block text-base text-arcade-text">
                 {KIDS_ASSIST_CONFIG.label}
               </span>
-              <span className="block text-xs font-semibold text-arcade-text/75">
+              <span className="ui-body-tight mt-0.5 block text-[14px] text-arcade-muted">
                 {KIDS_ASSIST_CONFIG.description}
               </span>
             </span>
@@ -119,15 +119,15 @@ export function TrainingSetupModal({
                     }`}
                   >
                     <span className="flex items-baseline justify-between gap-3">
-                      <span className="text-sm font-black text-arcade-text">{config.name}</span>
+                      <span className="ui-title text-base text-arcade-text">{config.name}</span>
                       <span className="sticker-sm shrink-0 text-[10px] tracking-[0.18em] text-arcade-text/70 tabular-nums">
                         {stats.sessions > 0 ? `${Math.round(stats.bestAccuracy * 100)}%` : "NEW"}
                       </span>
                     </span>
-                    <span className="mt-1 block text-xs font-semibold text-arcade-text/75">
+                    <span className="ui-body-tight mt-1 block text-[14px] text-arcade-muted">
                       {config.rule}
                     </span>
-                    <span className="mt-1 block text-[11px] font-semibold text-arcade-text/60">
+                    <span className="ui-body-tight mt-1 block text-[13px] text-arcade-muted/85">
                       {config.sessionLength} targets · {config.objective}
                     </span>
                   </button>
@@ -156,7 +156,7 @@ export function TrainingSetupModal({
                   <span className="sticker-sm block text-sm text-arcade-text">
                     {TRAINER_TIMING[id].name}
                   </span>
-                  <span className="mt-1 block text-[10px] font-semibold text-arcade-text/65 tabular-nums">
+                  <span className="ui-body mt-1 block text-[12px] text-arcade-muted tabular-nums">
                     {TRAINER_TIMING[id].duration}ms
                   </span>
                 </button>
@@ -180,7 +180,7 @@ export function TrainingSetupModal({
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-arcade-line bg-arcade-surface/70 px-3 py-3">
-      <p className="sticker-sm text-[9px] tracking-[0.16em] text-arcade-text/75">{label}</p>
+      <p className="sticker-sm text-[11px] tracking-[0.12em] text-arcade-muted">{label}</p>
       <p className="sticker-sm mt-1 text-lg text-arcade-text tabular-nums">{value}</p>
     </div>
   );
