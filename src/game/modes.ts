@@ -28,7 +28,7 @@ export const MODE_CONFIG: Record<GameMode, GameModeConfig> = {
   classic: {
     id: "classic",
     name: "Classic",
-    tagline: "The original Tap or Trap experience.",
+    tagline: "The original Tap or Trap! experience.",
     description: "One mistake ends the run. Difficulty climbs with your score.",
     rules: [
       "Green and gold: tap once",

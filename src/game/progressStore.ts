@@ -458,7 +458,7 @@ export function loadProgress(): ProgressSnapshot {
 }
 
 /**
- * Deletes every Tap or Trap key from this device. Irreversible, offline, and
+ * Deletes every Tap or Trap! key from this device. Irreversible, offline, and
  * scoped to this app's own keys so nothing else in local storage is touched.
  */
 export function resetAllLocalData(): void {

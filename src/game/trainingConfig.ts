@@ -36,7 +36,7 @@ export const MODE_CATALOG: Record<PlayableMode, ModeCatalogEntry> = {
   classic: {
     id: "classic",
     name: "Classic",
-    description: "The original Tap or Trap experience.",
+    description: "The original Tap or Trap! experience.",
     category: "competitive",
     xp: "full",
     xpLabel: "Full XP",

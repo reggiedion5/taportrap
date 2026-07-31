@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * Tap or Trap — Capacitor configuration.
+ * Tap or Trap! — Capacitor configuration.
  *
  * ⚠️ REGISTER BEFORE THE FIRST XCODE ARCHIVE:
  *   `appId` below is the identifier this project ships with. It must be
