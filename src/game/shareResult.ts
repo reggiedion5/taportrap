@@ -113,13 +113,16 @@ export function formatZenShareText(data: ShareResultData): string {
   }
   const streak = data.longestStreak ?? 0;
   const streakPart = streak > 0 ? ` with a ${streak}-tap streak` : "";
-  return withLink(`I completed ${taps} taps in a ${APP_NAME} Zen session${streakPart}.`, data);
+  return withLink(`I completed ${taps} taps in ${APP_NAME} Zen Mode${streakPart}.`, data);
 }
 
 export function formatTrainerShareText(data: ShareResultData): string {
   const module = data.trainerModule ? TRAINER_MODULES[data.trainerModule].name : "Reflex Trainer";
   const accuracy = Math.round((data.accuracy ?? 0) * 100);
-  return withLink(`I completed ${module} in ${APP_NAME} with ${accuracy}% accuracy.`, data);
+  return withLink(
+    `I completed ${module} in ${APP_NAME} Reflex Trainer with ${accuracy}% accuracy.`,
+    data,
+  );
 }
 
 export function formatShareText(data: ShareResultData): string {
