@@ -45,6 +45,10 @@ export function AppBootstrap({
     if (document.documentElement.dataset.theme === themeId) setThemeApplied(true);
   }, [themeId, dataHydrated]);
 
+  // Dev-only: warn if long-form copy renders in the arcade display font.
+  useEffect(() => startTypographyGuard(), []);
+
+
   const startup = useAppStartup(dataHydrated, themeApplied);
 
   const handleReset = useCallback(() => {
