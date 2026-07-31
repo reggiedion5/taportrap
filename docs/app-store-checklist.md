@@ -52,7 +52,7 @@ build to confirm all of the above automatically.
 
 ## App Store Connect metadata
 
-- [ ] Name: `Tap or Trap`
+- [ ] Name: `Tap or Trap!`
 - [ ] Subtitle: `Tap fast. Think faster.`
 - [ ] Category: Games → Arcade (secondary: Action)
 - [ ] Age rating: 4+
@@ -61,7 +61,7 @@ build to confirm all of the above automatically.
 
 ## App Privacy answers
 
-Tap or Trap collects nothing. Answer the App Privacy questionnaire as:
+Tap or Trap! collects nothing. Answer the App Privacy questionnaire as:
 
 - Data collection: **No, we do not collect data from this app.**
 - No tracking, no third-party analytics, no advertising identifier.
@@ -71,6 +71,6 @@ Tap or Trap collects nothing. Answer the App Privacy questionnaire as:
 
 ## Review notes to include
 
-> Tap or Trap is a fully offline single-player reaction game. There is no
+> Tap or Trap! is a fully offline single-player reaction game. There is no
 > account, no network activity, and no data collection. All progress is stored
 > locally on the device and can be erased from Settings → Reset All Data.

@@ -16,7 +16,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
  */
 const config: CapacitorConfig = {
   appId: "com.reggiedion.taportrap",
-  appName: "Tap or Trap",
+  appName: "Tap or Trap!",
   webDir: "native/www",
   // Restrict in-WebView navigation to the bundled app itself.
   server: {

@@ -18,10 +18,10 @@ function BootSplash() {
   return (
     <div
       role="status"
-      aria-label="Loading Tap or Trap"
+      aria-label="Loading Tap or Trap!"
       className="safe-screen grid place-items-center bg-arcade-bg-deep"
     >
-      <span className="sticker-text text-3xl text-neon-green glow-green">TAP OR TRAP</span>
+      <span className="sticker-text text-3xl text-neon-green glow-green">TAP OR TRAP!</span>
     </div>
   );
 }

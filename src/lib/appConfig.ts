@@ -14,7 +14,7 @@ function text(key: string, fallback = ""): string {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
 }
 
-export const APP_NAME = text("VITE_APP_NAME", "Tap or Trap");
+export const APP_NAME = text("VITE_APP_NAME", "Tap or Trap!");
 export const APP_TAGLINE = "Tap fast. Think faster.";
 
 /** Marketing version — must match CFBundleShortVersionString in Xcode. */

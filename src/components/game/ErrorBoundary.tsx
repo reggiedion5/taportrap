@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
     // The native splash must never be left covering a recovery screen.
     hideSplashScreen();
     if (IS_DEV) {
-      console.error("[Tap or Trap] Unhandled UI error", error, info.componentStack);
+      console.error("[Tap or Trap!] Unhandled UI error", error, info.componentStack);
     }
   }
 
@@ -57,7 +57,7 @@ export class ErrorBoundary extends Component<Props, State> {
         className="safe-screen grid place-items-center bg-arcade-bg-deep px-6 text-arcade-text"
       >
         <div className="arcade-panel w-full max-w-sm p-7 text-center">
-          <h1 className="sticker-text text-3xl text-neon-red glow-red">Tap or Trap hit a snag.</h1>
+          <h1 className="sticker-text text-3xl text-neon-red glow-red">Tap or Trap! hit a snag.</h1>
           <p className="mt-4 text-sm font-bold text-arcade-text/85">
             Your saved progress should still be available.
           </p>

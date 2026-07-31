@@ -1,4 +1,4 @@
-# Privacy policy — Tap or Trap
+# Privacy policy — Tap or Trap!
 
 _Effective 2026-07-30._
 
@@ -9,7 +9,7 @@ _Effective 2026-07-30._
 
 ## Summary
 
-Tap or Trap does not collect, transmit, or sell any personal information. The
+Tap or Trap! does not collect, transmit, or sell any personal information. The
 game runs entirely on your device and works with no internet connection.
 
 ## Information we collect
@@ -34,7 +34,7 @@ Data**. Deleting the app also removes it.
 
 ## Third parties
 
-Tap or Trap contains no advertising, no third-party analytics, and no
+Tap or Trap! contains no advertising, no third-party analytics, and no
 third-party SDKs that collect data. Fonts and all other assets are bundled with
 the app rather than loaded from external servers.
 
