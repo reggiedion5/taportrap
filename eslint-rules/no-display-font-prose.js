@@ -41,8 +41,6 @@ export default {
     messages: {
       longForm:
         'Long-form text must not use the arcade display class "{{cls}}". Use ui-body, ui-body-tight or ui-prose instead ({{len}} characters of copy).',
-      paragraph:
-        'Paragraph elements must not use the arcade display class "{{cls}}". Use ui-body, ui-body-tight or ui-prose instead.',
     },
   },
   create(context) {
@@ -62,13 +60,6 @@ export default {
         if (READABLE.some((r) => classesOf(value).includes(r))) return;
 
         const element = node.parent;
-        const tag = node.name.type === "JSXIdentifier" ? node.name.name : "";
-
-        if (tag === "p") {
-          context.report({ node: attr, messageId: "paragraph", data: { cls } });
-          return;
-        }
-
         const text = element?.type === "JSXElement" ? literalText(element) : "";
         if (text.length > MAX_DISPLAY_TEXT_LENGTH) {
           context.report({

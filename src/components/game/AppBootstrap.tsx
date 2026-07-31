@@ -48,7 +48,6 @@ export function AppBootstrap({
   // Dev-only: warn if long-form copy renders in the arcade display font.
   useEffect(() => startTypographyGuard(), []);
 
-
   const startup = useAppStartup(dataHydrated, themeApplied);
 
   const handleReset = useCallback(() => {
