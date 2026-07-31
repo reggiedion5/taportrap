@@ -1,6 +1,6 @@
-# Tap or Trap — iOS packaging guide
+# Tap or Trap! — iOS packaging guide
 
-Tap or Trap ships as a Capacitor-wrapped web app. The native container loads a
+Tap or Trap! ships as a Capacitor-wrapped web app. The native container loads a
 fully bundled static copy of the game: there is no server URL, no network call
 at runtime, and no account system. Everything below can be prepared on any
 machine; only the final archive requires macOS and Xcode.
@@ -50,7 +50,7 @@ Capacitor copies whatever is in that folder into the app bundle.
 ## 4. Xcode settings to verify
 
 1. **Signing & Capabilities** — select your team; let Xcode manage signing.
-2. **General → Identity** — `Display Name: Tap or Trap`, and confirm
+2. **General → Identity** — `Display Name: Tap or Trap!`, and confirm
    `Version`/`Build` match `VITE_APP_VERSION` / `VITE_APP_BUILD`.
 3. **Deployment Info** — iPhone only, `Portrait` orientation only. Uncheck both
    landscape options; the game is designed for portrait.

@@ -8,7 +8,7 @@ is to make the transition into the game invisible.
 The launch screen must be a solid fill of the app's deep background colour,
 `#07080f`, edge to edge, with no logo, no spinner, and no text.
 
-The app then paints its own branded boot screen (the neon "TAP OR TRAP"
+The app then paints its own branded boot screen (the neon "TAP OR TRAP!"
 wordmark) as soon as the WebView is ready, and hides the native splash only
 after storage, preferences and the selected theme are applied. Adding artwork to
 the native launch screen would create a visible double-logo flash.

@@ -27,7 +27,7 @@ Match the in-game identity rather than inventing a new one:
   canvas width, with the game's green `#4ef08a`-family glow.
 - Optional accent: a thin neon-red arc on one edge to hint at the trap
   mechanic. Keep it subtle — the icon must read at 40 px.
-- Do not put the words "Tap or Trap" in the icon; the name renders beneath it.
+- Do not put the words "Tap or Trap!" in the icon; the name renders beneath it.
 
 ## Checks before submitting
 

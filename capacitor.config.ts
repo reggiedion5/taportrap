@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * Tap or Trap — Capacitor configuration.
+ * Tap or Trap! — Capacitor configuration.
  *
  * ⚠️ REGISTER BEFORE THE FIRST XCODE ARCHIVE:
  *   `appId` below is the identifier this project ships with. It must be
@@ -16,7 +16,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
  */
 const config: CapacitorConfig = {
   appId: "com.reggiedion.taportrap",
-  appName: "Tap or Trap",
+  appName: "Tap or Trap!",
   webDir: "native/www",
   // Restrict in-WebView navigation to the bundled app itself.
   server: {

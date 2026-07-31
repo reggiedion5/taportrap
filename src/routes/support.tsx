@@ -7,9 +7,9 @@ import {
 } from "@/lib/appConfig";
 import { supportEmailConfigured } from "@/lib/urlSafety";
 
-const TITLE = "Support — Tap or Trap";
+const TITLE = "Support — Tap or Trap!";
 const DESCRIPTION =
-  "Help and contact for Tap or Trap, the offline neon reaction arcade game. Troubleshooting for progress, sound, haptics and rotation.";
+  "Help and contact for Tap or Trap! — the offline neon reaction arcade game. Troubleshooting for progress, sound, haptics and rotation.";
 
 export const Route = createFileRoute("/support")({
   head: () => ({

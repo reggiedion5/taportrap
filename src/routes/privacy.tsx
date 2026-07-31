@@ -2,9 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { APP_NAME, PRIVACY_EFFECTIVE_DATE, SUPPORT_EMAIL } from "@/lib/appConfig";
 import { supportEmailConfigured } from "@/lib/urlSafety";
 
-const TITLE = "Privacy Policy — Tap or Trap";
+const TITLE = "Privacy Policy — Tap or Trap!";
 const DESCRIPTION =
-  "Tap or Trap collects no personal data. Everything the game saves stays on your device and can be deleted at any time.";
+  "Tap or Trap! collects no personal data. Everything the game saves stays on your device and can be deleted at any time.";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({

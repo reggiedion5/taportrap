@@ -4,7 +4,7 @@ import type { GameSessionResult } from "./progressionTypes";
 export function formatShareText(result: GameSessionResult): string {
   const mode = MODE_CONFIG[result.mode].name;
   const parts = [
-    `I scored ${result.score} in Tap or Trap ${mode}`,
+    `I scored ${result.score} in Tap or Trap! ${mode}`,
     `with a ${result.bestCombo} combo`,
   ];
   if (result.stats.avgReaction !== null) {
@@ -18,7 +18,7 @@ export type ShareOutcome = "shared" | "copied" | "failed";
 export async function shareResult(text: string): Promise<ShareOutcome> {
   try {
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
-      await navigator.share({ text, title: "Tap or Trap" });
+      await navigator.share({ text, title: "Tap or Trap!" });
       return "shared";
     }
   } catch (error) {

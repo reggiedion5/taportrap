@@ -37,7 +37,7 @@ import { PreGameCountdown } from "@/components/game/PreGameCountdown";
 import type { ResetScope } from "@/components/game/DataResetSheet";
 import { ACHIEVEMENTS } from "@/game/achievements";
 
-const TITLE = "Tap or Trap — Neon Reaction Arcade Game";
+const TITLE = "Tap or Trap! — Neon Reaction Arcade Game";
 const DESCRIPTION =
   "Six ways to play: four competitive modes plus Zen and a Reflex Trainer. Daily challenges, XP levels, unlockable themes and 28 achievements.";
 
@@ -245,7 +245,7 @@ function TapOrTrap() {
   if (showOnboarding) {
     return shell(
       <main className="min-h-[100dvh] bg-arcade-bg-deep">
-        <h1 className="sr-only">Tap or Trap tutorial</h1>
+        <h1 className="sr-only">Tap or Trap! tutorial</h1>
         <OnboardingFlow
           reducedMotion={game.reducedMotion}
           onFinish={() => {
@@ -276,7 +276,7 @@ function TapOrTrap() {
 
   return shell(
     <main className="min-h-[100dvh] bg-arcade-bg-deep">
-      <h1 className="sr-only">Tap or Trap — reaction arcade game</h1>
+      <h1 className="sr-only">Tap or Trap! — reaction arcade game</h1>
 
       {showHome && (
         <HomeScreen
