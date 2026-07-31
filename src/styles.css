@@ -406,6 +406,48 @@
     0 0 20px color-mix(in oklab, var(--arcade-text) 55%, transparent);
 }
 
+/* ---------- Readable UI typography (clean sans role) ---------- */
+
+/* Titles for cards, sheets, navigation and buttons. */
+@utility ui-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+/* Descriptions, helper text and any full sentence. */
+@utility ui-body {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+/* Compact card descriptions that must stay tight. */
+@utility ui-body-tight {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+/* Legal, support and long-form reading copy. */
+@utility ui-prose {
+  font-family: var(--font-display);
+  font-weight: 450;
+  line-height: 1.6;
+  letter-spacing: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
 @keyframes pop-word {
   0% {
     transform: translateY(26px) scale(0.6) rotate(var(--rot, 0deg));
