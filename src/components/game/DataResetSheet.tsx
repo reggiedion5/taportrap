@@ -74,7 +74,7 @@ export function DataResetSheet({ open, onReset, onClose }: DataResetSheetProps) 
 
   return (
     <Sheet open={open} title="Reset Data" onClose={onClose}>
-      <p className="text-sm font-semibold text-arcade-text/85">
+      <p className="ui-body text-[15px] text-arcade-text/95">
         Everything is stored only on this device. Choose exactly what to remove — each option is
         confirmed separately and cannot be undone.
       </p>
@@ -92,13 +92,13 @@ export function DataResetSheet({ open, onReset, onClose }: DataResetSheetProps) 
             }`}
           >
             <span
-              className={`block text-base font-black ${
+              className={`ui-title block text-base ${
                 option.danger ? "text-neon-red" : "text-arcade-text"
               }`}
             >
               {option.label}
             </span>
-            <span className="mt-0.5 block text-xs font-semibold text-arcade-text/75">
+            <span className="ui-body-tight mt-1 block text-[14px] text-arcade-muted">
               {option.summary}
             </span>
           </button>

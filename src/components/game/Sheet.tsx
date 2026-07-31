@@ -59,7 +59,7 @@ export function Sheet({ open, title, onClose, children, footer }: SheetProps) {
         className="safe-area flex h-full w-full max-w-lg flex-col bg-arcade-bg-deep"
       >
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-arcade-line/60 px-5 py-4">
-          <h2 className="sticker-sm truncate text-lg tracking-tight text-arcade-text">{title}</h2>
+          <h2 className="ui-title truncate text-xl text-arcade-text">{title}</h2>
           <button
             type="button"
             onClick={onClose}
