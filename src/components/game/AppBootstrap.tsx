@@ -3,6 +3,7 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { useAppStartup } from "@/hooks/useAppStartup";
 import { useNativeStatusBar } from "@/hooks/useNativeStatusBar";
 import { resetAllLocalData } from "@/game/progressStore";
+import { startTypographyGuard } from "@/lib/typographyGuard";
 
 interface AppBootstrapProps {
   /** True once local progress has been read from storage. */
@@ -43,6 +44,9 @@ export function AppBootstrap({
     if (typeof document === "undefined") return;
     if (document.documentElement.dataset.theme === themeId) setThemeApplied(true);
   }, [themeId, dataHydrated]);
+
+  // Dev-only: warn if long-form copy renders in the arcade display font.
+  useEffect(() => startTypographyGuard(), []);
 
   const startup = useAppStartup(dataHydrated, themeApplied);
 

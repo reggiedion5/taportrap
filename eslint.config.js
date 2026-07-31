@@ -4,6 +4,7 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
+import noDisplayFontProse from "./eslint-rules/no-display-font-prose.js";
 
 export default tseslint.config(
   { ignores: ["dist", ".output", ".vinxi"] },
@@ -17,9 +18,11 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      typography: { rules: { "no-display-font-prose": noDisplayFontProse } },
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      "typography/no-display-font-prose": "error",
       "no-restricted-imports": [
         "error",
         {
