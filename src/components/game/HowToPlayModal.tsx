@@ -56,13 +56,13 @@ export function HowToPlayModal({ open, onClose, onReplayTutorial }: HowToPlayMod
               <span className={`sticker-sm block text-base tracking-tight ${r.tone}`}>
                 {r.title}
               </span>
-              <span className="block text-sm font-semibold text-arcade-text/85">{r.detail}</span>
+              <span className="ui-body-tight mt-0.5 block text-[15px] text-arcade-muted">{r.detail}</span>
             </span>
           </div>
         ))}
       </div>
 
-      <div className="arcade-panel mt-4 space-y-3 p-5 text-sm leading-relaxed font-semibold text-arcade-text/90">
+      <div className="ui-body arcade-panel mt-4 space-y-3 p-5 text-[15px] text-arcade-text/95">
         <p>
           One target at a time. Nail them back to back and the combo stacks:{" "}
           <span className="text-neon-purple glow-purple">5 = ×2</span>,{" "}
@@ -82,7 +82,7 @@ export function HowToPlayModal({ open, onClose, onReplayTutorial }: HowToPlayMod
       <button
         type="button"
         onClick={onReplayTutorial}
-        className="arcade-btn sticker-sm mt-5 w-full border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
+        className="arcade-btn ui-title mt-5 min-h-12 w-full border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
       >
         Replay Tutorial
       </button>

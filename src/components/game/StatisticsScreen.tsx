@@ -14,7 +14,7 @@ import { ConfirmationModal } from "./ConfirmationModal";
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-arcade-line bg-arcade-surface/70 px-3 py-3">
-      <p className="sticker-sm text-[9px] tracking-[0.16em] text-arcade-text/75">{label}</p>
+      <p className="sticker-sm text-[11px] tracking-[0.12em] text-arcade-muted">{label}</p>
       <p className="sticker-sm mt-1 text-lg text-arcade-text tabular-nums">{value}</p>
     </div>
   );
@@ -135,7 +135,7 @@ export function StatisticsScreen({
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="arcade-btn sticker-sm mt-8 w-full border border-neon-red bg-arcade-surface py-4 text-base text-neon-red glow-red"
+        className="arcade-btn ui-title mt-8 min-h-12 w-full border border-neon-red bg-arcade-surface py-4 text-base text-neon-red"
       >
         Reset Statistics
       </button>

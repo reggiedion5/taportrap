@@ -29,7 +29,7 @@ export function AchievementCard({ achievement, progress }: AchievementCardProps)
           <p className="sticker-sm text-base tracking-tight text-arcade-text">
             {achievement.title}
           </p>
-          <p className="mt-1 text-sm font-semibold text-arcade-text/85">
+          <p className="ui-body-tight mt-1.5 text-[15px] text-arcade-muted">
             {achievement.description}
           </p>
         </div>
@@ -46,11 +46,11 @@ export function AchievementCard({ achievement, progress }: AchievementCardProps)
         </span>
       </div>
       <div className="mt-3 flex items-center justify-between gap-3">
-        <span className="sticker-sm text-[10px] tracking-[0.18em] text-arcade-text/80">
+        <span className="sticker-sm text-[11px] tracking-[0.14em] text-arcade-muted">
           {TIER_LABEL[achievement.tier].toUpperCase()} · +{achievement.rewardXp} XP
         </span>
         {showBar && (
-          <span className="sticker-sm text-[10px] text-arcade-text/80 tabular-nums">
+          <span className="sticker-sm text-[12px] text-arcade-muted tabular-nums">
             {progress.value} / {achievement.target}
           </span>
         )}

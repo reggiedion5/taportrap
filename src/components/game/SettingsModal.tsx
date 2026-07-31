@@ -50,8 +50,8 @@ function Toggle({
       className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-2xl border border-arcade-line bg-arcade-surface px-4 py-4 text-left"
     >
       <span className="min-w-0">
-        <span className="block text-base font-bold text-arcade-text">{label}</span>
-        <span className="block text-xs font-medium text-arcade-text/80">{description}</span>
+        <span className="ui-title block text-base">{label}</span>
+        <span className="ui-body-tight mt-0.5 block text-[14px] text-arcade-muted">{description}</span>
       </span>
       <span
         className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
@@ -90,8 +90,8 @@ function LinkRow({
     >
       <span className="text-arcade-text/80">{icon}</span>
       <span className="min-w-0">
-        <span className="block text-base font-bold text-arcade-text">{label}</span>
-        <span className="block truncate text-xs font-medium text-arcade-text/75">{hint}</span>
+        <span className="ui-title block text-base">{label}</span>
+        <span className="ui-body-tight mt-0.5 block truncate text-[14px] text-arcade-muted">{hint}</span>
       </span>
     </button>
   );
@@ -119,7 +119,7 @@ export function SettingsModal({
     <div className="no-select fixed inset-0 z-50 grid place-items-center bg-arcade-bg-deep/85 p-5 backdrop-blur-sm">
       <div className="arcade-panel safe-area max-h-[92dvh] w-[min(90vw,400px)] overflow-y-auto p-6">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
-          <h2 className="truncate text-2xl font-black text-arcade-text">Settings</h2>
+          <h2 className="ui-title truncate text-2xl font-extrabold text-arcade-text">Settings</h2>
           <button
             type="button"
             onClick={onClose}
@@ -163,7 +163,7 @@ export function SettingsModal({
           />
         </div>
 
-        <h3 className="sticker-sm mt-7 text-sm text-arcade-text/85">Support</h3>
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">SUPPORT</h3>
         <div className="mt-3 grid gap-3">
           <LinkRow
             label="Send Feedback"
@@ -201,8 +201,8 @@ export function SettingsModal({
           />
         </div>
 
-        <h3 className="sticker-sm mt-7 text-sm text-arcade-text/85">Your data</h3>
-        <p className="mt-2 text-xs font-medium text-arcade-text/75">
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">YOUR DATA</h3>
+        <p className="ui-body mt-2.5 text-[15px] text-arcade-muted">
           {APP_NAME} works fully offline. Scores, XP, achievements and settings are stored only on
           this device — nothing is uploaded, and no account is required.
         </p>
@@ -210,15 +210,15 @@ export function SettingsModal({
         <button
           type="button"
           onClick={() => setResetOpen(true)}
-          className="arcade-btn sticker-sm mt-3 grid min-h-12 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-3 border border-neon-red/60 bg-arcade-surface px-4 py-3 text-left text-base text-neon-red"
+          className="arcade-btn ui-title mt-3 grid min-h-12 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-3 border border-neon-red/60 bg-arcade-surface px-4 py-3 text-left text-base text-neon-red"
         >
           <Trash2 className="size-5" aria-hidden />
           <span>Reset Data…</span>
         </button>
 
 
-        <h3 className="sticker-sm mt-7 text-sm text-arcade-text/85">About</h3>
-        <p className="mt-2 text-xs font-medium text-arcade-text/75">
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">ABOUT</h3>
+        <p className="ui-body mt-2.5 text-[15px] text-arcade-text/95">
           {APP_NAME} · Version {versionLabel()}
         </p>
 
@@ -236,7 +236,7 @@ export function SettingsModal({
                   )}`,
                 )
               }
-              className="arcade-btn sticker-sm mt-3 min-h-11 w-full border border-arcade-line bg-arcade-surface py-2 text-sm text-arcade-text"
+              className="arcade-btn ui-title mt-3 min-h-11 w-full border border-arcade-line bg-arcade-surface py-2 text-[15px] text-arcade-text"
             >
               Run release check
             </button>
