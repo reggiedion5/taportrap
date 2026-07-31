@@ -72,7 +72,7 @@ export function HomeScreen({
           <h1 className="sticker-text flex flex-wrap items-end gap-x-3 text-[clamp(42px,13vw,68px)] leading-[0.88]">
             <span className="text-neon-green glow-green">Tap</span>
             <span className="text-[0.55em] text-arcade-text glow-white">or</span>
-            <span className="text-neon-red glow-red">Trap</span>
+            <span className="text-neon-red glow-red">Trap!</span>
           </h1>
           <p className="mt-2 text-base font-black tracking-tight text-arcade-text/90">
             Tap fast. Think faster.
