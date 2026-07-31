@@ -1,6 +1,6 @@
-# Welcome to your Lovable project
+# Tap or Trap!
 
-This project was built with [Lovable](https://lovable.dev).
+A mobile-first neon reaction arcade game built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable
 
