@@ -18,9 +18,11 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      typography: { rules: { "no-display-font-prose": noDisplayFontProse } },
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      "typography/no-display-font-prose": "error",
       "no-restricted-imports": [
         "error",
         {
