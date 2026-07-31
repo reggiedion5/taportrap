@@ -580,7 +580,7 @@ export function useProgress() {
     if (!lockedTheme || lockedTheme.unlock.kind !== "achievements") return null;
     const left = lockedTheme.unlock.value - unlockedAchievementCount;
     if (left <= 0) return null;
-    return `${lockedTheme.name} · ${left} achievement${left === 1 ? "" : "s"} away`;
+    return `${left} achievement${left === 1 ? "" : "s"} to unlock`;
   }, [hydrated, themeContext, unlockedAchievementCount]);
 
   const nearestAchievement = useMemo(() => {
