@@ -39,7 +39,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function SupportPage() {
   return (
     <main className="safe-area mx-auto w-full max-w-2xl px-5 py-10">
-      <p className="sticker-sm text-xs text-arcade-text/70">{APP_NAME}</p>
+      <p className="sticker-sm text-[12px] tracking-[0.14em] text-arcade-muted">{APP_NAME}</p>
       <h1 className="mt-2 text-3xl font-black text-arcade-text">Help &amp; Support</h1>
       <p className="mt-3 text-sm font-medium leading-relaxed text-arcade-text/80">
         {APP_NAME} is a single-player reaction game. Tap the green and gold targets, leave the red
@@ -109,7 +109,7 @@ function SupportPage() {
         </p>
       </Section>
 
-      <p className="mt-10 text-xs font-medium text-arcade-text/60">
+      <p className="ui-body mt-10 text-[13px] text-arcade-muted/85">
         <Link className="underline" to="/">
           Back to {APP_NAME}
         </Link>

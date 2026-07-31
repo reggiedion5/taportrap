@@ -34,9 +34,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function PrivacyPage() {
   return (
     <main className="safe-area mx-auto w-full max-w-2xl px-5 py-10">
-      <p className="sticker-sm text-xs text-arcade-text/70">{APP_NAME}</p>
+      <p className="sticker-sm text-[12px] tracking-[0.14em] text-arcade-muted">{APP_NAME}</p>
       <h1 className="mt-2 text-3xl font-black text-arcade-text">Privacy Policy</h1>
-      <p className="mt-2 text-xs font-medium text-arcade-text/70">
+      <p className="ui-body mt-2 text-[14px] text-arcade-muted">
         {PRIVACY_EFFECTIVE_DATE
           ? `Effective ${PRIVACY_EFFECTIVE_DATE}`
           : "Effective date pending"}
@@ -123,7 +123,7 @@ function PrivacyPage() {
         </p>
       </Section>
 
-      <p className="mt-10 text-xs font-medium text-arcade-text/60">
+      <p className="ui-body mt-10 text-[13px] text-arcade-muted/85">
         <Link className="underline" to="/support">
           Help &amp; Support
         </Link>{" "}

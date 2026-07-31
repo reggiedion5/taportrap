@@ -49,11 +49,11 @@ export function AchievementToastQueue({
       >
         <Trophy className="size-6 shrink-0" aria-hidden />
         <div className="min-w-0">
-          <p className="sticker-sm text-[10px] tracking-[0.22em]">
+          <p className="sticker-sm text-[11px] tracking-[0.18em]">
             {TIER_LABEL[current.tier].toUpperCase()} UNLOCKED
           </p>
           <p className="truncate text-base font-black text-arcade-text">{current.title}</p>
-          <p className="truncate text-xs font-semibold text-arcade-text/80">
+          <p className="ui-body-tight truncate text-[13px] text-arcade-text/95">
             +{current.rewardXp} XP
           </p>
         </div>
