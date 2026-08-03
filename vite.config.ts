@@ -22,9 +22,12 @@ export default defineConfig({
     server: { entry: "server" },
     ...(isNativeBuild
       ? {
-          prerender: { enabled: true, crawlLinks: false, failOnError: true },
-          pages: [{ path: "/", prerender: { enabled: true } }],
+          // No top-level `enabled: true` — that opts every route in and makes the
+          // prerenderer fetch /privacy and /support too. Only "/" is opted in here.
+          prerender: { crawlLinks: false, failOnError: true },
+          pages: [{ path: "/", prerender: { enabled: true, crawlLinks: false } }],
         }
       : {}),
+
   },
 });
