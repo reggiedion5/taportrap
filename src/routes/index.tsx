@@ -368,22 +368,49 @@ function TapOrTrap() {
         />
       )}
 
-      {game.phase === "over" && summary && (
-        <GameOverScreen
-          summary={summary}
-          levelCurrentXp={progress.level.currentXp}
-          levelXpForNext={progress.level.xpForNext}
-          dailyObjective={progress.challenge.objective}
-          playerLevel={progress.level.level}
-          reducedMotion={game.reducedMotion}
-          onPlayAgain={launchCompetitive}
-          onChangeMode={() => {
-            game.goToMenu();
-            setOverlay("modes");
-          }}
-          onMenu={goToMenu}
-        />
-      )}
+      {game.phase === "over" &&
+        (summary ? (
+          <GameOverScreen
+            summary={summary}
+            levelCurrentXp={progress.level.currentXp}
+            levelXpForNext={progress.level.xpForNext}
+            dailyObjective={progress.challenge.objective}
+            playerLevel={progress.level.level}
+            reducedMotion={game.reducedMotion}
+            onPlayAgain={launchCompetitive}
+            onChangeMode={() => {
+              game.goToMenu();
+              setOverlay("modes");
+            }}
+            onMenu={goToMenu}
+          />
+        ) : (
+          // Safety net: never leave the run over with an empty screen.
+          <section className="grid min-h-[100dvh] place-items-center gap-5 px-6 text-center">
+            <div className="grid gap-5">
+              <p className="ui-title text-2xl text-arcade-text">Run complete</p>
+              <p className="ui-body text-arcade-text/70">
+                Your score couldn&apos;t be summarised this time.
+              </p>
+              <div className="grid gap-3">
+                <button
+                  type="button"
+                  onClick={launchCompetitive}
+                  className="rounded-2xl bg-neon-green px-6 py-3 ui-title text-arcade-bg-deep"
+                >
+                  Play again
+                </button>
+                <button
+                  type="button"
+                  onClick={goToMenu}
+                  className="rounded-2xl border border-arcade-text/25 px-6 py-3 ui-title text-arcade-text"
+                >
+                  Menu
+                </button>
+              </div>
+            </div>
+          </section>
+        ))}
 
       <ModeSelector
         open={overlay === "modes"}
