@@ -148,6 +148,9 @@ export function useProgress() {
   const [snapshot, setSnapshot] = useState<ProgressSnapshot>(EMPTY_SNAPSHOT);
   const [hydrated, setHydrated] = useState(false);
   const processedSessions = useRef<Set<string>>(new Set());
+  // Mirror of `snapshot` so session recording can compute its result synchronously.
+  const snapshotRef = useRef<ProgressSnapshot>(EMPTY_SNAPSHOT);
+  snapshotRef.current = snapshot;
 
   useEffect(() => {
     const loaded = loadProgress();
