@@ -546,7 +546,10 @@ export function useProgress() {
         daily,
         mission,
       };
-    });
+    })(snapshotRef.current);
+
+    snapshotRef.current = nextSnapshot;
+    setSnapshot(nextSnapshot);
 
     return summary;
   }, []);
