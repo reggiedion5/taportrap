@@ -292,7 +292,11 @@ export function useProgress() {
 
     let summary: SessionSummary | null = null;
 
-    setSnapshot((prev) => {
+    // Computed synchronously against a ref (NOT inside a setState updater): a
+    // state updater runs during the next render, so the summary would still be
+    // null when this function returns — which left the game-over screen with
+    // nothing to render on slower/differently-scheduled WebViews (iOS).
+    const nextSnapshot = ((prev: ProgressSnapshot): ProgressSnapshot => {
       const mode = result.mode;
       const stats = result.stats;
       const prevMode = prev.statistics.modes[mode];
