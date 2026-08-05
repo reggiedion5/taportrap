@@ -20,6 +20,7 @@ import { formatCount } from "@/game/format";
 import { HomeScreen } from "@/components/game/HomeScreen";
 import { GameScreen } from "@/components/game/GameScreen";
 import { GameOverScreen } from "@/components/game/GameOverScreen";
+import { GameOverDebugPanel } from "@/components/game/GameOverDebugPanel";
 import { SettingsModal } from "@/components/game/SettingsModal";
 import { OnboardingFlow } from "@/components/game/OnboardingFlow";
 import { ModeInfoModal, ModeSelector } from "@/components/game/ModeSelector";
@@ -93,9 +94,20 @@ function TapOrTrap() {
 
   const handleComplete = useCallback(
     (result: GameSessionResult) => {
+      console.info("[loss-debug] handleComplete entered", {
+        score: result.score,
+        currentRound: result.stats.successes,
+      });
+      console.info("[loss-debug] before recordSession");
       const next = progress.recordSession(result);
-      if (!next) return;
+      console.info("[loss-debug] after recordSession", { summaryExists: next !== null });
+      if (!next) {
+        console.info("[loss-debug] handleComplete conditional return: no summary");
+        return;
+      }
+      console.info("[loss-debug] before setSummary", { sessionId: next.sessionId });
       setSummary(next);
+      console.info("[loss-debug] after setSummary");
       pendingToasts.current = next.unlockedAchievements;
       if (next.unlockedAchievements.length > 0) playSound("unlock");
     },
@@ -274,6 +286,27 @@ function TapOrTrap() {
 
   const showHome = game.phase === "start" && trainingPhase === "idle" && !countdown;
 
+  console.info("[loss-debug] TapOrTrap render branch", {
+    phase: game.phase,
+    summaryExists: summary !== null,
+    score: game.score,
+    bestScore: progress.records.highScore[progress.mode],
+    lives: game.lives,
+    currentRound: game.runStats.successes,
+    animationFlags: {
+      shake: game.shake,
+      flash: game.flash,
+      lifeLost: game.lifeLost,
+      countdown,
+      modeIntro,
+    },
+    branches: {
+      showHome,
+      game: game.phase === "playing" || game.phase === "paused",
+      gameOver: game.phase === "over",
+    },
+  });
+
   return shell(
     <main className="min-h-[100dvh] bg-arcade-bg-deep">
       <h1 className="sr-only">Tap or Trap! — reaction arcade game</h1>
@@ -360,6 +393,7 @@ function TapOrTrap() {
           lives={game.lives}
           lifeLost={game.lifeLost}
           avgReaction={game.runStats.avgReaction}
+          runStatsSuccesses={game.runStats.successes}
           registerArea={game.registerArea}
           onTap={game.tapTarget}
           onPause={game.pause}
@@ -368,49 +402,21 @@ function TapOrTrap() {
         />
       )}
 
-      {game.phase === "over" &&
-        (summary ? (
-          <GameOverScreen
-            summary={summary}
-            levelCurrentXp={progress.level.currentXp}
-            levelXpForNext={progress.level.xpForNext}
-            dailyObjective={progress.challenge.objective}
-            playerLevel={progress.level.level}
-            reducedMotion={game.reducedMotion}
-            onPlayAgain={launchCompetitive}
-            onChangeMode={() => {
-              game.goToMenu();
-              setOverlay("modes");
-            }}
-            onMenu={goToMenu}
-          />
-        ) : (
-          // Safety net: never leave the run over with an empty screen.
-          <section className="grid min-h-[100dvh] place-items-center gap-5 px-6 text-center">
-            <div className="grid gap-5">
-              <p className="ui-title text-2xl text-arcade-text">Run complete</p>
-              <p className="ui-body text-arcade-text/70">
-                Your score couldn&apos;t be summarised this time.
-              </p>
-              <div className="grid gap-3">
-                <button
-                  type="button"
-                  onClick={launchCompetitive}
-                  className="rounded-2xl bg-neon-green px-6 py-3 ui-title text-arcade-bg-deep"
-                >
-                  Play again
-                </button>
-                <button
-                  type="button"
-                  onClick={goToMenu}
-                  className="rounded-2xl border border-arcade-text/25 px-6 py-3 ui-title text-arcade-text"
-                >
-                  Menu
-                </button>
-              </div>
-            </div>
-          </section>
-        ))}
+      {game.phase === "over" && (
+        <GameOverDebugPanel
+          phase={game.phase}
+          score={game.lastResult?.score ?? game.score}
+          bestScore={progress.records.highScore[progress.mode]}
+          lives={game.lastResult?.livesRemaining ?? game.lives}
+          currentRound={game.lastResult?.stats.successes ?? game.runStats.successes}
+          summaryExists={summary !== null}
+          shake={game.shake}
+          flash={game.flash}
+          lifeLost={game.lifeLost}
+          onPlayAgain={launchCompetitive}
+          onHome={goToMenu}
+        />
+      )}
 
       <ModeSelector
         open={overlay === "modes"}

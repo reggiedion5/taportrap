@@ -24,6 +24,7 @@ import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "./storage";
 import { MODE_CONFIG, type GameMode } from "./modes";
 import type { GameSessionResult } from "./progressionTypes";
 import { onAppBackground } from "@/lib/appLifecycle";
+import { isIOS, isNativePlatform } from "@/lib/nativePlatform";
 
 export { difficultyProgress } from "./difficulty";
 
@@ -78,6 +79,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [lives, setLives] = useState<number | null>(null);
   const [lifeLost, setLifeLost] = useState(false);
+  const [lastResult, setLastResult] = useState<GameSessionResult | null>(null);
 
   // ---- refs: always-current gameplay values (no stale closures) ----
   const modeRef = useRef(mode);
@@ -126,6 +128,17 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
   settingsRef.current = settings;
 
   const reducedMotion = settings.reducedMotion || systemReducedMotion;
+
+  useEffect(() => {
+    console.info("[loss-debug] phase committed", {
+      phase,
+      score,
+      lives,
+      currentRound: runStats.successes,
+      animationFlags: { shake, flash, lifeLost },
+      lastResultExists: lastResult !== null,
+    });
+  }, [phase, score, lives, runStats.successes, shake, flash, lifeLost, lastResult]);
 
   // ---------- persistence ----------
   useEffect(() => {
@@ -219,11 +232,32 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
   // ---------- game over ----------
   const endGame = useCallback(
     (why: GameOverReason | null) => {
-      if (endedRef.current) return; // never end twice
+      if (endedRef.current) {
+        console.info("[loss-debug] endGame conditional return: already ended", {
+          phase: phaseRef.current,
+          score: scoreRef.current,
+          lives: livesRef.current,
+        });
+        return;
+      }
+      const nativeIOS = isNativePlatform() && isIOS();
+      console.info("[loss-debug] transition playing -> losing", {
+        why,
+        phase: phaseRef.current,
+        score: scoreRef.current,
+        lives: livesRef.current,
+        currentRound: runStatsRef.current.successes,
+        nativeIOS,
+      });
       endedRef.current = true;
       runIdRef.current += 1; // invalidate any in-flight callback
+      console.info("[loss-debug] before clearAllTimers");
       clearAllTimers();
+      clearDecorTimers();
+      console.info("[loss-debug] after clearAllTimers/clearDecorTimers");
+      console.info("[loss-debug] before setActiveTarget(null)");
       setActiveTarget(null);
+      console.info("[loss-debug] after setActiveTarget(null)");
       lastPositionRef.current = null;
 
       const reactions = reactionsRef.current;
@@ -237,19 +271,20 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
         fastestReaction: fastest,
       };
       runStatsRef.current = stats;
+      console.info("[loss-debug] before losing state setters", { stats, why });
       setRunStats(stats);
       setReason(why);
-      setPhase("over");
-      phaseRef.current = "over";
 
-      if (!reducedMotion && why !== null) {
+      if (!nativeIOS && !reducedMotion && why !== null) {
         setShake(true);
         setFlash(true);
         later(() => setShake(false), 500);
         later(() => setFlash(false), 320);
+      } else {
+        setShake(false);
+        setFlash(false);
+        setLifeLost(false);
       }
-      playSound(why === null ? "levelup" : "gameover");
-      vibrate("gameover");
 
       const result: GameSessionResult = {
         sessionId: sessionIdRef.current || newSessionId(),
@@ -263,9 +298,31 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
         livesRemaining: Number.isFinite(livesRef.current) ? livesRef.current : null,
         completed: why !== "quit",
       };
-      if (why !== "quit") onCompleteRef.current(result);
+      console.info("[loss-debug] before setLastResult", result);
+      setLastResult(result);
+      console.info("[loss-debug] after setLastResult; before setPhase(over)");
+      phaseRef.current = "over";
+      setPhase("over");
+      console.info("[loss-debug] after setPhase(over); transition losing -> over");
+
+      if (!nativeIOS) {
+        playSound(why === null ? "levelup" : "gameover");
+        vibrate("gameover");
+      }
+
+      if (why !== "quit") {
+        console.info("[loss-debug] before onComplete", { sessionId: result.sessionId });
+        try {
+          onCompleteRef.current(result);
+          console.info("[loss-debug] after onComplete");
+        } catch (error) {
+          console.error("[loss-debug] onComplete threw", error);
+        }
+      } else {
+        console.info("[loss-debug] onComplete conditional return: quit result");
+      }
     },
-    [clearAllTimers, later, reducedMotion, setActiveTarget],
+    [clearAllTimers, clearDecorTimers, later, reducedMotion, setActiveTarget],
   );
 
   const endGameRef = useRef(endGame);
@@ -332,11 +389,28 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
   /** A mistake: ends the run, costs a life, or burns clock depending on mode. */
   const registerMistake = useCallback(
     (why: GameOverReason) => {
-      if (endedRef.current || phaseRef.current !== "playing") return;
+      if (endedRef.current || phaseRef.current !== "playing") {
+        console.info("[loss-debug] registerMistake conditional return", {
+          why,
+          ended: endedRef.current,
+          phase: phaseRef.current,
+        });
+        return;
+      }
       const config = configRef.current;
 
+      console.info("[loss-debug] registerMistake entered", {
+        why,
+        phase: phaseRef.current,
+        score: scoreRef.current,
+        lives: livesRef.current,
+        currentRound: runStatsRef.current.successes,
+      });
+
       comboRef.current = 0;
+      console.info("[loss-debug] before setCombo(0)");
       setCombo(0);
+      console.info("[loss-debug] after setCombo(0)");
 
       if (config.penalties) {
         const penalty =
@@ -401,8 +475,14 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       }
 
       livesRef.current = 0;
+      console.info("[loss-debug] before final-life setLives", {
+        phase: phaseRef.current,
+        lives: livesRef.current,
+      });
       setLives(configRef.current.lives > 1 ? 0 : null);
+      console.info("[loss-debug] after setLives; before endGame");
       endGameRef.current(why);
+      console.info("[loss-debug] after endGame");
     },
     [applyTimePenalty, later, pushFeedback, reducedMotion, scheduleSpawn, setActiveTarget],
   );
@@ -647,6 +727,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
     setBestCombo(0);
     setRunStats(EMPTY_RUN_STATS);
     setReason(null);
+    setLastResult(null);
     setFeedback([]);
     setBurst(null);
     setComboFlash(null);
@@ -807,6 +888,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
     timeLeft,
     lives,
     lifeLost,
+    lastResult,
     registerArea,
     updateSettings,
     startGame,
