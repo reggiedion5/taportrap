@@ -11,6 +11,7 @@ interface Props {
 interface State {
   hasError: boolean;
   confirmingReset: boolean;
+  errorMessage: string;
 }
 
 /**
@@ -18,10 +19,10 @@ interface State {
  * transmits crash data, and never reloads itself automatically.
  */
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, confirmingReset: false };
+  state: State = { hasError: false, confirmingReset: false, errorMessage: "Unknown error" };
 
-  static getDerivedStateFromError(): Partial<State> {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    return { hasError: true, errorMessage: error.message || String(error) };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
@@ -33,18 +34,18 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   private restart = () => {
-    this.setState({ hasError: false, confirmingReset: false });
+    this.setState({ hasError: false, confirmingReset: false, errorMessage: "Unknown error" });
     if (typeof window !== "undefined") window.location.reload();
   };
 
   private toMenu = () => {
-    this.setState({ hasError: false, confirmingReset: false });
+    this.setState({ hasError: false, confirmingReset: false, errorMessage: "Unknown error" });
     this.props.onReturnToMenu();
   };
 
   private resetData = () => {
     this.props.onResetLocalData();
-    this.setState({ hasError: false, confirmingReset: false });
+    this.setState({ hasError: false, confirmingReset: false, errorMessage: "Unknown error" });
     if (typeof window !== "undefined") window.location.reload();
   };
 
@@ -61,6 +62,9 @@ export class ErrorBoundary extends Component<Props, State> {
           <p className="ui-body mt-4 text-[15px] text-arcade-text/95">
             Your saved progress should still be available.
           </p>
+          <pre className="ui-body mt-4 max-h-40 overflow-auto whitespace-pre-wrap break-words border border-neon-red bg-neon-red/10 p-3 text-left text-sm text-neon-red">
+            {this.state.errorMessage}
+          </pre>
 
           {this.state.confirmingReset ? (
             <div className="mt-6 grid gap-3">
