@@ -39,6 +39,7 @@ interface GameScreenProps {
   lives: number | null;
   lifeLost: boolean;
   avgReaction: number | null;
+  runStatsSuccesses: number;
   registerArea: (el: HTMLDivElement | null) => void;
   onTap: () => void;
   onPause: () => void;
@@ -76,6 +77,21 @@ export function GameScreen(props: GameScreenProps) {
   }, [needsRotate, paused, onPause]);
 
   const urgent = timeLeft !== null && timeLeft <= 10_000;
+
+  console.info("[loss-debug] GameScreen render", {
+    phase: paused ? "paused" : "playing",
+    score: props.score,
+    bestScore: props.highScore,
+    lives,
+    currentRound: props.runStatsSuccesses,
+    animationFlags: { shake, flash, lifeLost },
+    conditionalBranches: {
+      target: target !== null && !paused,
+      paused,
+      orientationOverlay: needsRotate,
+      lifeLost,
+    },
+  });
 
   return (
     <div

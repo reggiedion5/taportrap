@@ -45,6 +45,16 @@ export function GameOverScreen({
   const [stage, setStage] = useState(reducedMotion ? 3 : 0);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
+  console.info("[loss-debug] GameOverScreen render", {
+    phase: "over",
+    summaryExists: true,
+    score: summary.result.score,
+    bestScore: summary.modeHighScore,
+    lives: summary.result.livesRemaining,
+    currentRound: summary.result.stats.successes,
+    animationFlags: { stage, reducedMotion, detailsOpen },
+  });
+
   useEffect(() => {
     if (reducedMotion || stage >= 3) return;
     const id = window.setTimeout(
