@@ -12,8 +12,12 @@ interface GameOverDebugPanelProps {
   onHome: () => void;
 }
 
+export const NATIVE_GAME_OVER_DEBUG_MARKER =
+  "[loss-debug] IOS_NATIVE_GAME_OVER_DEBUG_BUILD_2026_08_05_A";
+
 /** Plain, timer-free loss screen for the temporary native diagnostic build. */
 export function GameOverDebugPanel(props: GameOverDebugPanelProps) {
+  console.info(NATIVE_GAME_OVER_DEBUG_MARKER);
   console.info("[loss-debug] GameOverDebugPanel render", {
     phase: props.phase,
     score: props.score,
@@ -32,6 +36,7 @@ export function GameOverDebugPanel(props: GameOverDebugPanelProps) {
     >
       <div className="w-full max-w-sm border-4 border-arcade-bg-deep bg-neon-red p-6">
         <h1 className="ui-title text-3xl font-black">GAME OVER DEBUG</h1>
+        <p className="ui-body mt-2 text-xs font-bold">BUILD 2026.08.05-A</p>
         <dl className="ui-body mt-6 grid gap-2 text-base font-bold">
           <div className="flex justify-between gap-4"><dt>Final score</dt><dd>{props.score}</dd></div>
           <div className="flex justify-between gap-4"><dt>Best score</dt><dd>{props.bestScore}</dd></div>
