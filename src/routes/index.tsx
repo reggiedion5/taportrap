@@ -19,7 +19,6 @@ import { playSound } from "@/game/audio";
 import { formatCount } from "@/game/format";
 import { HomeScreen } from "@/components/game/HomeScreen";
 import { GameScreen } from "@/components/game/GameScreen";
-import { GameOverScreen } from "@/components/game/GameOverScreen";
 import { GameOverDebugPanel } from "@/components/game/GameOverDebugPanel";
 import { SettingsModal } from "@/components/game/SettingsModal";
 import { OnboardingFlow } from "@/components/game/OnboardingFlow";
