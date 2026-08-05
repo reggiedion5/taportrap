@@ -9,12 +9,13 @@
  * Usable standalone (`node scripts/verify-native.mjs`) or imported by
  * `build-native.mjs`.
  */
-import { readFile, stat } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
 const ROOT = process.cwd();
 const OUT_DIR = path.join(ROOT, "native", "www");
 const INDEX = path.join(OUT_DIR, "index.html");
+const DEBUG_MARKER = "IOS_NATIVE_GAME_OVER_DEBUG_BUILD_2026_08_05_A";
 
 async function exists(file) {
   try {
@@ -23,6 +24,20 @@ async function exists(file) {
   } catch {
     return false;
   }
+}
+
+async function containsInJavaScript(directory, expected) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    const file = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      if (await containsInJavaScript(file, expected)) return true;
+    } else if (entry.isFile() && entry.name.endsWith(".js")) {
+      const source = await readFile(file, "utf8");
+      if (source.includes(expected)) return true;
+    }
+  }
+  return false;
 }
 
 export async function verifyNativeBundle() {
@@ -52,6 +67,10 @@ export async function verifyNativeBundle() {
     errors.push("capacitor.config.ts defines server.url — production builds must ship local assets only.");
   }
 
+  if (!(await containsInJavaScript(OUT_DIR, DEBUG_MARKER))) {
+    errors.push(`Native JavaScript does not contain required loss-screen marker: ${DEBUG_MARKER}`);
+  }
+
   return { ok: errors.length === 0, errors };
 }
 
@@ -62,5 +81,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     for (const error of errors) console.error(`  - ${error}`);
     process.exit(1);
   }
-  console.log("✓ native/www verified (index.html, assets, no remote server URL)");
+  console.log(`✓ native/www verified (assets, local server config, debug marker ${DEBUG_MARKER})`);
 }
