@@ -529,6 +529,18 @@ function TapOrTrap() {
         reducedMotion={game.reducedMotion}
         onDismiss={(id) => setToasts((prev) => prev.filter((a) => a.id !== id))}
       />
+
+      <DiagnosticPanel
+        phase={game.phase}
+        score={game.score}
+        combo={game.combo}
+        tierLabel={game.tier.label}
+        tierLevel={game.tier.level}
+        reaction={game.lastTap?.reaction ?? null}
+        timing={game.lastTap?.timing ?? null}
+        closeCall={game.lastTap?.closeCall ?? false}
+        summaryExists={summary !== null}
+      />
     </main>,
   );
 }
