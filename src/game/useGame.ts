@@ -675,10 +675,17 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
         else stats.good += 1;
         if (GAME_FEATURES.perfectTapSystem) {
           if (timing === "perfect") record.perfectTaps += 1;
-          else if (timing === "great") record.greatTaps += 1;
+          else if (timing === "great") {
+            record.greatTaps += 1;
+            stats.great += 1;
+          }
         }
-        if (closeCall) record.closeCalls += 1;
+        if (closeCall) {
+          record.closeCalls += 1;
+          stats.closeCalls += 1;
+        }
         setLastTap({ timing, reaction: Math.round(ms), closeCall });
+
       }
       setRunStats({ ...stats });
 
