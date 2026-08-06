@@ -189,7 +189,10 @@
 
   body {
     margin: 0;
-    overflow-x: hidden;
+    /* `clip` (not `hidden`) keeps the y axis genuinely `visible`; `hidden`
+       would force overflow-y to compute to `auto`, making body a second
+       scroll container that iOS refuses to pan. */
+    overflow-x: clip;
     overflow-y: visible;
     touch-action: pan-y;
     background-color: var(--arcade-bg-deep);
