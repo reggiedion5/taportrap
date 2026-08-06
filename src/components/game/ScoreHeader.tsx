@@ -68,7 +68,7 @@ export function ScoreHeader({
 
       <div className="mt-3 flex items-center gap-3">
         <span className="ui-title shrink-0 text-[10px] tracking-[0.2em] text-arcade-muted">
-          {diff.label.toUpperCase()}
+          T{diff.tier} · {diff.label.toUpperCase()}
         </span>
         <span className="ui-title shrink-0 text-[10px] tracking-[0.2em] text-logo-green">
           {difficultyLabel.toUpperCase()}
