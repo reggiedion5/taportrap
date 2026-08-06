@@ -56,7 +56,7 @@ import { HelpCenterScreen } from "@/components/game/HelpCenterScreen";
 import { ReleaseQAScreen } from "@/components/game/ReleaseQAScreen";
 import { TUTORIAL_XP } from "@/game/tutorial";
 import { GAME_FEATURES, qaScreenVisible } from "@/config/gameFeatures";
-import { track } from "@/lib/analytics";
+import { trackEvent } from "@/lib/analytics";
 
 const TITLE = "Tap or Trap! — Neon Reaction Arcade Game";
 const DESCRIPTION =
@@ -310,7 +310,7 @@ function TapOrTrap() {
     setPractice(true);
     setPlayableMode("trainer");
     setOverlay("trainingSetup");
-    track("practice_started", {});
+    trackEvent("practice_started", {});
   }, []);
 
   const shell = (content: React.ReactNode) => (
@@ -358,7 +358,7 @@ function TapOrTrap() {
             const awarded = progress.completeTutorial(TUTORIAL_XP);
             setTutorialXp(awarded);
             setTeaching("none");
-            track("tutorial_completed", { xp: awarded });
+            trackEvent("tutorial_completed", { xp: awarded });
           }}
           onExit={() => setTeaching("none")}
         />
