@@ -955,11 +955,10 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
 
   /** Quit an active run — recorded as a quit, never as a completed session. */
   const quitRun = useCallback(() => {
-    if (phaseRef.current === "playing" || phaseRef.current === "paused") {
-      runIdRef.current += 1;
-      endedRef.current = true;
-      clearAllTimers();
-    }
+    // Always lands on Home, whatever phase we were in when the tap arrived.
+    runIdRef.current += 1;
+    endedRef.current = true;
+    clearAllTimers();
     goToMenu();
   }, [clearAllTimers, goToMenu]);
 
