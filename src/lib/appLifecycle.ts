@@ -76,6 +76,9 @@ function handleVisibility() {
 }
 
 function handleBlur() {
+  // A blur while the document is still visible is focus churn inside the page
+  // (WebView taps, iframe focus) — not the app going to the background.
+  if (typeof document !== "undefined" && document.visibilityState === "visible") return;
   emitBackground("browser-hidden");
 }
 
