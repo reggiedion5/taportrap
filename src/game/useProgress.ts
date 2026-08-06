@@ -22,7 +22,7 @@ import {
   type ProgressSnapshot,
 } from "./progressStore";
 import { applyXp, calculateXpRewards, levelProgress } from "./xp";
-import type { Difficulty } from "./difficulty";
+import { isDifficulty, type Difficulty } from "./difficulty";
 import {
   DEFAULT_THEME_ID,
   THEMES,
