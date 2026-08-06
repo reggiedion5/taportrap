@@ -102,6 +102,8 @@ let nextNoteTime = 0;
 let step = 0;
 let bar = 0;
 let unlockInstalled = false;
+/** Prevent a generic pointer gesture from waking music while gameplay is paused. */
+let explicitlySuspended = false;
 
 function getCtx(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -116,7 +118,6 @@ function getCtx(): AudioContext | null {
       master.gain.setValueAtTime(0.0001, ctx.currentTime);
       master.connect(ctx.destination);
     }
-    if (ctx.state === "suspended") void ctx.resume().catch(() => {});
     return ctx;
   } catch {
     return null;
@@ -273,9 +274,12 @@ export function installMusicUnlock() {
   if (unlockInstalled || typeof window === "undefined") return;
   unlockInstalled = true;
   const handler = () => {
-    if (!enabled) return;
+    if (!enabled || explicitlySuspended) return;
     const audio = getCtx();
-    if (audio && current) fadeTo(MASTER_GAIN, 0.6);
+    if (audio && current) {
+      if (audio.state === "suspended") void audio.resume().catch(() => {});
+      fadeTo(MASTER_GAIN, 0.6);
+    }
   };
   window.addEventListener("pointerdown", handler, { passive: true });
   window.addEventListener("keydown", handler, { passive: true });
@@ -284,11 +288,13 @@ export function installMusicUnlock() {
 export function setMusicEnabled(value: boolean) {
   enabled = value;
   if (!value) {
+    explicitlySuspended = true;
     fadeTo(0.0001, 0.25);
     stopLoop();
     if (ctx && ctx.state === "running") void ctx.suspend().catch(() => {});
     return;
   }
+  explicitlySuspended = false;
   if (current) playTrack(current, true);
 }
 
@@ -307,6 +313,8 @@ export function playTrack(track: MusicTrack, force = false) {
   const audio = getCtx();
   current = track;
   if (!audio) return;
+  explicitlySuspended = false;
+  if (audio.state === "suspended") void audio.resume().catch(() => {});
   step = 0;
   bar = 0;
   nextNoteTime = audio.currentTime + 0.06;
@@ -315,12 +323,14 @@ export function playTrack(track: MusicTrack, force = false) {
 }
 
 export function stopMusic() {
+  explicitlySuspended = true;
   fadeTo(0.0001, 0.35);
   current = null;
   window.setTimeout(stopLoop, 400);
 }
 
 export function suspendMusic() {
+  explicitlySuspended = true;
   fadeTo(0.0001, 0.2);
   stopLoop();
   if (ctx && ctx.state === "running") void ctx.suspend().catch(() => {});
@@ -330,6 +340,8 @@ export function resumeMusic() {
   if (!enabled || !current) return;
   const audio = getCtx();
   if (!audio) return;
+  explicitlySuspended = false;
+  if (audio.state === "suspended") void audio.resume().catch(() => {});
   nextNoteTime = audio.currentTime + 0.06;
   startLoop();
   fadeTo(MASTER_GAIN, 0.4);
