@@ -20,6 +20,7 @@ import { formatCount } from "@/game/format";
 import { HomeScreen } from "@/components/game/HomeScreen";
 import { GameScreen } from "@/components/game/GameScreen";
 import { MinimalGameOverScreen } from "@/components/game/MinimalGameOverScreen";
+import { GameOverScreen } from "@/components/game/GameOverScreen";
 import { SettingsModal } from "@/components/game/SettingsModal";
 import { OnboardingFlow } from "@/components/game/OnboardingFlow";
 import { ModeInfoModal, ModeSelector } from "@/components/game/ModeSelector";
@@ -407,7 +408,7 @@ function TapOrTrap() {
             summary={summary}
             levelCurrentXp={progress.level.currentXp}
             levelXpForNext={progress.level.xpForNext}
-            dailyObjective={progress.challenge.label}
+            dailyObjective={progress.challenge.objective}
             playerLevel={progress.level.level}
             reducedMotion={game.reducedMotion}
             onPlayAgain={launchCompetitive}
