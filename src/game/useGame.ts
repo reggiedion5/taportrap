@@ -885,9 +885,13 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       setTimeLeft(clockRemaining.current);
     }
     clearAllTimers();
-    suspendAudio();
     phaseRef.current = "paused";
     setPhase("paused");
+    try {
+      suspendAudio();
+    } catch {
+      /* audio must never block the phase change */
+    }
   }, [clearAllTimers]);
 
   const pauseRef = useRef(pause);
