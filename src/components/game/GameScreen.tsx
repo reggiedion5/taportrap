@@ -251,12 +251,12 @@ export function GameScreen(props: GameScreenProps) {
             </span>
           )}
 
-          {paused && (
-            <PauseOverlay source={pauseSource} onResume={onResume} onQuit={onQuit} />
-          )}
-          {needsRotate && <OrientationOverlay />}
         </div>
       </div>
+
+      {/* Rendered at the root so no clipped or stacked layer can swallow taps. */}
+      {paused && <PauseOverlay source={pauseSource} onResume={onResume} onQuit={onQuit} />}
+      {needsRotate && <OrientationOverlay />}
     </div>
   );
 }
