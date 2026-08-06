@@ -109,11 +109,22 @@ export function GameScreen(props: GameScreenProps) {
       {flash && !reducedMotion && (
         <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-neon-red" />
       )}
+      {props.perfectFlash && !reducedMotion && (
+        <div className="pointer-events-none absolute inset-0 z-30 bg-neon-gold/25 transition-opacity" />
+      )}
+      {props.greatFlash && !reducedMotion && (
+        <div className="pointer-events-none absolute inset-0 z-30 bg-neon-green/15 transition-opacity" />
+      )}
       {urgent && !reducedMotion && !paused && (
         <div className="pointer-events-none absolute inset-0 z-10 animate-pulse bg-[radial-gradient(circle,transparent_55%,color-mix(in_oklab,var(--neon-red)_28%,transparent))]" />
       )}
 
-      <div className="relative mx-auto flex w-full max-w-lg flex-1 flex-col">
+      <div
+        key={reducedMotion ? undefined : props.pulse}
+        className={`relative mx-auto flex w-full max-w-lg flex-1 flex-col ${
+          props.pulse > 0 && !reducedMotion ? "animate-score-bump" : ""
+        }`}
+      >
         <ScoreHeader
           score={props.score}
           highScore={props.highScore}
