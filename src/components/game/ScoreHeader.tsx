@@ -8,6 +8,7 @@ interface ScoreHeaderProps {
   multiplier: number;
   combo: number;
   scorePulse: number;
+  difficultyLabel: string;
   onPause: () => void;
 }
 
@@ -17,6 +18,7 @@ export function ScoreHeader({
   multiplier,
   combo,
   scorePulse,
+  difficultyLabel,
   onPause,
 }: ScoreHeaderProps) {
   const diff = difficultyProgress(score);
@@ -67,6 +69,9 @@ export function ScoreHeader({
       <div className="mt-3 flex items-center gap-3">
         <span className="ui-title shrink-0 text-[10px] tracking-[0.2em] text-arcade-muted">
           {diff.label.toUpperCase()}
+        </span>
+        <span className="ui-title shrink-0 text-[10px] tracking-[0.2em] text-logo-green">
+          {difficultyLabel.toUpperCase()}
         </span>
         <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full border border-arcade-line/70 bg-arcade-bg-deep shadow-[inset_0_1px_3px_oklch(0_0_0_/_0.8)]">
           <div
