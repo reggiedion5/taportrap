@@ -34,7 +34,7 @@ import { pickPlacement, targetSizeFor, type AreaBounds } from "./positioning";
 import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "./storage";
 import { MODE_CONFIG, type GameMode } from "./modes";
 import type { GameSessionResult } from "./progressionTypes";
-import { onAppBackground } from "@/lib/appLifecycle";
+import { onAppBackground, suppressBackgroundFor } from "@/lib/appLifecycle";
 import { isIOS, isNativePlatform } from "@/lib/nativePlatform";
 import { GAME_FEATURES } from "@/config/gameFeatures";
 import { classifyTap, closeCallMessage, isCloseCall, TIMING_LABEL, type TapTiming } from "./tapTiming";
