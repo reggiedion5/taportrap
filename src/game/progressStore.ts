@@ -278,11 +278,39 @@ function parseStatistics(raw: unknown): PlayerStatistics {
   };
 }
 
+/**
+ * Seeds per-difficulty bests for saves written before the field existed.
+ * The legacy global best is credited only to the difficulty that was last
+ * selected; every other difficulty starts at 0. Never lowers a stored value.
+ */
+export function migrateDifficultyBests(
+  records: PersonalRecords,
+  lastPlayedDifficulty: unknown,
+): PersonalRecords {
+  const difficulty = isDifficulty(lastPlayedDifficulty) ? lastPlayedDifficulty : null;
+  if (!difficulty) return records;
+  const highScoreByDifficulty = emptyDifficultyBests();
+  let changed = false;
+  for (const mode of GAME_MODES) {
+    for (const id of DIFFICULTIES) {
+      highScoreByDifficulty[mode][id] = records.highScoreByDifficulty[mode][id];
+    }
+    const legacy = records.highScore[mode];
+    if (legacy > highScoreByDifficulty[mode][difficulty]) {
+      highScoreByDifficulty[mode][difficulty] = legacy;
+      changed = true;
+    }
+  }
+  if (!changed) return records;
+  return { ...records, highScoreByDifficulty };
+}
+
 function parseRecords(raw: unknown): PersonalRecords {
   const src = asRecord(raw);
   const high = asRecord(src.highScore);
   const base = defaultRecords();
   const byDifficulty = asRecord(src.highScoreByDifficulty);
+  const isLegacy = src.highScoreByDifficulty === undefined;
   for (const mode of GAME_MODES) {
     base.highScore[mode] = int(high[mode]);
     const modeBests = asRecord(byDifficulty[mode]);
@@ -290,6 +318,8 @@ function parseRecords(raw: unknown): PersonalRecords {
       base.highScoreByDifficulty[mode][difficulty] = int(modeBests[difficulty]);
     }
   }
+  legacyRecordsShape = isLegacy;
+
   return {
     ...base,
     bestCombo: int(src.bestCombo),
