@@ -432,6 +432,8 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       });
 
       comboRef.current = 0;
+      runRecordRef.current.mistakes += 1;
+      setMilestone(null);
       console.info("[loss-debug] before setCombo(0)");
       setCombo(0);
       console.info("[loss-debug] after setCombo(0)");
