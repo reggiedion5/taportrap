@@ -15,9 +15,18 @@ interface AchievementCardProps {
   achievement: Achievement;
   progress: AchievementProgress;
   focused?: boolean;
+  claimed?: boolean;
+  onClaim?: (id: string) => void;
 }
 
-export function AchievementCard({ achievement, progress, focused = false }: AchievementCardProps) {
+export function AchievementCard({
+  achievement,
+  progress,
+  focused = false,
+  claimed = true,
+  onClaim,
+}: AchievementCardProps) {
+
   const ref = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
