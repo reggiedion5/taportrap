@@ -34,7 +34,7 @@ import { pickPlacement, targetSizeFor, type AreaBounds } from "./positioning";
 import { DEFAULT_SETTINGS, loadSettings, saveSettings } from "./storage";
 import { MODE_CONFIG, type GameMode } from "./modes";
 import type { GameSessionResult } from "./progressionTypes";
-import { onAppBackground } from "@/lib/appLifecycle";
+import { onAppBackground, suppressBackgroundFor } from "@/lib/appLifecycle";
 import { isIOS, isNativePlatform } from "@/lib/nativePlatform";
 import { GAME_FEATURES } from "@/config/gameFeatures";
 import { classifyTap, closeCallMessage, isCloseCall, TIMING_LABEL, type TapTiming } from "./tapTiming";
@@ -885,9 +885,13 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       setTimeLeft(clockRemaining.current);
     }
     clearAllTimers();
-    suspendAudio();
     phaseRef.current = "paused";
     setPhase("paused");
+    try {
+      suspendAudio();
+    } catch {
+      /* audio must never block the phase change */
+    }
   }, [clearAllTimers]);
 
   const pauseRef = useRef(pause);
@@ -895,9 +899,15 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
 
   const resume = useCallback(() => {
     if (phaseRef.current !== "paused" || endedRef.current) return;
+    // Focus churn around the resume tap must not immediately re-pause the run.
+    suppressBackgroundFor(700);
     phaseRef.current = "playing";
     setPhase("playing");
-    resumeAudio();
+    try {
+      resumeAudio();
+    } catch {
+      /* audio must never block the phase change */
+    }
     if (configRef.current.timeLimitMs !== null) startClock();
     const t = targetRef.current;
     if (t && !t.resolved && remainingTarget.current > 0) {
@@ -945,11 +955,10 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
 
   /** Quit an active run — recorded as a quit, never as a completed session. */
   const quitRun = useCallback(() => {
-    if (phaseRef.current === "playing" || phaseRef.current === "paused") {
-      runIdRef.current += 1;
-      endedRef.current = true;
-      clearAllTimers();
-    }
+    // Always lands on Home, whatever phase we were in when the tap arrived.
+    runIdRef.current += 1;
+    endedRef.current = true;
+    clearAllTimers();
     goToMenu();
   }, [clearAllTimers, goToMenu]);
 

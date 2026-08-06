@@ -31,9 +31,21 @@ let unbindNative: (() => void) | null = null;
 /** Collapses duplicate signals fired by different APIs for one interruption. */
 let lastBackgroundAt = 0;
 const DEDUPE_MS = 400;
+/** Set right after an explicit resume so a stray focus event cannot re-pause. */
+let suppressBackgroundUntil = 0;
+
+/**
+ * Ignore background signals for a short window. Used when the player taps
+ * "Back In": WebViews can fire focus/blur churn around that tap, which would
+ * otherwise immediately pause the run again.
+ */
+export function suppressBackgroundFor(ms = 600) {
+  suppressBackgroundUntil = Date.now() + ms;
+}
 
 function emitBackground(source: InterruptionSource) {
   const now = Date.now();
+  if (now < suppressBackgroundUntil) return;
   if (now - lastBackgroundAt < DEDUPE_MS) return;
   lastBackgroundAt = now;
   const event: InterruptionEvent = { source, at: now };
@@ -64,6 +76,9 @@ function handleVisibility() {
 }
 
 function handleBlur() {
+  // A blur while the document is still visible is focus churn inside the page
+  // (WebView taps, iframe focus) — not the app going to the background.
+  if (typeof document !== "undefined" && document.visibilityState === "visible") return;
   emitBackground("browser-hidden");
 }
 

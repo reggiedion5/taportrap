@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Heart } from "lucide-react";
 import type { ActiveTarget, FloatingFeedback, TargetColor } from "@/game/types";
 import type { DifficultyLevel } from "@/game/difficulty";
@@ -76,9 +76,13 @@ export function GameScreen(props: GameScreenProps) {
 
   const needsRotate = useOrientationGuard(true);
 
-  // Landscape on a phone pauses the run rather than ending it.
+  // Landscape on a phone pauses the run rather than ending it. Only fire on the
+  // transition into landscape — re-firing while landscape persists would
+  // immediately re-pause a run the player just resumed.
+  const wasRotatedRef = useRef(false);
   useEffect(() => {
-    if (needsRotate && !paused) onPause();
+    if (needsRotate && !wasRotatedRef.current && !paused) onPause();
+    wasRotatedRef.current = needsRotate;
   }, [needsRotate, paused, onPause]);
 
   const urgent = timeLeft !== null && timeLeft <= 10_000;
@@ -247,12 +251,12 @@ export function GameScreen(props: GameScreenProps) {
             </span>
           )}
 
-          {paused && (
-            <PauseOverlay source={pauseSource} onResume={onResume} onQuit={onQuit} />
-          )}
-          {needsRotate && <OrientationOverlay />}
         </div>
       </div>
+
+      {/* Rendered at the root so no clipped or stacked layer can swallow taps. */}
+      {paused && <PauseOverlay source={pauseSource} onResume={onResume} onQuit={onQuit} />}
+      {needsRotate && <OrientationOverlay />}
     </div>
   );
 }

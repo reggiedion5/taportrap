@@ -13,7 +13,8 @@ export function PauseOverlay({ source = "manual", onResume, onQuit }: PauseOverl
       role="dialog"
       aria-modal="true"
       aria-label={interrupted ? "Game interrupted" : "Game paused"}
-      className="no-select absolute inset-0 z-30 grid place-items-center bg-arcade-bg-deep/85 px-5 backdrop-blur-sm"
+      className="no-select safe-screen fixed inset-0 z-[80] grid place-items-center bg-arcade-bg-deep/92 px-5 backdrop-blur-sm"
+      style={{ pointerEvents: "auto", touchAction: "manipulation" }}
     >
       <div className="arcade-panel w-[min(88vw,360px)] p-7 text-center">
         <h2 className="sticker-text text-4xl text-arcade-text glow-white">PAUSED</h2>
@@ -26,6 +27,7 @@ export function PauseOverlay({ source = "manual", onResume, onQuit }: PauseOverl
           <button
             type="button"
             onClick={onResume}
+            style={{ touchAction: "manipulation", pointerEvents: "auto" }}
             className="arcade-btn sticker-sm min-h-14 bg-neon-green py-4 text-lg text-arcade-bg-deep"
           >
             Back In →
@@ -33,6 +35,7 @@ export function PauseOverlay({ source = "manual", onResume, onQuit }: PauseOverl
           <button
             type="button"
             onClick={onQuit}
+            style={{ touchAction: "manipulation", pointerEvents: "auto" }}
             className="arcade-btn ui-title min-h-14 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
           >
             Quit Game
