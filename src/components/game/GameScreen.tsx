@@ -76,9 +76,13 @@ export function GameScreen(props: GameScreenProps) {
 
   const needsRotate = useOrientationGuard(true);
 
-  // Landscape on a phone pauses the run rather than ending it.
+  // Landscape on a phone pauses the run rather than ending it. Only fire on the
+  // transition into landscape — re-firing while landscape persists would
+  // immediately re-pause a run the player just resumed.
+  const wasRotatedRef = useRef(false);
   useEffect(() => {
-    if (needsRotate && !paused) onPause();
+    if (needsRotate && !wasRotatedRef.current && !paused) onPause();
+    wasRotatedRef.current = needsRotate;
   }, [needsRotate, paused, onPause]);
 
   const urgent = timeLeft !== null && timeLeft <= 10_000;
