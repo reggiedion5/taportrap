@@ -280,8 +280,7 @@ function parseStatistics(raw: unknown): PlayerStatistics {
 
 /** True when the most recently parsed records blob predates per-difficulty bests. */
 let legacyRecordsShape = false;
-
-
+/**
  * Seeds per-difficulty bests for saves written before the field existed.
  * The legacy global best is credited only to the difficulty that was last
  * selected; every other difficulty starts at 0. Never lowers a stored value.
