@@ -37,6 +37,7 @@ import { FeedbackModal } from "@/components/game/FeedbackModal";
 import { PreGameCountdown } from "@/components/game/PreGameCountdown";
 import type { ResetScope } from "@/components/game/DataResetSheet";
 import { ACHIEVEMENTS } from "@/game/achievements";
+import { DiagnosticPanel } from "@/components/game/DiagnosticPanel";
 
 const TITLE = "Tap or Trap! — Neon Reaction Arcade Game";
 const DESCRIPTION =
@@ -393,6 +394,10 @@ function TapOrTrap() {
           scorePulse={game.scorePulse}
           difficultyLabel={game.difficulty.label}
           comboFlash={game.comboFlash}
+          milestone={game.milestone}
+          pulse={game.pulse}
+          perfectFlash={game.perfectFlash}
+          greatFlash={game.greatFlash}
           levelUp={game.levelUp}
           target={game.target}
           feedback={game.feedback}
@@ -524,6 +529,18 @@ function TapOrTrap() {
         queue={toasts}
         reducedMotion={game.reducedMotion}
         onDismiss={(id) => setToasts((prev) => prev.filter((a) => a.id !== id))}
+      />
+
+      <DiagnosticPanel
+        phase={game.phase}
+        score={game.score}
+        combo={game.combo}
+        tierLabel={game.tier.label}
+        tierLevel={game.tier.level}
+        reaction={game.lastTap?.reaction ?? null}
+        timing={game.lastTap?.timing ?? null}
+        closeCall={game.lastTap?.closeCall ?? false}
+        summaryExists={summary !== null}
       />
     </main>,
   );

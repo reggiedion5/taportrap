@@ -27,6 +27,10 @@ interface GameScreenProps {
   scorePulse: number;
   difficultyLabel: string;
   comboFlash: number | null;
+  milestone: { id: number; label: string } | null;
+  pulse: number;
+  perfectFlash: boolean;
+  greatFlash: boolean;
   levelUp: DifficultyLevel | null;
   target: ActiveTarget | null;
   feedback: FloatingFeedback[];
@@ -105,11 +109,22 @@ export function GameScreen(props: GameScreenProps) {
       {flash && !reducedMotion && (
         <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-neon-red" />
       )}
+      {props.perfectFlash && !reducedMotion && (
+        <div className="pointer-events-none absolute inset-0 z-30 bg-neon-gold/25 transition-opacity" />
+      )}
+      {props.greatFlash && !reducedMotion && (
+        <div className="pointer-events-none absolute inset-0 z-30 bg-neon-green/15 transition-opacity" />
+      )}
       {urgent && !reducedMotion && !paused && (
         <div className="pointer-events-none absolute inset-0 z-10 animate-pulse bg-[radial-gradient(circle,transparent_55%,color-mix(in_oklab,var(--neon-red)_28%,transparent))]" />
       )}
 
-      <div className="relative mx-auto flex w-full max-w-lg flex-1 flex-col">
+      <div
+        key={reducedMotion ? undefined : props.pulse}
+        className={`relative mx-auto flex w-full max-w-lg flex-1 flex-col ${
+          props.pulse > 0 && !reducedMotion ? "animate-score-bump" : ""
+        }`}
+      >
         <ScoreHeader
           score={props.score}
           highScore={props.highScore}
@@ -200,6 +215,17 @@ export function GameScreen(props: GameScreenProps) {
           {props.comboFlash && (
             <span className="sticker-text animate-combo-burst pointer-events-none absolute top-1/2 left-1/2 text-7xl text-neon-purple glow-purple">
               ×{props.comboFlash}
+            </span>
+          )}
+
+          {props.milestone && (
+            <span
+              key={props.milestone.id}
+              className={`sticker-text pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 text-center text-3xl text-neon-gold glow-gold ${
+                reducedMotion ? "" : "animate-float-up"
+              }`}
+            >
+              {props.milestone.label}
             </span>
           )}
 
