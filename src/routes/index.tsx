@@ -114,7 +114,11 @@ function TapOrTrap() {
     [progress],
   );
 
-  const game = useGame({ mode: progress.mode, onComplete: handleComplete });
+  const game = useGame({
+    mode: progress.mode,
+    difficulty: progress.difficulty,
+    onComplete: handleComplete,
+  });
 
   const isTrainingMode = playableMode === "zen" || playableMode === "trainer";
   const catalogEntry = MODE_CATALOG[playableMode];
@@ -318,6 +322,8 @@ function TapOrTrap() {
           modeTagline={catalogEntry.description}
           modeBestLabel={bestLabel}
           isTrainingMode={isTrainingMode}
+          difficulty={progress.difficulty}
+          onDifficultyChange={progress.setDifficulty}
           daily={progress.daily}
           challenge={progress.challenge}
           themeHint={progress.themeHint}
