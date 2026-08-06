@@ -142,15 +142,7 @@ export interface CollectibleBadge {
 /* ---------------- notifications ---------------- */
 
 export type NotificationKind =
-  | "achievement"
-  | "board"
-  | "title"
-  | "badge"
-  | "level"
-  | "mission"
-  | "weekly"
-  | "streak"
-  | "login";
+  "achievement" | "board" | "title" | "badge" | "level" | "mission" | "weekly" | "streak" | "login";
 
 export interface AppNotification {
   id: string;

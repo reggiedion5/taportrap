@@ -16,8 +16,6 @@ import {
   openSupportEmail,
   supportEmailConfigured,
 } from "@/lib/urlSafety";
-import { storageDebugSummary } from "@/lib/storageHealth";
-import { formatReleaseReport, validateRelease } from "@/lib/releaseValidation";
 import { DataResetSheet, type ResetScope } from "./DataResetSheet";
 
 interface SettingsModalProps {
@@ -26,9 +24,13 @@ interface SettingsModalProps {
   onChange: (next: Partial<GameSettings>) => void;
   onReset: (scope: ResetScope) => void;
   onOpenFeedback: () => void;
+  onOpenAbout: () => void;
+  onOpenHelp: () => void;
+  onOpenPrivacy: () => void;
+  /** Dev-only release checklist; omitted in production builds. */
+  onOpenQA?: () => void;
   onClose: () => void;
 }
-
 
 function Toggle({
   label,
@@ -97,7 +99,9 @@ function LinkRow({
       <span className="text-arcade-text/80">{icon}</span>
       <span className="min-w-0">
         <span className="ui-title block text-base">{label}</span>
-        <span className="ui-body-tight mt-0.5 block truncate text-[14px] text-arcade-muted">{hint}</span>
+        <span className="ui-body-tight mt-0.5 block truncate text-[14px] text-arcade-muted">
+          {hint}
+        </span>
       </span>
     </button>
   );
@@ -109,11 +113,13 @@ export function SettingsModal({
   onChange,
   onReset,
   onOpenFeedback,
+  onOpenAbout,
+  onOpenHelp,
+  onOpenPrivacy,
+  onOpenQA,
   onClose,
 }: SettingsModalProps) {
   const [resetOpen, setResetOpen] = useState(false);
-  const [diagnostics, setDiagnostics] = useState<string | null>(null);
-
 
   if (!open) return null;
 
@@ -187,7 +193,9 @@ export function SettingsModal({
           />
         </div>
 
-        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">SUPPORT</h3>
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">
+          SUPPORT
+        </h3>
         <div className="mt-3 grid gap-3">
           <LinkRow
             label="Send Feedback"
@@ -225,7 +233,9 @@ export function SettingsModal({
           />
         </div>
 
-        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">YOUR DATA</h3>
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">
+          YOUR DATA
+        </h3>
         <p className="ui-body mt-2.5 text-[15px] text-arcade-muted">
           {APP_NAME} works fully offline. Scores, XP, achievements and settings are stored only on
           this device — nothing is uploaded, and no account is required.
@@ -240,36 +250,43 @@ export function SettingsModal({
           <span>Reset Data…</span>
         </button>
 
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">MORE</h3>
+        <div className="mt-2.5 grid gap-2">
+          <button
+            type="button"
+            onClick={onOpenHelp}
+            className="arcade-btn ui-title min-h-12 w-full border border-arcade-line bg-arcade-surface px-4 py-3 text-left text-base text-arcade-text"
+          >
+            Help Center
+          </button>
+          <button
+            type="button"
+            onClick={onOpenPrivacy}
+            className="arcade-btn ui-title min-h-12 w-full border border-arcade-line bg-arcade-surface px-4 py-3 text-left text-base text-arcade-text"
+          >
+            Privacy Center
+          </button>
+          <button
+            type="button"
+            onClick={onOpenAbout}
+            className="arcade-btn ui-title min-h-12 w-full border border-arcade-line bg-arcade-surface px-4 py-3 text-left text-base text-arcade-text"
+          >
+            About &amp; Backup
+          </button>
+        </div>
 
-        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">ABOUT</h3>
-        <p className="ui-body mt-2.5 text-[15px] text-arcade-text/95">
+        <p className="ui-body mt-3 text-[15px] text-arcade-muted">
           {APP_NAME} · Version {versionLabel()}
         </p>
 
-        {IS_DEV && (
-          <div className="mt-5 rounded-2xl border border-dashed border-arcade-line p-4">
-            <p className="sticker-sm text-xs text-arcade-text/70">Developer diagnostics</p>
-            <button
-              type="button"
-              onClick={() =>
-                setDiagnostics(
-                  `${formatReleaseReport(validateRelease())}\n\n${JSON.stringify(
-                    storageDebugSummary(),
-                    null,
-                    2,
-                  )}`,
-                )
-              }
-              className="arcade-btn ui-title mt-3 min-h-11 w-full border border-arcade-line bg-arcade-surface py-2 text-[15px] text-arcade-text"
-            >
-              Run release check
-            </button>
-            {diagnostics && (
-              <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-arcade-text/80">
-                {diagnostics}
-              </pre>
-            )}
-          </div>
+        {IS_DEV && onOpenQA && (
+          <button
+            type="button"
+            onClick={onOpenQA}
+            className="arcade-btn ui-title mt-5 min-h-11 w-full border border-dashed border-arcade-line bg-arcade-surface py-2 text-[15px] text-arcade-text"
+          >
+            Release QA (dev)
+          </button>
         )}
       </div>
 
@@ -281,7 +298,6 @@ export function SettingsModal({
         }}
         onClose={() => setResetOpen(false)}
       />
-
     </div>
   );
 }

@@ -28,11 +28,7 @@ export function Sparkline({
   invert = false,
 }: SparklineProps) {
   if (values.length === 0) {
-    return (
-      <p className="ui-body text-[14px] text-arcade-muted">
-        {label}: not enough runs yet.
-      </p>
-    );
+    return <p className="ui-body text-[14px] text-arcade-muted">{label}: not enough runs yet.</p>;
   }
 
   const max = Math.max(...values, 1);
@@ -54,13 +50,7 @@ export function Sparkline({
             background: color,
             opacity: index === values.length - 1 ? 1 : 0.55,
           };
-          return (
-            <span
-              key={index}
-              className="min-w-[4px] flex-1 rounded-t-[2px]"
-              style={style}
-            />
-          );
+          return <span key={index} className="min-w-[4px] flex-1 rounded-t-[2px]" style={style} />;
         })}
       </div>
       <p className="ui-body mt-1.5 text-[13px] text-arcade-muted tabular-nums">

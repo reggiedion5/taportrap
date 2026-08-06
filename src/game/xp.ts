@@ -96,7 +96,6 @@ export function calculateXpRewards({
     add(`New ${modeLabel[mode]} best`, 25);
   }
 
-
   const base = entries.reduce((sum, e) => sum + e.xp, 0);
   const preset = presetFor(difficulty);
   const total = Math.max(0, Math.round(base * preset.xpScale));

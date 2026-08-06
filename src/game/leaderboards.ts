@@ -10,14 +10,7 @@ import { weekKeyFor, weekKeyForDate } from "./weeklyChallenges";
 import { LIMITS, type RunHistoryEntry } from "./phase3Types";
 
 export type LeaderboardCategory =
-  | "all"
-  | "today"
-  | "week"
-  | "month"
-  | "beginner"
-  | "standard"
-  | "expert"
-  | "board";
+  "all" | "today" | "week" | "month" | "beginner" | "standard" | "expert" | "board";
 
 export const LEADERBOARD_LABEL: Record<LeaderboardCategory, string> = {
   all: "All Time",

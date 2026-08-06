@@ -31,11 +31,7 @@ export function ArcButton({
   ...rest
 }: ArcButtonProps) {
   return (
-    <button
-      type="button"
-      {...rest}
-      className={cn("btn-arc no-select w-full", className)}
-    >
+    <button type="button" {...rest} className={cn("btn-arc no-select w-full", className)}>
       <span
         className={cn(
           "btn-arc-face ui-title",

@@ -54,8 +54,8 @@ export function CollectionHubScreen({
   return (
     <Sheet open={open} title="Collection" onClose={onClose}>
       <p className="ui-body text-[15px] text-arcade-muted">
-        {unlockedTitleIds.length}/{TITLES.length} titles · {unlockedBadgeIds.length}/
-        {BADGES.length} badges · {boardsUnlocked}/{boardsTotal} boards
+        {unlockedTitleIds.length}/{TITLES.length} titles · {unlockedBadgeIds.length}/{BADGES.length}{" "}
+        badges · {boardsUnlocked}/{boardsTotal} boards
       </p>
 
       <div className="mt-4 flex gap-2" role="tablist" aria-label="Collection sections">
@@ -67,7 +67,9 @@ export function CollectionHubScreen({
             aria-selected={tab === t}
             onClick={() => setTab(t)}
             className={`ui-title flex-1 rounded-full px-3 py-2 text-[11px] tracking-[0.18em] ${
-              tab === t ? "bg-logo-green text-arcade-bg-deep" : "bg-arcade-surface text-arcade-muted"
+              tab === t
+                ? "bg-logo-green text-arcade-bg-deep"
+                : "bg-arcade-surface text-arcade-muted"
             }`}
           >
             {t.toUpperCase()}

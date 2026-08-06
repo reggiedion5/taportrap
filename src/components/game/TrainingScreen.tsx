@@ -30,6 +30,8 @@ interface TrainingScreenProps {
   kidsAssist: boolean;
   reducedMotion: boolean;
   shortCountdown: boolean;
+  /** Practice runs never write records, XP or statistics. */
+  practice?: boolean;
   onZenComplete: (result: ZenSessionResult) => void;
   onTrainerComplete: (result: TrainerSessionResult) => void;
   onQuit: () => void;
@@ -76,7 +78,13 @@ export function TrainingScreen(props: TrainingScreenProps) {
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 pt-3">
           <div className="min-w-0">
             <p className="sticker-sm text-[11px] tracking-[0.2em] text-arcade-muted">
-              {mode === "zen" ? (kidsAssist ? "ZEN · KIDS ASSIST" : "ZEN MODE") : "REFLEX TRAINER"}
+              {props.practice
+                ? "PRACTICE · NOT RECORDED"
+                : mode === "zen"
+                  ? kidsAssist
+                    ? "ZEN · KIDS ASSIST"
+                    : "ZEN MODE"
+                  : "REFLEX TRAINER"}
             </p>
             <p className="truncate text-sm font-black tracking-tight text-arcade-text">
               {mode === "zen"
@@ -121,7 +129,9 @@ export function TrainingScreen(props: TrainingScreenProps) {
         </div>
 
         {mode === "trainer" && (
-          <p className="ui-body-tight mt-1 px-4 text-[14px] text-arcade-muted">{moduleConfig.rule}</p>
+          <p className="ui-body-tight mt-1 px-4 text-[14px] text-arcade-muted">
+            {moduleConfig.rule}
+          </p>
         )}
 
         <div

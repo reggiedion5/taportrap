@@ -37,9 +37,7 @@ function PrivacyPage() {
       <p className="sticker-sm text-[12px] tracking-[0.14em] text-arcade-muted">{APP_NAME}</p>
       <h1 className="mt-2 text-3xl font-black text-arcade-text">Privacy Policy</h1>
       <p className="ui-body mt-2 text-[14px] text-arcade-muted">
-        {PRIVACY_EFFECTIVE_DATE
-          ? `Effective ${PRIVACY_EFFECTIVE_DATE}`
-          : "Effective date pending"}
+        {PRIVACY_EFFECTIVE_DATE ? `Effective ${PRIVACY_EFFECTIVE_DATE}` : "Effective date pending"}
       </p>
 
       <Section title="Summary">
@@ -72,16 +70,16 @@ function PrivacyPage() {
         </ul>
         <p>
           You can permanently delete all of it at any time from{" "}
-          <span className="text-arcade-text">Settings → Reset All Data</span>. Deleting the app
-          also removes it.
+          <span className="text-arcade-text">Settings → Reset All Data</span>. Deleting the app also
+          removes it.
         </p>
       </Section>
 
       <Section title="Third parties">
         <p>
-          {APP_NAME} contains no advertising, no third-party analytics, and no third-party SDKs
-          that collect data. Fonts and all other assets are bundled with the app rather than
-          loaded from external servers.
+          {APP_NAME} contains no advertising, no third-party analytics, and no third-party SDKs that
+          collect data. Fonts and all other assets are bundled with the app rather than loaded from
+          external servers.
         </p>
       </Section>
 

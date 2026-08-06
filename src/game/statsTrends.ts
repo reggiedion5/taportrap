@@ -15,7 +15,10 @@ export function average(values: number[]): number {
 
 /** Oldest → newest, ready to draw. */
 export function scoreTrend(history: RunHistoryEntry[], count = 20): number[] {
-  return history.slice(0, count).map((h) => h.score).reverse();
+  return history
+    .slice(0, count)
+    .map((h) => h.score)
+    .reverse();
 }
 
 export function reactionTrend(history: RunHistoryEntry[], count = 20): number[] {
@@ -34,7 +37,10 @@ export function accuracyTrend(history: RunHistoryEntry[], count = 20): number[] 
 }
 
 export function comboTrend(history: RunHistoryEntry[], count = 20): number[] {
-  return history.slice(0, count).map((h) => h.longestCombo).reverse();
+  return history
+    .slice(0, count)
+    .map((h) => h.longestCombo)
+    .reverse();
 }
 
 export function countBy<K extends string>(
@@ -57,9 +63,7 @@ export function gamesByBoard(history: RunHistoryEntry[]): Record<string, number>
   return countBy(history, (h) => h.boardId);
 }
 
-export function bestScoreByDifficulty(
-  history: RunHistoryEntry[],
-): Record<Difficulty, number> {
+export function bestScoreByDifficulty(history: RunHistoryEntry[]): Record<Difficulty, number> {
   const out: Record<Difficulty, number> = { beginner: 0, standard: 0, expert: 0 };
   for (const entry of history) {
     if (entry.difficulty in out) {

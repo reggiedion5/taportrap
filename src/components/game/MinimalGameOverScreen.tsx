@@ -15,11 +15,9 @@ export function MinimalGameOverScreen({
   onPlayAgain,
   onHome,
 }: MinimalGameOverScreenProps) {
-
   return (
     <section
       role="alert"
-      data-loss-debug="game-over-minimal"
       className="safe-screen relative z-[100] flex min-h-[100dvh] flex-col items-center justify-center bg-arcade-bg-deep px-6"
     >
       <div className="w-full max-w-sm">

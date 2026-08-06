@@ -15,17 +15,10 @@ interface ModeSelectorProps {
   onClose: () => void;
 }
 
-function bestLabel(
-  mode: PlayableMode,
-  records: PersonalRecords,
-  training: TrainingStore,
-): string {
+function bestLabel(mode: PlayableMode, records: PersonalRecords, training: TrainingStore): string {
   if (mode === "zen") return `BEST ${formatCount(training.zen.bestTapCount)} TAPS`;
   if (mode === "trainer") {
-    const best = Math.max(
-      0,
-      ...Object.values(training.trainer.modules).map((m) => m.bestAccuracy),
-    );
+    const best = Math.max(0, ...Object.values(training.trainer.modules).map((m) => m.bestAccuracy));
     return `BEST ${Math.round(best * 100)}%`;
   }
   return `BEST ${formatCount(records.highScore[mode as GameMode])}`;

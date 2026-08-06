@@ -8,12 +8,7 @@
  */
 
 import { isValidDateString, localDateString, seededRandom } from "./daily";
-import type {
-  WeeklyCategory,
-  WeeklyChallenge,
-  WeeklyState,
-  WeeklyTier,
-} from "./phase3Types";
+import type { WeeklyCategory, WeeklyChallenge, WeeklyState, WeeklyTier } from "./phase3Types";
 
 export const WEEKLY_TIER_XP: Record<WeeklyTier, number> = {
   accessible: 200,

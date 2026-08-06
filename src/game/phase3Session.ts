@@ -8,18 +8,17 @@
 
 import { localDateString } from "./daily";
 import type { Difficulty } from "./difficulty";
-import {
-  BADGES,
-  TITLES,
-  evaluateBadges,
-  evaluateTitles,
-  type CosmeticContext,
-} from "./cosmetics";
+import { BADGES, TITLES, evaluateBadges, evaluateTitles, type CosmeticContext } from "./cosmetics";
 import { pushNotifications, type NotificationInput } from "./notifications";
 import { appendAggregate, appendRun, buildRunEntry } from "./runHistory";
 import { registerPlayDay, STREAK_MILESTONES } from "./playStreak";
 import { applyRunToWeekly, weekKeyFor } from "./weeklyChallenges";
-import { LIMITS, type Phase3State, type RunHistoryEntry, type WeeklyChallenge } from "./phase3Types";
+import {
+  LIMITS,
+  type Phase3State,
+  type RunHistoryEntry,
+  type WeeklyChallenge,
+} from "./phase3Types";
 import type { GameSessionResult } from "./progressionTypes";
 
 export interface Phase3RunInput {
@@ -48,10 +47,7 @@ export interface Phase3RunOutcome {
   unlockedBadgeIds: string[];
 }
 
-export function applyRunToPhase3(
-  state: Phase3State,
-  input: Phase3RunInput,
-): Phase3RunOutcome {
+export function applyRunToPhase3(state: Phase3State, input: Phase3RunInput): Phase3RunOutcome {
   const today = input.today ?? localDateString();
   const timestamp = input.timestamp ?? Date.now();
   const run = buildRunEntry({
@@ -103,9 +99,7 @@ export function applyRunToPhase3(
     weekKeyFor(new Date(`${today}T00:00:00`)),
   );
 
-  const boardEquipHistory = Array.from(
-    new Set([...state.uniqueBoardEquipHistory, run.boardId]),
-  );
+  const boardEquipHistory = Array.from(new Set([...state.uniqueBoardEquipHistory, run.boardId]));
   const chaosRuns = state.chaosRuns + (run.tier >= 5 ? 1 : 0);
   const highestTier = Math.max(state.highestTier, run.tier);
 
@@ -114,15 +108,10 @@ export function applyRunToPhase3(
     ...input.cosmetics,
     boardsEquipped: boardEquipHistory.length,
     chaosRuns,
-    playStreakLongest: Math.max(
-      input.cosmetics.playStreakLongest,
-      streakOutcome.state.longest,
-    ),
+    playStreakLongest: Math.max(input.cosmetics.playStreakLongest, streakOutcome.state.longest),
   };
 
-  const unlockedBadgeSeed = Array.from(
-    new Set([...state.unlockedBadgeIds, ...milestoneBadges]),
-  );
+  const unlockedBadgeSeed = Array.from(new Set([...state.unlockedBadgeIds, ...milestoneBadges]));
   const newTitleIds = evaluateTitles(ctx, state.unlockedTitleIds);
   const newBadgeIds = Array.from(
     new Set([

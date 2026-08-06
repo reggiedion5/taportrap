@@ -1,10 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  APP_NAME,
-  PRIVACY_EFFECTIVE_DATE,
-  SUPPORT_EMAIL,
-  versionLabel,
-} from "@/lib/appConfig";
+import { APP_NAME, PRIVACY_EFFECTIVE_DATE, SUPPORT_EMAIL, versionLabel } from "@/lib/appConfig";
 import { supportEmailConfigured } from "@/lib/urlSafety";
 
 const TITLE = "Support — Tap or Trap!";
@@ -57,16 +52,16 @@ function SupportPage() {
           ) : (
             <span className="text-arcade-text">the address listed in the App Store listing</span>
           )}{" "}
-          and include your device model, iOS version and the app version shown in Settings →
-          About. Current build: {versionLabel()}.
+          and include your device model, iOS version and the app version shown in Settings → About.
+          Current build: {versionLabel()}.
         </p>
       </Section>
 
       <Section title="My progress disappeared">
         <p>
           Scores, XP, achievements and themes are stored only on the device. Deleting the app,
-          resetting the device, or using Settings → Reset All Data erases them permanently, and
-          they cannot be recovered because nothing is ever uploaded.
+          resetting the device, or using Settings → Reset All Data erases them permanently, and they
+          cannot be recovered because nothing is ever uploaded.
         </p>
       </Section>
 
@@ -79,16 +74,16 @@ function SupportPage() {
 
       <Section title="No vibration">
         <p>
-          Check the Vibration toggle in Settings and make sure System Haptics is enabled in the
-          iOS Sounds &amp; Haptics settings. Some devices have no haptic engine.
+          Check the Vibration toggle in Settings and make sure System Haptics is enabled in the iOS
+          Sounds &amp; Haptics settings. Some devices have no haptic engine.
         </p>
       </Section>
 
       <Section title="The game paused by itself">
         <p>
-          A run pauses whenever the app is interrupted — a call, a notification pull-down,
-          switching apps, or rotating the phone to landscape. Nothing is lost: tap Resume to carry
-          on from where you stopped. Runs never resume on their own so you are never caught out.
+          A run pauses whenever the app is interrupted — a call, a notification pull-down, switching
+          apps, or rotating the phone to landscape. Nothing is lost: tap Resume to carry on from
+          where you stopped. Runs never resume on their own so you are never caught out.
         </p>
       </Section>
 

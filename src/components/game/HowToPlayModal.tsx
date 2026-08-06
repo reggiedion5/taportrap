@@ -56,7 +56,9 @@ export function HowToPlayModal({ open, onClose, onReplayTutorial }: HowToPlayMod
               <span className={`sticker-sm block text-base tracking-tight ${r.tone}`}>
                 {r.title}
               </span>
-              <span className="ui-body-tight mt-0.5 block text-[15px] text-arcade-muted">{r.detail}</span>
+              <span className="ui-body-tight mt-0.5 block text-[15px] text-arcade-muted">
+                {r.detail}
+              </span>
             </span>
           </div>
         ))}

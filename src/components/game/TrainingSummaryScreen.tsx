@@ -14,6 +14,8 @@ interface TrainingSummaryScreenProps {
   zen: ZenSessionResult | null;
   trainer: TrainerSessionResult | null;
   reward: TrainingRewardResult | null;
+  /** True when the session was practice: nothing was recorded. */
+  practice?: boolean;
   onAgain: () => void;
   onChangeMode: () => void;
   onMenu: () => void;
@@ -32,6 +34,7 @@ export function TrainingSummaryScreen({
   zen,
   trainer,
   reward,
+  practice = false,
   onAgain,
   onChangeMode,
   onMenu,
@@ -61,8 +64,19 @@ export function TrainingSummaryScreen({
       <ArcadeBackdrop />
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center px-5 py-8">
         <p className="sticker-sm text-center text-[11px] tracking-[0.3em] text-arcade-text/80">
-          {zen ? (zen.kidsAssist ? "ZEN · KIDS ASSIST" : "ZEN MODE") : "REFLEX TRAINER"}
+          {practice
+            ? "PRACTICE MODE"
+            : zen
+              ? zen.kidsAssist
+                ? "ZEN · KIDS ASSIST"
+                : "ZEN MODE"
+              : "REFLEX TRAINER"}
         </p>
+        {practice && (
+          <p className="ui-body mt-2 text-center text-[14px] text-arcade-muted">
+            Practice run — no scores, XP or statistics were saved.
+          </p>
+        )}
         <h1 className="sticker-text mt-2 text-center text-[clamp(34px,11vw,56px)] leading-none text-neon-green glow-green">
           {zen ? "Session Complete" : "Practice Complete"}
         </h1>

@@ -1,14 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  loadTrainingStore,
-  resetTrainingRecords,
-  saveTrainingStore,
-} from "./trainingStore";
-import {
-  TRAINER_XP_PER_MODULE,
-  TRAINING_DAY_XP,
-  ZEN_CONFIG,
-} from "./trainingConfig";
+import { loadTrainingStore, resetTrainingRecords, saveTrainingStore } from "./trainingStore";
+import { TRAINER_XP_PER_MODULE, TRAINING_DAY_XP, ZEN_CONFIG } from "./trainingConfig";
 import { recordZenXp, zenSessionAlreadyPaid, zenXpRemainingToday } from "./rewardLedger";
 import {
   TRAINING_MODULES,

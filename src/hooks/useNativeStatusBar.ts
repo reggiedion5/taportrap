@@ -15,7 +15,11 @@ function readBackdropColor(): string {
     if (!match || match.length < 3) return "#07080f";
     const hex = match
       .slice(0, 3)
-      .map((v) => Math.max(0, Math.min(255, Math.round(Number(v)))).toString(16).padStart(2, "0"))
+      .map((v) =>
+        Math.max(0, Math.min(255, Math.round(Number(v))))
+          .toString(16)
+          .padStart(2, "0"),
+      )
       .join("");
     return `#${hex}`;
   } catch {

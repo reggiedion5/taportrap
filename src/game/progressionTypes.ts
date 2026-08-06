@@ -19,6 +19,10 @@ export interface PlayerProfile {
   selectedMode: GameMode;
   selectedDifficulty: Difficulty;
   onboardingCompleted: boolean;
+  /** Interactive tutorial finished at least once. */
+  tutorialCompleted: boolean;
+  /** One-time tutorial XP already paid out. */
+  tutorialRewardClaimed: boolean;
   seenModeIntros: GameMode[];
   createdAt: number;
   lastPlayedAt: number;
@@ -143,7 +147,6 @@ export interface AchievementStore {
   /** achievement ids whose XP reward has already been paid out */
   claimed: Record<string, number>;
 }
-
 
 /* ---------------- daily challenge ---------------- */
 

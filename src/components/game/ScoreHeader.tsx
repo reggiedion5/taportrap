@@ -29,7 +29,10 @@ export function ScoreHeader({
         <div className="flex min-w-0 items-center gap-2">
           <ChromeBadge faceClassName="flex-col items-start gap-0 px-3.5 py-1.5">
             <span className="ui-title text-[9px] tracking-[0.22em] text-arcade-muted">SCORE</span>
-            <span key={scorePulse} className="score-digits animate-score-bump text-3xl leading-none">
+            <span
+              key={scorePulse}
+              className="score-digits animate-score-bump text-3xl leading-none"
+            >
               {score}
             </span>
           </ChromeBadge>

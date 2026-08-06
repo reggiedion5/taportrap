@@ -19,7 +19,12 @@ export interface SharePayload {
 export type ShareOutcome = "shared" | "copied" | "cancelled" | "failed";
 
 interface SharePlugin {
-  share: (options: { title?: string; text?: string; url?: string; dialogTitle?: string }) => Promise<unknown>;
+  share: (options: {
+    title?: string;
+    text?: string;
+    url?: string;
+    dialogTitle?: string;
+  }) => Promise<unknown>;
   canShare?: () => Promise<{ value: boolean }>;
 }
 

@@ -159,7 +159,8 @@ export function useTrainingSession(params: Params) {
       finishedRef.current = true;
       clearTimers();
       setTarget(null);
-      const duration = elapsedRef.current + (startedAtRef.current ? Date.now() - startedAtRef.current : 0);
+      const duration =
+        elapsedRef.current + (startedAtRef.current ? Date.now() - startedAtRef.current : 0);
       const t = totals.current;
       const avg = t.reactionCount ? Math.round(t.reactionSum / t.reactionCount) : null;
       setPhase("summary");
@@ -234,8 +235,7 @@ export function useTrainingSession(params: Params) {
     });
     previousPos.current = { x: placement.x, y: placement.y };
 
-    const duration =
-      mode === "zen" ? zenDuration(taps, kidsAssist) : timing.duration;
+    const duration = mode === "zen" ? zenDuration(taps, kidsAssist) : timing.duration;
 
     const next: ActiveTarget = {
       id: ++idRef.current,
@@ -254,7 +254,10 @@ export function useTrainingSession(params: Params) {
     if (mode === "trainer") totals.current.breakdown[color].seen += 1;
 
     if (!reducedMotion) {
-      later(() => setTarget((cur) => (cur && cur.id === next.id ? { ...cur, state: "active" } : cur)), 90);
+      later(
+        () => setTarget((cur) => (cur && cur.id === next.id ? { ...cur, state: "active" } : cur)),
+        90,
+      );
     }
     later(() => expire(next.id), duration);
   }, [kidsAssist, later, mode, module, reducedMotion, taps, timing.duration, timing.sizeScale]);
@@ -268,8 +271,7 @@ export function useTrainingSession(params: Params) {
             ? KIDS_ASSIST_CONFIG.spawnDelay
             : ZEN_CONFIG.spawnDelay
           : timing.spawnDelay;
-      const delay =
-        delayRange.min + Math.random() * (delayRange.max - delayRange.min) + extraDelay;
+      const delay = delayRange.min + Math.random() * (delayRange.max - delayRange.min) + extraDelay;
       later(() => spawn(), delay);
     },
     [kidsAssist, later, mode, spawn, timing.spawnDelay],
@@ -426,7 +428,12 @@ export function useTrainingSession(params: Params) {
       });
       playSound(current.color === "gold" ? "gold" : "tap");
       vibrate("success");
-      pushFeedback(current.color === "gold" ? "BONUS" : "NICE", current.color, current.x, current.y);
+      pushFeedback(
+        current.color === "gold" ? "BONUS" : "NICE",
+        current.color,
+        current.x,
+        current.y,
+      );
       setTarget(null);
       if (presented >= sessionLength) finish("complete");
       else scheduleNext();
@@ -450,9 +457,7 @@ export function useTrainingSession(params: Params) {
 
   useEffect(() => {
     if (phase !== "countdown") return;
-    const steps = shortCountdown
-      ? [...COUNTDOWN_CONFIG.shortSteps]
-      : [...COUNTDOWN_CONFIG.steps];
+    const steps = shortCountdown ? [...COUNTDOWN_CONFIG.shortSteps] : [...COUNTDOWN_CONFIG.steps];
     const stepMs = shortCountdown ? COUNTDOWN_CONFIG.shortStepMs : COUNTDOWN_CONFIG.stepMs;
     const goMs = shortCountdown ? COUNTDOWN_CONFIG.shortGoMs : COUNTDOWN_CONFIG.goMs;
     let index = 0;

@@ -38,7 +38,13 @@ import type { GameSessionResult } from "./progressionTypes";
 import { onAppBackground, suppressBackgroundFor } from "@/lib/appLifecycle";
 import { isIOS, isNativePlatform } from "@/lib/nativePlatform";
 import { GAME_FEATURES } from "@/config/gameFeatures";
-import { classifyTap, closeCallMessage, isCloseCall, TIMING_LABEL, type TapTiming } from "./tapTiming";
+import {
+  classifyTap,
+  closeCallMessage,
+  isCloseCall,
+  TIMING_LABEL,
+  type TapTiming,
+} from "./tapTiming";
 import { milestoneFor } from "./comboMilestones";
 import { EMPTY_RUN_RECORD, recordRun, type RunRecord } from "./playerStats";
 
@@ -165,16 +171,16 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
 
   const reducedMotion = settings.reducedMotion || systemReducedMotion;
 
-  useEffect(() => {
-    console.info("[loss-debug] phase committed", {
-      phase,
-      score,
-      lives,
-      currentRound: runStats.successes,
-      animationFlags: { shake, flash, lifeLost },
-      lastResultExists: lastResult !== null,
-    });
-  }, [phase, score, lives, runStats.successes, shake, flash, lifeLost, lastResult]);
+  useEffect(() => {}, [
+    phase,
+    score,
+    lives,
+    runStats.successes,
+    shake,
+    flash,
+    lifeLost,
+    lastResult,
+  ]);
 
   // ---------- persistence ----------
   useEffect(() => {
@@ -272,31 +278,14 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
   const endGame = useCallback(
     (why: GameOverReason | null) => {
       if (endedRef.current) {
-        console.info("[loss-debug] endGame conditional return: already ended", {
-          phase: phaseRef.current,
-          score: scoreRef.current,
-          lives: livesRef.current,
-        });
         return;
       }
       const nativeIOS = isNativePlatform() && isIOS();
-      console.info("[loss-debug] transition playing -> losing", {
-        why,
-        phase: phaseRef.current,
-        score: scoreRef.current,
-        lives: livesRef.current,
-        currentRound: runStatsRef.current.successes,
-        nativeIOS,
-      });
       endedRef.current = true;
       runIdRef.current += 1; // invalidate any in-flight callback
-      console.info("[loss-debug] before clearAllTimers");
       clearAllTimers();
       clearDecorTimers();
-      console.info("[loss-debug] after clearAllTimers/clearDecorTimers");
-      console.info("[loss-debug] before setActiveTarget(null)");
       setActiveTarget(null);
-      console.info("[loss-debug] after setActiveTarget(null)");
       lastPositionRef.current = null;
 
       const reactions = reactionsRef.current;
@@ -325,7 +314,6 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
         }
       }
 
-      console.info("[loss-debug] before losing state setters", { stats, why });
       setRunStats(stats);
       setReason(why);
       setMilestone(null);
@@ -354,12 +342,9 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
         livesRemaining: Number.isFinite(livesRef.current) ? livesRef.current : null,
         completed: why !== "quit",
       };
-      console.info("[loss-debug] before setLastResult", result);
       setLastResult(result);
-      console.info("[loss-debug] after setLastResult; before setPhase(over)");
       phaseRef.current = "over";
       setPhase("over");
-      console.info("[loss-debug] after setPhase(over); transition losing -> over");
 
       if (!nativeIOS) {
         playSound(why === null ? "levelup" : "gameover");
@@ -367,15 +352,11 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       }
 
       if (why !== "quit") {
-        console.info("[loss-debug] before onComplete", { sessionId: result.sessionId });
         try {
           onCompleteRef.current(result);
-          console.info("[loss-debug] after onComplete");
-        } catch (error) {
-          console.error("[loss-debug] onComplete threw", error);
+        } catch {
+          // Recording must never block the Game Over screen from rendering.
         }
-      } else {
-        console.info("[loss-debug] onComplete conditional return: quit result");
       }
     },
     [clearAllTimers, clearDecorTimers, later, reducedMotion, setActiveTarget],
@@ -446,29 +427,14 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
   const registerMistake = useCallback(
     (why: GameOverReason) => {
       if (endedRef.current || phaseRef.current !== "playing") {
-        console.info("[loss-debug] registerMistake conditional return", {
-          why,
-          ended: endedRef.current,
-          phase: phaseRef.current,
-        });
         return;
       }
       const config = configRef.current;
 
-      console.info("[loss-debug] registerMistake entered", {
-        why,
-        phase: phaseRef.current,
-        score: scoreRef.current,
-        lives: livesRef.current,
-        currentRound: runStatsRef.current.successes,
-      });
-
       comboRef.current = 0;
       runRecordRef.current.mistakes += 1;
       setMilestone(null);
-      console.info("[loss-debug] before setCombo(0)");
       setCombo(0);
-      console.info("[loss-debug] after setCombo(0)");
 
       if (config.penalties) {
         const penalty =
@@ -533,14 +499,8 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       }
 
       livesRef.current = 0;
-      console.info("[loss-debug] before final-life setLives", {
-        phase: phaseRef.current,
-        lives: livesRef.current,
-      });
       setLives(configRef.current.lives > 1 ? 0 : null);
-      console.info("[loss-debug] after setLives; before endGame");
       endGameRef.current(why);
-      console.info("[loss-debug] after endGame");
     },
     [applyTimePenalty, later, pushFeedback, reducedMotion, scheduleSpawn, setActiveTarget],
   );
@@ -685,7 +645,6 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
           stats.closeCalls += 1;
         }
         setLastTap({ timing, reaction: Math.round(ms), closeCall });
-
       }
       setRunStats({ ...stats });
 
@@ -884,30 +843,37 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0], presetRef.current.spawnScale));
   }, [clearAllTimers, clearDecorTimers, difficulty, scheduleSpawn, setActiveTarget, startClock]);
 
-  const pause = useCallback((source: "manual" | "system" = "manual") => {
-    if (phaseRef.current !== "playing" || endedRef.current) return;
-    setPauseSource(source);
-    const now = performance.now();
-    const t = targetRef.current;
-    remainingTarget.current =
-      t && !t.resolved && expireTimer.current !== null ? Math.max(60, expireAt.current - now) : 0;
-    remainingSpawn.current = spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
-    if (configRef.current.timeLimitMs !== null) {
-      clockRemaining.current = Math.max(0, clockRemaining.current - (now - clockStartedAt.current));
-      setTimeLeft(clockRemaining.current);
-    }
-    clearAllTimers();
-    phaseRef.current = "paused";
-    setPhase("paused");
-    // Stop both audio engines immediately in the same input event. Waiting for
-    // the phase effect leaves an audible window and is unreliable in iOS WebViews.
-    suspendMusic();
-    try {
-      suspendAudio();
-    } catch {
-      /* audio must never block the phase change */
-    }
-  }, [clearAllTimers]);
+  const pause = useCallback(
+    (source: "manual" | "system" = "manual") => {
+      if (phaseRef.current !== "playing" || endedRef.current) return;
+      setPauseSource(source);
+      const now = performance.now();
+      const t = targetRef.current;
+      remainingTarget.current =
+        t && !t.resolved && expireTimer.current !== null ? Math.max(60, expireAt.current - now) : 0;
+      remainingSpawn.current =
+        spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
+      if (configRef.current.timeLimitMs !== null) {
+        clockRemaining.current = Math.max(
+          0,
+          clockRemaining.current - (now - clockStartedAt.current),
+        );
+        setTimeLeft(clockRemaining.current);
+      }
+      clearAllTimers();
+      phaseRef.current = "paused";
+      setPhase("paused");
+      // Stop both audio engines immediately in the same input event. Waiting for
+      // the phase effect leaves an audible window and is unreliable in iOS WebViews.
+      suspendMusic();
+      try {
+        suspendAudio();
+      } catch {
+        /* audio must never block the phase change */
+      }
+    },
+    [clearAllTimers],
+  );
 
   const pauseRef = useRef(pause);
   pauseRef.current = pause;
@@ -943,11 +909,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       }, rem);
     } else {
       setActiveTarget(null);
-      scheduleSpawn(
-        remainingSpawn.current > 0
-          ? remainingSpawn.current
-          : nextSpawnDelay(),
-      );
+      scheduleSpawn(remainingSpawn.current > 0 ? remainingSpawn.current : nextSpawnDelay());
     }
     remainingTarget.current = 0;
     remainingSpawn.current = 0;
@@ -1011,7 +973,6 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     });
     return off;
   }, []);
-
 
   // lock body scroll while a run is on screen
   useEffect(() => {

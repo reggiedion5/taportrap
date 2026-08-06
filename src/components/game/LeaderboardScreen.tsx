@@ -3,11 +3,7 @@ import { useMemo, useState } from "react";
 import { boardById } from "@/game/boards";
 import { DIFFICULTY_PRESETS } from "@/game/difficulty";
 import { MODE_CONFIG } from "@/game/modes";
-import {
-  LEADERBOARD_LABEL,
-  buildLeaderboard,
-  type LeaderboardCategory,
-} from "@/game/leaderboards";
+import { LEADERBOARD_LABEL, buildLeaderboard, type LeaderboardCategory } from "@/game/leaderboards";
 import type { RunHistoryEntry } from "@/game/phase3Types";
 import { Sheet } from "./Sheet";
 import { ChromeCard } from "./ArcUI";

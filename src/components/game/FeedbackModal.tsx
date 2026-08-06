@@ -39,8 +39,8 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
       ) : (
         <>
           <p className="ui-body text-[15px] text-arcade-text/95">
-            Your feedback opens in your own email app. Nothing is sent automatically and no
-            personal data is collected.
+            Your feedback opens in your own email app. Nothing is sent automatically and no personal
+            data is collected.
           </p>
 
           <fieldset className="mt-5">
@@ -93,9 +93,7 @@ export function FeedbackModal({ open, onClose }: FeedbackModalProps) {
             <p className="sticker-sm mt-2 text-[11px] tracking-[0.12em] text-arcade-muted">
               SUBJECT
             </p>
-            <p className="ui-body text-[14px] text-arcade-text/95">
-              {feedbackSubject(category)}
-            </p>
+            <p className="ui-body text-[14px] text-arcade-text/95">{feedbackSubject(category)}</p>
             <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-[12px] leading-relaxed text-arcade-muted">
               {preview}
             </pre>

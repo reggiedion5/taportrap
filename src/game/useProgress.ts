@@ -44,12 +44,7 @@ import {
 } from "./cosmetics";
 import { claimLoginReward, loginRewardAvailable } from "./loginRewards";
 import { displayedStreak } from "./playStreak";
-import {
-  claimWeekly,
-  claimableWeeklyCount,
-  rolloverWeekly,
-  weekKeyFor,
-} from "./weeklyChallenges";
+import { claimWeekly, claimableWeeklyCount, rolloverWeekly, weekKeyFor } from "./weeklyChallenges";
 import {
   markAllRead,
   markRead,
@@ -338,6 +333,42 @@ export function useProgress() {
     () => patchProfile({ onboardingCompleted: true }),
     [patchProfile],
   );
+
+  /** Clears the first-launch flags so onboarding and the tutorial replay. */
+  const resetOnboarding = useCallback(
+    () => patchProfile({ onboardingCompleted: false, tutorialCompleted: false }),
+    [patchProfile],
+  );
+
+  /**
+   * Marks the interactive tutorial as finished. The 50 XP reward is paid at most
+   * once for the lifetime of the profile, no matter how often it is replayed.
+   */
+  const completeTutorial = useCallback((xp: number): number => {
+    let awarded = 0;
+    setSnapshot((prev) => {
+      const alreadyPaid = prev.profile.tutorialRewardClaimed;
+      awarded = alreadyPaid ? 0 : Math.max(0, Math.floor(xp));
+      const withXp = awarded > 0 ? applyXp(prev.profile, awarded) : null;
+      const profile: PlayerProfile = {
+        ...prev.profile,
+        tutorialCompleted: true,
+        tutorialRewardClaimed: true,
+        ...(withXp
+          ? { level: withXp.level, currentXp: withXp.currentXp, lifetimeXp: withXp.lifetimeXp }
+          : {}),
+      };
+      writeJson(KEYS.profile, profile);
+      return { ...prev, profile };
+    });
+    return awarded;
+  }, []);
+
+  /** Re-reads every store from disk (used after an imported or reset backup). */
+  const reloadFromStorage = useCallback(() => {
+    processedSessions.current.clear();
+    setSnapshot(loadProgress());
+  }, []);
 
   const markModeIntroSeen = useCallback((mode: GameMode) => {
     setSnapshot((prev) => {
@@ -705,8 +736,7 @@ export function useProgress() {
 
       /* ---- phase 3: history, streak, weekly, cosmetics ---- */
       const lifetimeCloseCalls =
-        prev.phase3.runHistory.reduce((sum, h) => sum + h.closeCalls, 0) +
-        (stats.closeCalls ?? 0);
+        prev.phase3.runHistory.reduce((sum, h) => sum + h.closeCalls, 0) + (stats.closeCalls ?? 0);
       const bestExpertScore = Object.values(records.highScoreByDifficulty).reduce(
         (best, byDifficulty) => Math.max(best, byDifficulty.expert ?? 0),
         0,
@@ -882,18 +912,15 @@ export function useProgress() {
 
   const phase3 = snapshot.phase3;
 
-  const commitPhase3 = useCallback(
-    (mutate: (state: Phase3State) => Phase3State | null) => {
-      const prev = snapshotRef.current;
-      const next = mutate(prev.phase3);
-      if (!next || next === prev.phase3) return;
-      writeJson(KEYS.phase3, next);
-      const merged = { ...prev, phase3: next };
-      snapshotRef.current = merged;
-      setSnapshot(merged);
-    },
-    [],
-  );
+  const commitPhase3 = useCallback((mutate: (state: Phase3State) => Phase3State | null) => {
+    const prev = snapshotRef.current;
+    const next = mutate(prev.phase3);
+    if (!next || next === prev.phase3) return;
+    writeJson(KEYS.phase3, next);
+    const merged = { ...prev, phase3: next };
+    snapshotRef.current = merged;
+    setSnapshot(merged);
+  }, []);
 
   /** Grants XP and writes the profile synchronously (claim flows). */
   const payXp = useCallback((amount: number, patch: Partial<ProgressSnapshot>) => {
@@ -917,10 +944,7 @@ export function useProgress() {
 
   const today = localDateString();
 
-  const playStreak = useMemo(
-    () => displayedStreak(phase3.streak, today),
-    [phase3.streak, today],
-  );
+  const playStreak = useMemo(() => displayedStreak(phase3.streak, today), [phase3.streak, today]);
 
   const loginAvailable = useMemo(
     () => loginRewardAvailable(phase3.login, today),
@@ -933,9 +957,8 @@ export function useProgress() {
     const date = localDateString();
     const claim = claimLoginReward(prev.phase3.login, date);
     if (claim.xp <= 0 && !claim.badgeId) return 0;
-    const badgeIds = claim.badgeId && !prev.phase3.unlockedBadgeIds.includes(claim.badgeId)
-      ? [claim.badgeId]
-      : [];
+    const badgeIds =
+      claim.badgeId && !prev.phase3.unlockedBadgeIds.includes(claim.badgeId) ? [claim.badgeId] : [];
     const pushed = pushNotifications(
       prev.phase3.notifications,
       prev.phase3.processedNotificationIds,
@@ -986,17 +1009,12 @@ export function useProgress() {
     [payXp],
   );
 
-  const claimableWeekly = useMemo(
-    () => claimableWeeklyCount(phase3.weekly),
-    [phase3.weekly],
-  );
+  const claimableWeekly = useMemo(() => claimableWeeklyCount(phase3.weekly), [phase3.weekly]);
 
   const equipTitle = useCallback(
     (titleId: string) =>
       commitPhase3((state) =>
-        state.unlockedTitleIds.includes(titleId)
-          ? { ...state, equippedTitleId: titleId }
-          : null,
+        state.unlockedTitleIds.includes(titleId) ? { ...state, equippedTitleId: titleId } : null,
       ),
     [commitPhase3],
   );
@@ -1061,7 +1079,14 @@ export function useProgress() {
       ),
       loginCyclesCompleted: phase3.login.completedCycles,
     }),
-    [snapshot.statistics, snapshot.records, snapshot.missions, phase3, unlockedBoardIds, level.level],
+    [
+      snapshot.statistics,
+      snapshot.records,
+      snapshot.missions,
+      phase3,
+      unlockedBoardIds,
+      level.level,
+    ],
   );
 
   const equippedTitle = useMemo(
@@ -1172,6 +1197,9 @@ export function useProgress() {
     setBoard,
     markBoardsSeen,
     completeOnboarding,
+    resetOnboarding,
+    completeTutorial,
+    reloadFromStorage,
     markModeIntroSeen,
     patchProfile,
     grantXp,

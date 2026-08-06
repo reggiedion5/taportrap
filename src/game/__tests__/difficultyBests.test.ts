@@ -8,8 +8,7 @@ import {
 } from "@/game/progressStore";
 import type { Difficulty } from "@/game/difficulty";
 
-const bests = (records: ReturnType<typeof defaultRecords>) =>
-  records.highScoreByDifficulty.classic;
+const bests = (records: ReturnType<typeof defaultRecords>) => records.highScoreByDifficulty.classic;
 
 describe("per-difficulty best scores", () => {
   beforeEach(() => window.localStorage.clear());
@@ -55,7 +54,10 @@ describe("per-difficulty best scores", () => {
   });
 
   it("migrates a legacy save by crediting only the last-played difficulty", () => {
-    const legacy = { ...defaultRecords(), highScore: { ...defaultRecords().highScore, classic: 25 } };
+    const legacy = {
+      ...defaultRecords(),
+      highScore: { ...defaultRecords().highScore, classic: 25 },
+    };
     const migrated = migrateDifficultyBests(legacy, "expert" satisfies Difficulty);
     expect(migrated.highScoreByDifficulty.classic).toEqual({
       beginner: 0,
@@ -66,7 +68,10 @@ describe("per-difficulty best scores", () => {
   });
 
   it("defaults to zero when the legacy difficulty is unknown", () => {
-    const legacy = { ...defaultRecords(), highScore: { ...defaultRecords().highScore, classic: 25 } };
+    const legacy = {
+      ...defaultRecords(),
+      highScore: { ...defaultRecords().highScore, classic: 25 },
+    };
     const migrated = migrateDifficultyBests(legacy, "not-a-difficulty");
     expect(migrated.highScoreByDifficulty.classic).toEqual({
       beginner: 0,

@@ -48,6 +48,15 @@ import { PreGameCountdown } from "@/components/game/PreGameCountdown";
 import type { ResetScope } from "@/components/game/DataResetSheet";
 import { ACHIEVEMENTS } from "@/game/achievements";
 import { DiagnosticPanel } from "@/components/game/DiagnosticPanel";
+import { TutorialScreen } from "@/components/game/TutorialScreen";
+import { AboutScreen } from "@/components/game/AboutScreen";
+import { PrivacyCenterScreen } from "@/components/game/PrivacyCenterScreen";
+import { TermsScreen } from "@/components/game/TermsScreen";
+import { HelpCenterScreen } from "@/components/game/HelpCenterScreen";
+import { ReleaseQAScreen } from "@/components/game/ReleaseQAScreen";
+import { TUTORIAL_XP } from "@/game/tutorial";
+import { GAME_FEATURES, qaScreenVisible } from "@/config/gameFeatures";
+import { trackEvent } from "@/lib/analytics";
 
 const TITLE = "Tap or Trap! — Neon Reaction Arcade Game";
 const DESCRIPTION =
@@ -82,17 +91,28 @@ type Overlay =
   | "profile"
   | "collection"
   | "notifications"
-  | "leaderboard";
+  | "leaderboard"
+  | "about"
+  | "privacy"
+  | "terms"
+  | "help"
+  | "qa";
 
 /** Non-competitive play runs on its own screen stack. */
 type TrainingPhase = "idle" | "playing" | "summary";
+
+/** Full-screen teaching flows that replace the whole app shell. */
+type Teaching = "none" | "onboarding" | "tutorial";
 
 function TapOrTrap() {
   const progress = useProgress();
   const training = useTraining(progress.grantXp);
 
   const [overlay, setOverlay] = useState<Overlay>("none");
-  const [tutorial, setTutorial] = useState(false);
+  const [teaching, setTeaching] = useState<Teaching>("none");
+  const [practice, setPractice] = useState(false);
+  const [tutorialXp, setTutorialXp] = useState<number | null>(null);
+  const [crash, setCrash] = useState(false);
   const [modeIntro, setModeIntro] = useState(false);
   const [countdown, setCountdown] = useState(false);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
@@ -114,20 +134,11 @@ function TapOrTrap() {
 
   const handleComplete = useCallback(
     (result: GameSessionResult) => {
-      console.info("[loss-debug] handleComplete entered", {
-        score: result.score,
-        currentRound: result.stats.successes,
-      });
-      console.info("[loss-debug] before recordSession");
       const next = progress.recordSession(result);
-      console.info("[loss-debug] after recordSession", { summaryExists: next !== null });
       if (!next) {
-        console.info("[loss-debug] handleComplete conditional return: no summary");
         return;
       }
-      console.info("[loss-debug] before setSummary", { sessionId: next.sessionId });
       setSummary(next);
-      console.info("[loss-debug] after setSummary");
       pendingToasts.current = next.unlockedAchievements;
       if (next.unlockedBoards.length > 0) {
         setBoardToasts((prev) => [
@@ -136,6 +147,7 @@ function TapOrTrap() {
         ]);
       }
       if (next.unlockedAchievements.length > 0) playSound("unlock");
+      trackEvent("game_completed", { mode: result.mode, score: result.score });
     },
     [progress],
   );
@@ -160,6 +172,16 @@ function TapOrTrap() {
       }
     }
   }, [game.phase]);
+
+  useEffect(() => {
+    trackEvent("app_open", {});
+  }, []);
+
+  useEffect(() => {
+    if (tutorialXp === null) return;
+    const t = window.setTimeout(() => setTutorialXp(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [tutorialXp]);
 
   // equipped board drives the interface palette via :root custom properties
   useEffect(() => {
@@ -198,8 +220,9 @@ function TapOrTrap() {
     setSummary(null);
     setModeIntro(false);
     setCountdown(false);
+    trackEvent("game_started", { mode: progress.mode, difficulty: progress.difficulty });
     game.startGame();
-  }, [game]);
+  }, [game, progress.mode, progress.difficulty]);
 
   const launchCompetitive = useCallback(() => {
     setSummary(null);
@@ -225,20 +248,20 @@ function TapOrTrap() {
     (result: ZenSessionResult) => {
       setZenResult(result);
       setTrainerResult(null);
-      setTrainingReward(training.recordZenSession(result));
+      setTrainingReward(practice ? null : training.recordZenSession(result));
       setTrainingPhase("summary");
     },
-    [training],
+    [practice, training],
   );
 
   const handleTrainerComplete = useCallback(
     (result: TrainerSessionResult) => {
       setTrainerResult(result);
       setZenResult(null);
-      setTrainingReward(training.recordTrainerSession(result));
+      setTrainingReward(practice ? null : training.recordTrainerSession(result));
       setTrainingPhase("summary");
     },
-    [training],
+    [practice, training],
   );
 
   const handlePlay = useCallback(() => {
@@ -254,6 +277,7 @@ function TapOrTrap() {
   }, [isTrainingMode, launchCompetitive, progress.mode, progress.profile.seenModeIntros]);
 
   const goToMenu = useCallback(() => {
+    setPractice(false);
     setTrainingPhase("idle");
     setCountdown(false);
     game.goToMenu();
@@ -282,7 +306,24 @@ function TapOrTrap() {
     [progress, training],
   );
 
-  const showOnboarding = progress.hydrated && (tutorial || !progress.profile.onboardingCompleted);
+  const showOnboarding =
+    progress.hydrated &&
+    (teaching === "onboarding" ||
+      (GAME_FEATURES.onboarding && !progress.profile.onboardingCompleted));
+  const showTutorial = progress.hydrated && !showOnboarding && teaching === "tutorial";
+
+  const finishOnboarding = useCallback(() => {
+    progress.completeOnboarding();
+    setTeaching("none");
+  }, [progress]);
+
+  /** Practice runs use the training surface but never record anything. */
+  const openPractice = useCallback(() => {
+    setPractice(true);
+    setPlayableMode("trainer");
+    setOverlay("trainingSetup");
+    trackEvent("practice_started", {});
+  }, []);
 
   const shell = (content: React.ReactNode) => (
     <AppBootstrap
@@ -307,17 +348,37 @@ function TapOrTrap() {
         <OnboardingFlow
           reducedMotion={game.reducedMotion}
           onFinish={() => {
-            progress.completeOnboarding();
-            setTutorial(false);
+            finishOnboarding();
+            if (GAME_FEATURES.tutorial && !progress.profile.tutorialCompleted) {
+              setTeaching("tutorial");
+            }
           }}
-          onSkip={() => {
-            progress.completeOnboarding();
-            setTutorial(false);
-          }}
+          onSkip={finishOnboarding}
         />
       </main>,
     );
   }
+
+  if (showTutorial) {
+    return shell(
+      <main className="min-h-[100dvh] bg-arcade-bg-deep">
+        <h1 className="sr-only">Tap or Trap! interactive tutorial</h1>
+        <TutorialScreen
+          reducedMotion={game.reducedMotion}
+          rewardAlreadyGiven={progress.profile.tutorialRewardClaimed}
+          onFinish={() => {
+            const awarded = progress.completeTutorial(TUTORIAL_XP);
+            setTutorialXp(awarded);
+            setTeaching("none");
+            trackEvent("tutorial_completed", { xp: awarded });
+          }}
+          onExit={() => setTeaching("none")}
+        />
+      </main>,
+    );
+  }
+
+  if (crash) throw new Error("Release QA: test error boundary");
 
   const emptyBests: Record<Difficulty, number> = { beginner: 0, standard: 0, expert: 0 };
   /** Per-difficulty bests for a mode, tolerant of unknown/training mode ids. */
@@ -344,27 +405,6 @@ function TapOrTrap() {
   const activeBest = bestsForMode(progress.mode)[progress.difficulty] ?? 0;
 
   const showHome = game.phase === "start" && trainingPhase === "idle" && !countdown;
-
-  console.info("[loss-debug] TapOrTrap render branch", {
-    phase: game.phase,
-    summaryExists: summary !== null,
-    score: game.score,
-    bestScore: activeBest,
-    lives: game.lives,
-    currentRound: game.runStats.successes,
-    animationFlags: {
-      shake: game.shake,
-      flash: game.flash,
-      lifeLost: game.lifeLost,
-      countdown,
-      modeIntro,
-    },
-    branches: {
-      showHome,
-      game: game.phase === "playing" || game.phase === "paused",
-      gameOver: game.phase === "over",
-    },
-  });
 
   return shell(
     <main className="min-h-[100dvh] bg-arcade-bg-deep">
@@ -417,6 +457,14 @@ function TapOrTrap() {
         />
       )}
 
+      {showHome && tutorialXp !== null && (
+        <div className="pointer-events-none fixed inset-x-0 top-3 z-[70] flex justify-center px-4">
+          <p className="ui-title rounded-xl border border-neon-green/60 bg-arcade-surface px-4 py-2 text-[15px] text-neon-green">
+            {tutorialXp > 0 ? `Tutorial complete · +${tutorialXp} XP` : "Tutorial complete"}
+          </p>
+        </div>
+      )}
+
       {countdown && (
         <PreGameCountdown
           title={`${MODE_CONFIG[progress.mode].name} mode`}
@@ -434,6 +482,7 @@ function TapOrTrap() {
           kidsAssist={game.settings.kidsAssist}
           reducedMotion={game.reducedMotion}
           shortCountdown={game.settings.skipCountdown}
+          practice={practice}
           onZenComplete={handleZenComplete}
           onTrainerComplete={handleTrainerComplete}
           onQuit={goToMenu}
@@ -445,6 +494,7 @@ function TapOrTrap() {
           zen={zenResult}
           trainer={trainerResult}
           reward={trainingReward}
+          practice={practice}
           onAgain={startTraining}
           onChangeMode={() => {
             setTrainingPhase("idle");
@@ -499,7 +549,7 @@ function TapOrTrap() {
             levelXpForNext={progress.level.xpForNext}
             dailyObjective={progress.challenge.objective}
             playerLevel={progress.level.level}
-          playerTitle={progress.equippedTitle.name}
+            playerTitle={progress.equippedTitle.name}
             reducedMotion={game.reducedMotion}
             onPlayAgain={launchCompetitive}
             onChangeMode={() => {
@@ -661,7 +711,7 @@ function TapOrTrap() {
         onClose={() => setOverlay("none")}
         onReplayTutorial={() => {
           setOverlay("none");
-          setTutorial(true);
+          setTeaching("tutorial");
         }}
       />
 
@@ -671,6 +721,60 @@ function TapOrTrap() {
         onChange={game.updateSettings}
         onReset={handleReset}
         onOpenFeedback={() => setOverlay("feedback")}
+        onOpenAbout={() => setOverlay("about")}
+        onOpenHelp={() => setOverlay("help")}
+        onOpenPrivacy={() => setOverlay("privacy")}
+        onOpenQA={qaScreenVisible() ? () => setOverlay("qa") : undefined}
+        onClose={() => setOverlay("none")}
+      />
+
+      <AboutScreen
+        open={overlay === "about"}
+        onOpenPrivacy={() => setOverlay("privacy")}
+        onOpenTerms={() => setOverlay("terms")}
+        onOpenSupport={() => setOverlay("feedback")}
+        onImported={progress.reloadFromStorage}
+        onClose={() => setOverlay("none")}
+      />
+
+      <PrivacyCenterScreen
+        open={overlay === "privacy"}
+        onOpenTerms={() => setOverlay("terms")}
+        onOpenSupport={() => setOverlay("feedback")}
+        onImported={progress.reloadFromStorage}
+        onClose={() => setOverlay("none")}
+      />
+
+      <TermsScreen
+        open={overlay === "terms"}
+        onOpenPrivacy={() => setOverlay("privacy")}
+        onClose={() => setOverlay("none")}
+      />
+
+      <HelpCenterScreen
+        open={overlay === "help"}
+        onReplayOnboarding={() => {
+          setOverlay("none");
+          setTeaching("onboarding");
+        }}
+        onReplayTutorial={() => {
+          setOverlay("none");
+          setTeaching("tutorial");
+        }}
+        onOpenPractice={() => {
+          setOverlay("none");
+          openPractice();
+        }}
+        onOpenFeedback={() => setOverlay("feedback")}
+        onOpenPrivacy={() => setOverlay("privacy")}
+        onOpenTerms={() => setOverlay("terms")}
+        onClose={() => setOverlay("none")}
+      />
+
+      <ReleaseQAScreen
+        open={overlay === "qa"}
+        onResetOnboarding={progress.resetOnboarding}
+        onThrowTestError={() => setCrash(true)}
         onClose={() => setOverlay("none")}
       />
 
