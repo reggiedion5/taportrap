@@ -401,14 +401,30 @@ function TapOrTrap() {
         />
       )}
 
-      {game.phase === "over" && (
-        <MinimalGameOverScreen
-          score={game.lastResult?.score ?? game.score}
-          bestScore={progress.records.highScore[progress.mode]}
-          onPlayAgain={launchCompetitive}
-          onHome={goToMenu}
-        />
-      )}
+      {game.phase === "over" &&
+        (summary ? (
+          <GameOverScreen
+            summary={summary}
+            levelCurrentXp={progress.level.currentXp}
+            levelXpForNext={progress.level.xpForNext}
+            dailyObjective={progress.challenge.label}
+            playerLevel={progress.level.level}
+            reducedMotion={game.reducedMotion}
+            onPlayAgain={launchCompetitive}
+            onChangeMode={() => {
+              goToMenu();
+              setOverlay("modes");
+            }}
+            onMenu={goToMenu}
+          />
+        ) : (
+          <MinimalGameOverScreen
+            score={game.lastResult?.score ?? game.score}
+            bestScore={progress.records.highScore[progress.mode]}
+            onPlayAgain={launchCompetitive}
+            onHome={goToMenu}
+          />
+        ))}
 
 
       <ModeSelector
