@@ -620,9 +620,6 @@ export function useProgress() {
         mission = generatePostGameMission(result);
       }
 
-      if (achievementXp > 0) {
-        xp.entries.push({ label: "Achievements", xp: achievementXp });
-      }
       if (dailyXp > 0) {
         xp.entries.push({ label: "Daily challenge", xp: dailyXp });
       }
@@ -642,11 +639,15 @@ export function useProgress() {
         dailyProgress,
         missionCompleted,
         mission,
+        dailyMissionsCompleted: missionOutcome.completed,
+        dailyMissionsAdvanced: missionOutcome.advanced,
+        claimableXp,
       };
 
       writeJson(KEYS.statistics, statistics);
       writeJson(KEYS.records, records);
       writeJson(KEYS.daily, daily);
+      writeJson(KEYS.dailyMissions, missions);
       writeJson(KEYS.achievements, achievements);
       writeJson(KEYS.profile, profile);
       writeJson(KEYS.mission, mission);
@@ -657,7 +658,9 @@ export function useProgress() {
         records,
         achievements,
         daily,
+        missions,
         mission,
+
       };
     })(snapshotRef.current);
 
