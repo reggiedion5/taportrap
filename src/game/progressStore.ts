@@ -6,7 +6,7 @@ import {
   localDateString,
   normalizeStreak,
 } from "./daily";
-import { DEFAULT_THEME_ID, THEMES } from "./themes";
+import { DEFAULT_BOARD_ID, isBoardId } from "./boards";
 import {
   STORAGE_VERSION,
   type AchievementStore,
@@ -117,7 +117,8 @@ export function defaultProfile(): PlayerProfile {
     level: 1,
     currentXp: 0,
     lifetimeXp: 0,
-    selectedTheme: DEFAULT_THEME_ID,
+    selectedBoardId: DEFAULT_BOARD_ID,
+    seenBoardIds: [],
     selectedMode: "classic",
     selectedDifficulty: "standard",
     onboardingCompleted: false,
@@ -200,14 +201,22 @@ export function defaultDaily(date = localDateString()): DailyState {
 function parseProfile(raw: unknown): PlayerProfile {
   const src = asRecord(raw);
   const base = defaultProfile();
-  const theme = typeof src.selectedTheme === "string" ? src.selectedTheme : "";
+  // legacy profiles stored the equipped look under `selectedTheme`
+  const legacyTheme = typeof src.selectedTheme === "string" ? src.selectedTheme : "";
+  const board = isBoardId(src.selectedBoardId)
+    ? src.selectedBoardId
+    : isBoardId(legacyTheme)
+      ? legacyTheme
+      : DEFAULT_BOARD_ID;
+  const seenBoards = Array.isArray(src.seenBoardIds) ? src.seenBoardIds.filter(isBoardId) : [];
   const seen = Array.isArray(src.seenModeIntros) ? src.seenModeIntros.filter(isGameMode) : [];
   return {
     version: STORAGE_VERSION,
     level: Math.max(1, int(src.level, 1) || 1),
     currentXp: int(src.currentXp),
     lifetimeXp: int(src.lifetimeXp),
-    selectedTheme: THEMES.some((t) => t.id === theme) ? theme : DEFAULT_THEME_ID,
+    selectedBoardId: board,
+    seenBoardIds: seenBoards,
     selectedMode: isGameMode(src.selectedMode) ? src.selectedMode : "classic",
     selectedDifficulty: isDifficulty(src.selectedDifficulty) ? src.selectedDifficulty : "standard",
     onboardingCompleted: bool(src.onboardingCompleted),
