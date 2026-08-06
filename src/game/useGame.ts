@@ -837,6 +837,10 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     setFeedback([]);
     setBurst(null);
     setComboFlash(null);
+    setMilestone(null);
+    setLastTap(null);
+    setPerfectFlash(false);
+    setGreatFlash(false);
     setLevelUp(null);
     setShake(false);
     setFlash(false);
