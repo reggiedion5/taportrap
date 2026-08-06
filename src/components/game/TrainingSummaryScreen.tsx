@@ -60,9 +60,9 @@ export function TrainingSummaryScreen({
       : emptyShareData("zen");
 
   return (
-    <div className="no-select safe-area relative min-h-[100dvh] overflow-hidden">
+    <div className="no-select safe-area scroll-screen relative">
       <ArcadeBackdrop />
-      <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center px-5 py-8">
+      <div className="relative z-[1] mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center px-5 py-8">
         <p className="sticker-sm text-center text-[11px] tracking-[0.3em] text-arcade-text/80">
           {practice
             ? "PRACTICE MODE"
