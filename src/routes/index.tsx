@@ -27,7 +27,9 @@ import { OnboardingFlow } from "@/components/game/OnboardingFlow";
 import { ModeInfoModal, ModeSelector } from "@/components/game/ModeSelector";
 import { AchievementScreen } from "@/components/game/AchievementScreen";
 import { StatisticsScreen } from "@/components/game/StatisticsScreen";
-import { ThemeScreen } from "@/components/game/ThemeScreen";
+import { BOARDS } from "@/game/boards";
+import { BoardCollectionScreen } from "@/components/game/BoardCollectionScreen";
+import { BoardProvider } from "@/components/game/BoardContext";
 import { HowToPlayModal } from "@/components/game/HowToPlayModal";
 import { AchievementToastQueue } from "@/components/game/AchievementToastQueue";
 import { AppBootstrap } from "@/components/game/AppBootstrap";
@@ -63,7 +65,7 @@ type Overlay =
   | "modes"
   | "achievements"
   | "statistics"
-  | "themes"
+  | "boards"
   | "howto"
   | "settings"
   | "feedback"
@@ -142,9 +144,16 @@ function TapOrTrap() {
     }
   }, [game.phase]);
 
+  // equipped board drives the interface palette via :root custom properties
   useEffect(() => {
-    document.documentElement.dataset.theme = progress.activeTheme.id;
-  }, [progress.activeTheme.id]);
+    const root = document.documentElement;
+    root.dataset.board = progress.activeBoard.id;
+    const applied = Object.entries(progress.activeBoard.vars);
+    applied.forEach(([key, value]) => root.style.setProperty(key, value));
+    return () => {
+      applied.forEach(([key]) => root.style.removeProperty(key));
+    };
+  }, [progress.activeBoard]);
 
   useEffect(() => {
     if (game.reducedMotion) {
@@ -262,10 +271,16 @@ function TapOrTrap() {
   const shell = (content: React.ReactNode) => (
     <AppBootstrap
       dataHydrated={progress.hydrated && training.ready}
-      themeId={progress.activeTheme.id}
+      themeId={progress.activeBoard.id}
       onReturnToMenu={goToMenu}
     >
-      {content}
+      <BoardProvider
+        boardId={progress.activeBoard.id}
+        effectsEnabled={game.settings.boardEffects}
+        reducedMotion={game.reducedMotion}
+      >
+        {content}
+      </BoardProvider>
     </AppBootstrap>
   );
 
@@ -351,7 +366,10 @@ function TapOrTrap() {
           difficultyBests={bestsForMode(playableMode)}
           daily={progress.daily}
           challenge={progress.challenge}
-          themeHint={progress.themeHint}
+          boardHint={progress.boardHint}
+          boardsUnlocked={progress.unlockedBoardIds.length}
+          boardsTotal={BOARDS.length}
+          newBoardCount={progress.newBoardCount}
           reducedMotion={game.reducedMotion}
           achievementsUnlocked={progress.unlockedAchievementCount}
           achievementsTotal={ACHIEVEMENTS.length}
@@ -359,7 +377,10 @@ function TapOrTrap() {
           onOpenModes={() => setOverlay("modes")}
           onOpenAchievements={() => setOverlay("achievements")}
           onOpenStatistics={() => setOverlay("statistics")}
-          onOpenThemes={() => setOverlay("themes")}
+          onOpenBoards={() => {
+            progress.markBoardsSeen();
+            setOverlay("boards");
+          }}
           onOpenSettings={() => setOverlay("settings")}
           onOpenHowToPlay={() => setOverlay("howto")}
         />
@@ -509,11 +530,13 @@ function TapOrTrap() {
         onClose={() => setOverlay("none")}
       />
 
-      <ThemeScreen
-        open={overlay === "themes"}
-        selectedTheme={progress.activeTheme.id}
-        context={progress.themeContext}
-        onSelect={progress.setTheme}
+      <BoardCollectionScreen
+        open={overlay === "boards"}
+        selectedBoardId={progress.activeBoard.id}
+        context={progress.boardContext}
+        effectsEnabled={game.settings.boardEffects}
+        reducedMotion={game.reducedMotion}
+        onSelect={progress.setBoard}
         onClose={() => setOverlay("none")}
       />
 
