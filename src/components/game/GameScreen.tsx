@@ -89,11 +89,12 @@ export function GameScreen(props: GameScreenProps) {
 
   return (
     <div
+      data-gameplay-surface="true"
       className={`no-select safe-screen relative flex flex-col overflow-hidden ${
         shake && !reducedMotion ? "animate-shake-hit" : ""
       }`}
-      style={{ touchAction: "manipulation" }}
     >
+
       <ArcadeBackdrop />
       {flash && !reducedMotion && (
         <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-neon-red" />
