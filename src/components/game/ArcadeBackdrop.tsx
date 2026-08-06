@@ -19,7 +19,7 @@ export function ArcadeBackdrop() {
   const board = useActiveBoard();
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       {/* equipped board environment — never pure black */}
       <BoardEnvironment
         boardId={board.boardId}
