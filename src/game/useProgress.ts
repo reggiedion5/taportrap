@@ -19,6 +19,7 @@ import {
   resetStatistics,
   resetDailyProgress,
   resetDailyMissions,
+  resetPhase3History,
   writeJson,
   applyDifficultyBest,
   type ProgressSnapshot,
@@ -32,6 +33,32 @@ import {
   type DailyMission,
 } from "./dailyMissions";
 import { applyXp, calculateXpRewards, levelProgress } from "./xp";
+import { defaultPhase3State } from "./phase3Store";
+import { applyRunToPhase3 } from "./phase3Session";
+import {
+  BADGES,
+  DEFAULT_TITLE_ID,
+  TITLES,
+  emptyCosmeticContext,
+  type CosmeticContext,
+} from "./cosmetics";
+import { claimLoginReward, loginRewardAvailable } from "./loginRewards";
+import { displayedStreak } from "./playStreak";
+import {
+  claimWeekly,
+  claimableWeeklyCount,
+  rolloverWeekly,
+  weekKeyFor,
+} from "./weeklyChallenges";
+import {
+  markAllRead,
+  markRead,
+  pushNotifications,
+  unreadCount,
+  type NotificationInput,
+} from "./notifications";
+import { favoriteDifficulty, mostUsedBoard } from "./runHistory";
+import type { Phase3State, WeeklyChallenge } from "./phase3Types";
 
 import { isDifficulty, type Difficulty } from "./difficulty";
 import {
@@ -82,6 +109,13 @@ export interface SessionSummary {
   dailyMissionsAdvanced: { mission: DailyMission; value: number }[];
   /** XP waiting to be claimed after this run (missions + achievements) */
   claimableXp: number;
+  /** Phase 3 — retention + identity */
+  playStreak: number;
+  streakXpAwarded: number;
+  streakMilestones: number[];
+  weeklyCompleted: WeeklyChallenge[];
+  unlockedTitleIds: string[];
+  unlockedBadgeIds: string[];
 }
 
 const EMPTY_SNAPSHOT: ProgressSnapshot = {
@@ -139,6 +173,7 @@ const EMPTY_SNAPSHOT: ProgressSnapshot = {
   },
   missions: defaultMissionsState("1970-01-01"),
   mission: null,
+  phase3: defaultPhase3State(),
 };
 
 function emptyMode() {
@@ -186,6 +221,11 @@ export function useProgress() {
     writeJson(KEYS.daily, loaded.daily);
     loaded.missions = rolloverMissions(loaded.missions, today);
     writeJson(KEYS.dailyMissions, loaded.missions);
+    loaded.phase3 = {
+      ...loaded.phase3,
+      weekly: rolloverWeekly(loaded.phase3.weekly, weekKeyFor(new Date(`${today}T00:00:00`))),
+    };
+    writeJson(KEYS.phase3, loaded.phase3);
 
     setSnapshot(loaded);
     setHydrated(true);
