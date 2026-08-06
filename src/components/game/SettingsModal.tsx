@@ -257,14 +257,14 @@ export function SettingsModal({
             onClick={onOpenHelp}
             className="arcade-btn ui-title min-h-12 w-full border border-arcade-line bg-arcade-surface px-4 py-3 text-left text-base text-arcade-text"
           >
-            Help &amp; Support
+            Help Center
           </button>
           <button
             type="button"
             onClick={onOpenPrivacy}
             className="arcade-btn ui-title min-h-12 w-full border border-arcade-line bg-arcade-surface px-4 py-3 text-left text-base text-arcade-text"
           >
-            Privacy
+            Privacy Center
           </button>
           <button
             type="button"
