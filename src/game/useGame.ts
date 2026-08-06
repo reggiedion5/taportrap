@@ -354,9 +354,11 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       if (why !== "quit") {
         try {
           onCompleteRef.current(result);
-        } catch (error) {}
-      } else {
+        } catch {
+          // Recording must never block the Game Over screen from rendering.
+        }
       }
+
     },
     [clearAllTimers, clearDecorTimers, later, reducedMotion, setActiveTarget],
   );
