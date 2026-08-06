@@ -14,7 +14,7 @@ import {
 import type { DailyChallenge, DailyState, PlayerLevel } from "@/game/progressionTypes";
 import type { DailyMissionsState } from "@/game/dailyMissions";
 import { DIFFICULTIES, DIFFICULTY_PRESETS, type Difficulty } from "@/game/difficulty";
-import logoAsset from "@/assets/tap-or-trap-logo.png.asset.json";
+import { BrandLogo } from "./BrandLogo";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { DailyChallengeCard } from "./DailyChallengeCard";
 import { DailyMissionsCard } from "./DailyMissionsScreen";
