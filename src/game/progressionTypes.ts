@@ -12,7 +12,10 @@ export interface PlayerProfile {
   level: number;
   currentXp: number;
   lifetimeXp: number;
-  selectedTheme: string;
+  /** equipped board (Board Collection). Migrated from the legacy theme id. */
+  selectedBoardId: string;
+  /** board ids the player has already seen in the collection (NEW badge) */
+  seenBoardIds: string[];
   selectedMode: GameMode;
   selectedDifficulty: Difficulty;
   onboardingCompleted: boolean;
@@ -176,23 +179,6 @@ export interface DailyState {
   bestStreak: number;
   lastCompletedDate: string | null;
   totalCompleted: number;
-}
-
-/* ---------------- themes ---------------- */
-
-export type ThemeUnlockRequirement =
-  | { kind: "default" }
-  | { kind: "level"; value: number }
-  | { kind: "daily"; value: number }
-  | { kind: "achievements"; value: number };
-
-export interface ThemeDefinition {
-  id: string;
-  name: string;
-  description: string;
-  unlock: ThemeUnlockRequirement;
-  unlockLabel: string;
-  swatch: string[];
 }
 
 /* ---------------- post-game missions ---------------- */

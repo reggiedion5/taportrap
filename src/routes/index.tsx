@@ -27,7 +27,10 @@ import { OnboardingFlow } from "@/components/game/OnboardingFlow";
 import { ModeInfoModal, ModeSelector } from "@/components/game/ModeSelector";
 import { AchievementScreen } from "@/components/game/AchievementScreen";
 import { StatisticsScreen } from "@/components/game/StatisticsScreen";
-import { ThemeScreen } from "@/components/game/ThemeScreen";
+import { BOARDS } from "@/game/boards";
+import { BoardCollectionScreen } from "@/components/game/BoardCollectionScreen";
+import { BoardUnlockToast } from "@/components/game/BoardUnlockToast";
+import { BoardProvider } from "@/components/game/BoardContext";
 import { HowToPlayModal } from "@/components/game/HowToPlayModal";
 import { AchievementToastQueue } from "@/components/game/AchievementToastQueue";
 import { AppBootstrap } from "@/components/game/AppBootstrap";
@@ -42,7 +45,7 @@ import { DiagnosticPanel } from "@/components/game/DiagnosticPanel";
 
 const TITLE = "Tap or Trap! — Neon Reaction Arcade Game";
 const DESCRIPTION =
-  "Six ways to play: four competitive modes plus Zen and a Reflex Trainer. Daily challenges, XP levels, unlockable themes and 28 achievements.";
+  "Six ways to play: four competitive modes plus Zen and a Reflex Trainer. Daily challenges, XP levels, 15 unlockable boards and 28 achievements.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -63,7 +66,7 @@ type Overlay =
   | "modes"
   | "achievements"
   | "statistics"
-  | "themes"
+  | "boards"
   | "howto"
   | "settings"
   | "feedback"
@@ -83,6 +86,7 @@ function TapOrTrap() {
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [toasts, setToasts] = useState<Achievement[]>([]);
   const [focusAchievement, setFocusAchievement] = useState<string | null>(null);
+  const [boardToasts, setBoardToasts] = useState<string[]>([]);
   const shownToastIds = useRef<Set<string>>(new Set());
 
   // selected playable mode (competitive modes live in progress, training here)
@@ -113,6 +117,12 @@ function TapOrTrap() {
       setSummary(next);
       console.info("[loss-debug] after setSummary");
       pendingToasts.current = next.unlockedAchievements;
+      if (next.unlockedBoards.length > 0) {
+        setBoardToasts((prev) => [
+          ...prev,
+          ...next.unlockedBoards.filter((id) => !prev.includes(id)),
+        ]);
+      }
       if (next.unlockedAchievements.length > 0) playSound("unlock");
     },
     [progress],
@@ -142,9 +152,15 @@ function TapOrTrap() {
     }
   }, [game.phase]);
 
+  // equipped board drives the interface palette via :root custom properties
   useEffect(() => {
-    document.documentElement.dataset.theme = progress.activeTheme.id;
-  }, [progress.activeTheme.id]);
+    const root = document.documentElement;
+    const applied = Object.entries(progress.activeBoard.vars);
+    applied.forEach(([key, value]) => root.style.setProperty(key, value));
+    return () => {
+      applied.forEach(([key]) => root.style.removeProperty(key));
+    };
+  }, [progress.activeBoard]);
 
   useEffect(() => {
     if (game.reducedMotion) {
@@ -262,10 +278,16 @@ function TapOrTrap() {
   const shell = (content: React.ReactNode) => (
     <AppBootstrap
       dataHydrated={progress.hydrated && training.ready}
-      themeId={progress.activeTheme.id}
+      boardId={progress.activeBoard.id}
       onReturnToMenu={goToMenu}
     >
-      {content}
+      <BoardProvider
+        boardId={progress.activeBoard.id}
+        effectsEnabled={game.settings.boardEffects}
+        reducedMotion={game.reducedMotion}
+      >
+        {content}
+      </BoardProvider>
     </AppBootstrap>
   );
 
@@ -351,7 +373,10 @@ function TapOrTrap() {
           difficultyBests={bestsForMode(playableMode)}
           daily={progress.daily}
           challenge={progress.challenge}
-          themeHint={progress.themeHint}
+          boardHint={progress.boardHint}
+          boardsUnlocked={progress.unlockedBoardIds.length}
+          boardsTotal={BOARDS.length}
+          newBoardCount={progress.newBoardCount}
           reducedMotion={game.reducedMotion}
           achievementsUnlocked={progress.unlockedAchievementCount}
           achievementsTotal={ACHIEVEMENTS.length}
@@ -359,7 +384,10 @@ function TapOrTrap() {
           onOpenModes={() => setOverlay("modes")}
           onOpenAchievements={() => setOverlay("achievements")}
           onOpenStatistics={() => setOverlay("statistics")}
-          onOpenThemes={() => setOverlay("themes")}
+          onOpenBoards={() => {
+            progress.markBoardsSeen();
+            setOverlay("boards");
+          }}
           onOpenSettings={() => setOverlay("settings")}
           onOpenHowToPlay={() => setOverlay("howto")}
         />
@@ -509,11 +537,13 @@ function TapOrTrap() {
         onClose={() => setOverlay("none")}
       />
 
-      <ThemeScreen
-        open={overlay === "themes"}
-        selectedTheme={progress.activeTheme.id}
-        context={progress.themeContext}
-        onSelect={progress.setTheme}
+      <BoardCollectionScreen
+        open={overlay === "boards"}
+        selectedBoardId={progress.activeBoard.id}
+        context={progress.boardContext}
+        effectsEnabled={game.settings.boardEffects}
+        reducedMotion={game.reducedMotion}
+        onSelect={progress.setBoard}
         onClose={() => setOverlay("none")}
       />
 
@@ -557,6 +587,15 @@ function TapOrTrap() {
           setOverlay("achievements");
         }}
       />
+
+      {showHome && (
+        <BoardUnlockToast
+          queue={boardToasts}
+          reducedMotion={game.reducedMotion}
+          onDismiss={(id) => setBoardToasts((prev) => prev.filter((b) => b !== id))}
+          onEquip={progress.setBoard}
+        />
+      )}
 
       <DiagnosticPanel
         phase={game.phase}

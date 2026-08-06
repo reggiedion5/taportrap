@@ -1,3 +1,6 @@
+import { BoardEnvironment } from "./BoardEnvironment";
+import { useActiveBoard } from "./BoardContext";
+
 const SPARKS = [
   { left: "12%", delay: "0s", size: 3, color: "var(--logo-green)" },
   { left: "26%", delay: "-2.4s", size: 2, color: "var(--chrome-hi)" },
@@ -13,10 +16,16 @@ const SPARKS = [
  * Purely decorative and cheap — six DOM sparks, no canvas, no JS loop.
  */
 export function ArcadeBackdrop() {
+  const board = useActiveBoard();
+
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* base gradient — never pure black */}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--void-top),var(--void-bottom))]" />
+      {/* equipped board environment — never pure black */}
+      <BoardEnvironment
+        boardId={board.boardId}
+        effectsEnabled={board.effectsEnabled}
+        reducedMotion={board.reducedMotion}
+      />
 
       {/* soft radial stage lighting */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,color-mix(in_oklab,var(--logo-green)_14%,transparent),transparent_52%),radial-gradient(circle_at_86%_88%,color-mix(in_oklab,var(--logo-red)_12%,transparent),transparent_54%),radial-gradient(circle_at_50%_42%,oklch(1_0_0_/_0.05),transparent_60%)]" />
@@ -52,8 +61,6 @@ export function ArcadeBackdrop() {
 
       {/* chrome vignette */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_45%,oklch(0_0_0_/_0.55)_100%)]" />
-
-      <div className="theme-ambience" />
     </div>
   );
 }
