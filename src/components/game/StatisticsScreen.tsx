@@ -8,6 +8,17 @@ import type {
   PlayerStatistics,
 } from "@/game/progressionTypes";
 import { formatAverage, formatCount, formatMsValue, formatPlayTime } from "@/game/format";
+import type { DailyAggregate, RunHistoryEntry } from "@/game/phase3Types";
+import {
+  accuracyTrend,
+  average,
+  comboTrend,
+  compareLastSevenDays,
+  gamesByDifficulty,
+  reactionTrend,
+  scoreTrend,
+} from "@/game/statsTrends";
+import { Sparkline } from "./Sparkline";
 import { Sheet } from "./Sheet";
 import { ConfirmationModal } from "./ConfirmationModal";
 
