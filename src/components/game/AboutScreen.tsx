@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Download, ExternalLink, Mail, ShieldCheck, Upload } from "lucide-react";
-import logoAsset from "@/assets/tap-or-trap-logo.png.asset.json";
+import { BrandLogo } from "./BrandLogo";
 import {
   APP_NAME,
   APP_TAGLINE,
