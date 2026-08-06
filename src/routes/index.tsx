@@ -563,6 +563,8 @@ function TapOrTrap() {
       <StatisticsScreen
         open={overlay === "statistics"}
         statistics={progress.statistics}
+        history={progress.runHistory}
+        aggregates={progress.phase3.aggregates}
         records={progress.records}
         daily={progress.daily}
         level={progress.level}
