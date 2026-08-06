@@ -881,6 +881,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
 
   return {
     phase,
+    difficulty: presetRef.current,
     score,
     combo,
     bestCombo,
