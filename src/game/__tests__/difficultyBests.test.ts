@@ -110,7 +110,7 @@ describe("per-difficulty best scores", () => {
       expert: 0,
     });
     window.localStorage.setItem(KEYS.records, "{not json");
-    expect(loadProgress().records.highScoreByDifficulty.expert ?? null).toBeNull();
+    expect(loadProgress().records.highScoreByDifficulty.blitz.beginner).toBe(0);
     expect(loadProgress().records.highScoreByDifficulty.classic.standard).toBe(0);
   });
 
