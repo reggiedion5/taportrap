@@ -530,6 +530,35 @@ function migrateLegacy(
   return { stats: nextStats, records: nextRecords };
 }
 
+/* ---------------- daily missions ---------------- */
+
+function parseMissions(raw: unknown): DailyMissionsState {
+  const today = localDateString();
+  const src = asRecord(raw);
+  const base = defaultMissionsState(today);
+  const storedDate = isValidDateString(src.date) ? src.date : null;
+  const lifetimeCompleted = int(src.lifetimeCompleted);
+  const lifetimeClaimedXp = int(src.lifetimeClaimedXp);
+
+  if (storedDate !== today) {
+    return { ...base, lifetimeCompleted, lifetimeClaimedXp };
+  }
+
+  const progressSrc = asRecord(src.progress);
+  const progress: Record<string, MissionProgress> = {};
+  for (const mission of base.missions) {
+    const entry = asRecord(progressSrc[mission.id]);
+    const value = num(entry.value, 0);
+    const completed = bool(entry.completed);
+    progress[mission.id] = {
+      value: Number.isFinite(value) && value > 0 ? value : 0,
+      completed,
+      claimed: completed && bool(entry.claimed),
+    };
+  }
+  return { ...base, progress, lifetimeCompleted, lifetimeClaimedXp };
+}
+
 /* ---------------- public loaders ---------------- */
 
 export interface ProgressSnapshot {
@@ -538,6 +567,7 @@ export interface ProgressSnapshot {
   records: PersonalRecords;
   achievements: AchievementStore;
   daily: DailyState;
+  missions: DailyMissionsState;
   mission: PostGameMission | null;
 }
 
@@ -561,9 +591,23 @@ export function loadProgress(): ProgressSnapshot {
     records,
     achievements: parseAchievements(readJson(KEYS.achievements)),
     daily: parseDaily(readJson(KEYS.daily)),
+    missions: parseMissions(readJson(KEYS.dailyMissions)),
     mission: parseMission(readJson(KEYS.mission)),
   };
 }
+
+/** Clears today's missions only; lifetime mission counters are preserved. */
+export function resetDailyMissions(): DailyMissionsState {
+  const previous = parseMissions(readJson(KEYS.dailyMissions));
+  const fresh: DailyMissionsState = {
+    ...defaultMissionsState(),
+    lifetimeCompleted: previous.lifetimeCompleted,
+    lifetimeClaimedXp: previous.lifetimeClaimedXp,
+  };
+  writeJson(KEYS.dailyMissions, fresh);
+  return fresh;
+}
+
 
 /**
  * Deletes every Tap or Trap! key from this device. Irreversible, offline, and
