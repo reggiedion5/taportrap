@@ -25,6 +25,9 @@ export interface ShareResultData {
   sessionDuration: number | null;
   personalBest: boolean;
   playerLevel: number | null;
+  /** phase 3 identity flourishes */
+  playerTitle: string | null;
+  playStreak: number | null;
   appStoreUrl: string | null;
   kidsAssistEnabled: boolean;
   trainerModule: TrainingModule | null;
@@ -46,6 +49,8 @@ export function emptyShareData(mode: PlayableMode): ShareResultData {
     sessionDuration: null,
     personalBest: false,
     playerLevel: null,
+    playerTitle: null,
+    playStreak: null,
     appStoreUrl: null,
     kidsAssistEnabled: false,
     trainerModule: null,
@@ -102,6 +107,12 @@ export function formatCompetitiveShareText(data: ShareResultData): string {
 
   let text = `${parts.join(" ")}.`;
   if (data.personalBest) text += " New personal best!";
+  if (data.playerTitle) text += ` — ${data.playerTitle}`;
+  if (data.playerTitle && data.playerLevel) text += ` (Lv ${data.playerLevel})`;
+  if (data.playerTitle) text += ".";
+  if (data.playStreak && data.playStreak > 1) {
+    text += ` ${data.playStreak}-day play streak going.`;
+  }
   text += data.mode === "blitz" ? " Can you top it?" : " Can you beat me?";
   return withLink(text, data);
 }

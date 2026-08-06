@@ -8,6 +8,17 @@ import type {
   PlayerStatistics,
 } from "@/game/progressionTypes";
 import { formatAverage, formatCount, formatMsValue, formatPlayTime } from "@/game/format";
+import type { DailyAggregate, RunHistoryEntry } from "@/game/phase3Types";
+import {
+  accuracyTrend,
+  average,
+  comboTrend,
+  compareLastSevenDays,
+  gamesByDifficulty,
+  reactionTrend,
+  scoreTrend,
+} from "@/game/statsTrends";
+import { Sparkline } from "./Sparkline";
 import { Sheet } from "./Sheet";
 import { ConfirmationModal } from "./ConfirmationModal";
 
@@ -22,32 +33,104 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 interface StatisticsScreenProps {
   open: boolean;
+  history: RunHistoryEntry[];
+  aggregates: DailyAggregate[];
   statistics: PlayerStatistics;
   records: PersonalRecords;
   daily: DailyState;
   level: PlayerLevel;
   lifetimeXp: number;
   onReset: () => void;
+  onClearHistory: () => void;
   onClose: () => void;
 }
 
 export function StatisticsScreen({
   open,
+  history,
+  aggregates,
   statistics,
   records,
   daily,
   level,
   lifetimeXp,
   onReset,
+  onClearHistory,
   onClose,
 }: StatisticsScreenProps) {
+  const [clearing, setClearing] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
   const highestOverall = Math.max(...GAME_MODES.map((m) => records.highScore[m]), 0);
 
+  const scores = scoreTrend(history);
+  const reactions = reactionTrend(history);
+  const accuracies = accuracyTrend(history);
+  const combos = comboTrend(history);
+  const week = compareLastSevenDays(aggregates);
+  const byDifficulty = gamesByDifficulty(history);
+  const consistency = accuracies.length > 1
+    ? Math.round(
+        100 -
+          Math.min(
+            100,
+            Math.sqrt(
+              accuracies.reduce((sum, v) => sum + (v - average(accuracies)) ** 2, 0) /
+                accuracies.length,
+            ),
+          ),
+      )
+    : null;
+
   return (
     <Sheet open={open} title="Statistics" onClose={onClose}>
-      <section aria-label="Lifetime summary">
+      <section aria-label="Recent form">
+        <h3 className="sticker-sm text-[11px] tracking-[0.26em] text-arcade-text/80">
+          RECENT FORM
+        </h3>
+        {history.length === 0 ? (
+          <p className="ui-body mt-3 text-[15px] text-arcade-muted">
+            Play a few runs and your trends will appear here.
+          </p>
+        ) : (
+          <>
+            <div className="mt-3 grid gap-4">
+              <Sparkline label="Score (last 20 runs)" values={scores} tone="green" />
+              <Sparkline
+                label="Average reaction"
+                values={reactions}
+                unit="ms"
+                tone="gold"
+                invert
+              />
+              <Sparkline label="Accuracy" values={accuracies} unit="%" tone="purple" />
+              <Sparkline label="Longest combo" values={combos} tone="green" />
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <Stat
+                label="THIS WEEK AVG"
+                value={week.currentGames > 0 ? String(Math.round(week.currentAvgScore)) : "—"}
+              />
+              <Stat
+                label="VS LAST WEEK"
+                value={
+                  week.hasComparison
+                    ? `${week.scoreDelta >= 0 ? "+" : ""}${Math.round(week.scoreDelta)}`
+                    : "—"
+                }
+              />
+              <Stat label="GAMES THIS WEEK" value={String(week.currentGames)} />
+              <Stat label="CONSISTENCY" value={consistency !== null ? `${consistency}%` : "—"} />
+              <Stat label="BEGINNER RUNS" value={String(byDifficulty.beginner ?? 0)} />
+              <Stat label="STANDARD RUNS" value={String(byDifficulty.standard ?? 0)} />
+              <Stat label="EXPERT RUNS" value={String(byDifficulty.expert ?? 0)} />
+              <Stat label="RUNS SAVED" value={String(history.length)} />
+            </div>
+          </>
+        )}
+      </section>
+
+      <section className="mt-7" aria-label="Lifetime summary">
         <h3 className="sticker-sm text-[11px] tracking-[0.26em] text-arcade-text/80">LIFETIME</h3>
         <div className="mt-3 grid grid-cols-2 gap-3">
           <Stat label="GAMES PLAYED" value={formatCount(statistics.gamesPlayed)} />
@@ -134,8 +217,32 @@ export function StatisticsScreen({
 
       <button
         type="button"
+        onClick={() => setClearing(true)}
+        className="arcade-btn ui-title mt-8 min-h-12 w-full border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
+      >
+        Clear Run History
+      </button>
+
+      <ConfirmationModal
+        open={clearing}
+        title="Clear Run History?"
+        body="This clears local trend data only."
+        bullets={[
+          "Recent runs, trend charts and local records",
+          "Streaks, titles, badges and lifetime stats are kept",
+        ]}
+        confirmLabel="Clear History"
+        onConfirm={() => {
+          onClearHistory();
+          setClearing(false);
+        }}
+        onCancel={() => setClearing(false)}
+      />
+
+      <button
+        type="button"
         onClick={() => setConfirming(true)}
-        className="arcade-btn ui-title mt-8 min-h-12 w-full border border-neon-red bg-arcade-surface py-4 text-base text-neon-red"
+        className="arcade-btn ui-title mt-3 min-h-12 w-full border border-neon-red bg-arcade-surface py-4 text-base text-neon-red"
       >
         Reset Statistics
       </button>

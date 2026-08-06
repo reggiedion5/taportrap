@@ -23,6 +23,12 @@ import {
   type PlayerStatistics,
   type PostGameMission,
 } from "./progressionTypes";
+import {
+  defaultPhase3State,
+  parsePhase3,
+  PHASE3_KEY,
+} from "./phase3Store";
+import type { Phase3State } from "./phase3Types";
 
 export const KEYS = {
   profile: "tap-or-trap-profile-v2",
@@ -32,6 +38,7 @@ export const KEYS = {
   dailyMissions: "tap-or-trap-daily-missions-v2",
   records: "tap-or-trap-records-v2",
   mission: "tap-or-trap-mission-v2",
+  phase3: PHASE3_KEY,
   migrated: "tap-or-trap-migrated-v2",
 } as const;
 
@@ -575,6 +582,7 @@ export interface ProgressSnapshot {
   daily: DailyState;
   missions: DailyMissionsState;
   mission: PostGameMission | null;
+  phase3: Phase3State;
 }
 
 export function loadProgress(): ProgressSnapshot {
@@ -599,6 +607,7 @@ export function loadProgress(): ProgressSnapshot {
     daily: parseDaily(readJson(KEYS.daily)),
     missions: parseMissions(readJson(KEYS.dailyMissions)),
     mission: parseMission(readJson(KEYS.mission)),
+    phase3: parsePhase3(readJson(KEYS.phase3)),
   };
 }
 
@@ -655,6 +664,25 @@ export function resetStatistics(): {
  * Clears daily-challenge progress and streaks only. XP already paid for past
  * days stays paid — the reward ledger is untouched.
  */
+/**
+ * Clears Phase 3 history, streaks, weekly progress and notifications while
+ * keeping cosmetics the player already unlocked.
+ */
+export function resetPhase3History(): Phase3State {
+  const previous = parsePhase3(readJson(KEYS.phase3));
+  const fresh: Phase3State = {
+    ...defaultPhase3State(),
+    unlockedTitleIds: previous.unlockedTitleIds,
+    equippedTitleId: previous.equippedTitleId,
+    titleUnlockDates: previous.titleUnlockDates,
+    unlockedBadgeIds: previous.unlockedBadgeIds,
+    equippedBadgeId: previous.equippedBadgeId,
+    badgeUnlockDates: previous.badgeUnlockDates,
+  };
+  writeJson(KEYS.phase3, fresh);
+  return fresh;
+}
+
 export function resetDailyProgress(): DailyState {
   const fresh = defaultDaily();
   writeJson(KEYS.daily, fresh);
