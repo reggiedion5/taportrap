@@ -14,7 +14,7 @@ import {
 import type { DailyChallenge, DailyState, PlayerLevel } from "@/game/progressionTypes";
 import type { DailyMissionsState } from "@/game/dailyMissions";
 import { DIFFICULTIES, DIFFICULTY_PRESETS, type Difficulty } from "@/game/difficulty";
-import logoAsset from "@/assets/tap-or-trap-logo.png.asset.json";
+import { BrandLogo } from "./BrandLogo";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { DailyChallengeCard } from "./DailyChallengeCard";
 import { DailyMissionsCard } from "./DailyMissionsScreen";
@@ -159,12 +159,9 @@ export function HomeScreen({
         {/* ---- logo ---- */}
         <div className="relative mt-2 grid place-items-center">
           <div className="pointer-events-none absolute size-[78%] rounded-full bg-logo-green/10 blur-3xl" />
-          <img
-            src={logoAsset.url}
-            alt="Tap or Trap! — tap fast, think faster"
-            width={1024}
-            height={1024}
-            className={`relative w-[min(84vw,340px)] [mask-image:radial-gradient(circle_at_center,black_58%,transparent_76%)] drop-shadow-[0_24px_50px_oklch(0_0_0_/_0.7)] ${
+          <BrandLogo
+            size={340}
+            className={`relative max-w-[84vw] [mask-image:radial-gradient(circle_at_center,black_58%,transparent_76%)] drop-shadow-[0_24px_50px_oklch(0_0_0_/_0.7)] ${
               reducedMotion ? "" : "animate-float-soft"
             }`}
           />

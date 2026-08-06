@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Download, ExternalLink, Mail, ShieldCheck, Upload } from "lucide-react";
-import logoAsset from "@/assets/tap-or-trap-logo.png.asset.json";
+import { BrandLogo } from "./BrandLogo";
 import {
   APP_NAME,
   APP_TAGLINE,
@@ -66,13 +66,7 @@ export function AboutScreen({
         <div className="mt-5 grid gap-4">
           <ChromeCard>
             <div className="grid place-items-center gap-3 px-4 py-6 text-center">
-              <img
-                src={logoAsset.url}
-                alt={`${APP_NAME} logo`}
-                width={160}
-                height={160}
-                className="h-24 w-auto"
-              />
+              <BrandLogo size={96} alt={`${APP_NAME} logo`} />
               <h3 className="sticker-text text-2xl text-arcade-text">{APP_NAME}</h3>
               <p className="ui-body text-[15px] text-arcade-muted">{APP_TAGLINE}</p>
               <p className="ui-body-tight text-[14px] text-arcade-muted">
