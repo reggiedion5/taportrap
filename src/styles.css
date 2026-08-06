@@ -168,8 +168,10 @@
     border-color: var(--color-border);
   }
 
-  /* Native WebView (capacitor://localhost) needs the document itself to be the
-     single vertical scroller — never a fixed-height clipped app shell. */
+  /* Native WebView (capacitor://localhost): the DOCUMENT ELEMENT is the single
+     vertical scroller. Giving <body> `overflow-y: auto` makes it a second
+     scroll container, which WKWebView refuses to pan with a finger even though
+     window.scrollTo() still works. Keep body overflow visible. */
   html,
   body {
     width: 100%;
@@ -178,14 +180,17 @@
 
   html {
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
   body {
     margin: 0;
     overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior-y: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-y: visible;
     touch-action: pan-y;
     background-color: var(--arcade-bg-deep);
     color: var(--arcade-text);
@@ -196,13 +201,20 @@
   body > * {
     min-height: 100dvh;
   }
+
+  /* Only the live gameplay surface suppresses native gestures. */
+  [data-gameplay-surface="true"] {
+    touch-action: none;
+    overscroll-behavior: contain;
+  }
 }
 
 @utility no-select {
   user-select: none;
   -webkit-user-select: none;
-  /* `manipulation` keeps double-tap-zoom off while leaving panning intact. */
-  touch-action: manipulation;
+  /* Navigation screens must keep vertical panning. Gameplay opts out via
+     [data-gameplay-surface="true"]. */
+  touch-action: pan-y;
 }
 
 /* Vertically scrollable screen: content grows, page scrolls, no x-overflow. */
@@ -213,6 +225,7 @@
   overflow-y: visible;
   touch-action: pan-y;
 }
+
 
 
 @utility arcade-panel {
