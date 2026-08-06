@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Heart } from "lucide-react";
 import type { ActiveTarget, FloatingFeedback, TargetColor } from "@/game/types";
 import type { DifficultyLevel } from "@/game/difficulty";
