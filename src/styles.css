@@ -168,10 +168,13 @@
     border-color: var(--color-border);
   }
 
-  /* Native WebView (capacitor://localhost): the DOCUMENT ELEMENT is the single
-     vertical scroller. Giving <body> `overflow-y: auto` makes it a second
-     scroll container, which WKWebView refuses to pan with a finger even though
-     window.scrollTo() still works. Keep body overflow visible. */
+  /* Native WebView (capacitor://localhost): the page must be scrolled by the
+     VIEWPORT's own scrolling box (the native UIScrollView). Declaring
+     `overflow-x: hidden` / `overflow-y: auto` on <html> turns the root element
+     itself into a CSS scroll container; WKWebView then refuses to pan it with a
+     finger even though window.scrollTo() still works. So the root keeps the
+     default `overflow: visible`, and horizontal clipping happens on <body> and
+     on each `.scroll-screen` instead. */
   html,
   body {
     width: 100%;
@@ -180,8 +183,6 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
     overscroll-behavior-y: auto;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
@@ -189,9 +190,8 @@
 
   body {
     margin: 0;
-    /* `clip` (not `hidden`) keeps the y axis genuinely `visible`; `hidden`
-       would force overflow-y to compute to `auto`, making body a second
-       scroll container that iOS refuses to pan. */
+    /* `clip` (not `hidden`) keeps both axes non-scrollable; `hidden` would make
+       body a scroll container that iOS refuses to pan. */
     overflow-x: clip;
     overflow-y: visible;
     touch-action: pan-y;
@@ -200,6 +200,7 @@
     font-family: var(--font-display);
     -webkit-tap-highlight-color: transparent;
   }
+
 
   body > * {
     min-height: 100dvh;
