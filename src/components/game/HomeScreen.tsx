@@ -52,6 +52,9 @@ export function HomeScreen({
   onDifficultyChange,
   daily,
   challenge,
+  missions,
+  claimableMissions,
+  claimableAchievements,
   boardHint,
   boardsUnlocked,
   boardsTotal,
@@ -60,6 +63,7 @@ export function HomeScreen({
   onPlay,
   onOpenModes,
   onOpenAchievements,
+  onOpenMissions,
   onOpenStatistics,
   onOpenBoards,
   onOpenSettings,
@@ -67,6 +71,7 @@ export function HomeScreen({
   achievementsUnlocked,
   achievementsTotal,
 }: HomeScreenProps) {
+
   return (
     <div className="no-select relative min-h-[100dvh] overflow-hidden">
       <ArcadeBackdrop />
@@ -163,15 +168,27 @@ export function HomeScreen({
 
         {/* ---- lower ---- */}
         <div className="mt-4 grid gap-3 pb-4">
+          <DailyMissionsCard
+            missions={missions}
+            claimable={claimableMissions}
+            reducedMotion={reducedMotion}
+            onOpen={onOpenMissions}
+          />
+
           <DailyChallengeCard challenge={challenge} daily={daily} reducedMotion={reducedMotion} />
 
           <div className="grid grid-cols-2 gap-2.5">
             <NavTile
               icon={<Trophy className="icon-chrome size-4" aria-hidden />}
               label="Achievements"
-              sub={`${achievementsUnlocked}/${achievementsTotal}`}
+              sub={
+                claimableAchievements > 0
+                  ? `${claimableAchievements} reward${claimableAchievements > 1 ? "s" : ""} ready`
+                  : `${achievementsUnlocked}/${achievementsTotal}`
+              }
               onClick={onOpenAchievements}
             />
+
             <NavTile
               icon={<BarChart3 className="icon-chrome size-4" aria-hidden />}
               label="Statistics"
