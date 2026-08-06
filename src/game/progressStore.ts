@@ -1,5 +1,5 @@
 import { GAME_MODES, isGameMode, type GameMode } from "./modes";
-import { isDifficulty } from "./difficulty";
+import { DIFFICULTIES, isDifficulty } from "./difficulty";
 import {
   generateDailyChallenge,
   isValidDateString,
