@@ -81,6 +81,8 @@ function TapOrTrap() {
   const [countdown, setCountdown] = useState(false);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [toasts, setToasts] = useState<Achievement[]>([]);
+  const [focusAchievement, setFocusAchievement] = useState<string | null>(null);
+  const shownToastIds = useRef<Set<string>>(new Set());
 
   // selected playable mode (competitive modes live in progress, training here)
   const [playableMode, setPlayableMode] = useState<PlayableMode>(progress.mode);
@@ -127,8 +129,15 @@ function TapOrTrap() {
   // achievement toasts are only shown once the run is over
   useEffect(() => {
     if (game.phase === "over" && pendingToasts.current.length > 0) {
-      setToasts(pendingToasts.current);
+      const fresh = pendingToasts.current.filter((a) => !shownToastIds.current.has(a.id));
+      fresh.forEach((a) => shownToastIds.current.add(a.id));
       pendingToasts.current = [];
+      if (fresh.length > 0) {
+        setToasts((prev) => [
+          ...prev,
+          ...fresh.filter((a) => !prev.some((p) => p.id === a.id)),
+        ]);
+      }
     }
   }, [game.phase]);
 
@@ -473,7 +482,11 @@ function TapOrTrap() {
       <AchievementScreen
         open={overlay === "achievements"}
         progress={progress.achievementList}
-        onClose={() => setOverlay("none")}
+        focusId={focusAchievement}
+        onClose={() => {
+          setOverlay("none");
+          setFocusAchievement(null);
+        }}
       />
 
       <StatisticsScreen
@@ -529,6 +542,11 @@ function TapOrTrap() {
         queue={toasts}
         reducedMotion={game.reducedMotion}
         onDismiss={(id) => setToasts((prev) => prev.filter((a) => a.id !== id))}
+        onView={(id) => {
+          setToasts([]);
+          setFocusAchievement(id ?? null);
+          setOverlay("achievements");
+        }}
       />
 
       <DiagnosticPanel
