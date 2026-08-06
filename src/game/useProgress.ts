@@ -18,11 +18,21 @@ import {
   resetAllLocalData,
   resetStatistics,
   resetDailyProgress,
+  resetDailyMissions,
   writeJson,
   applyDifficultyBest,
   type ProgressSnapshot,
 } from "./progressStore";
+import {
+  applyRunToMissions,
+  claimMission as claimMissionState,
+  claimableMissionCount,
+  defaultMissionsState,
+  rolloverMissions,
+  type DailyMission,
+} from "./dailyMissions";
 import { applyXp, calculateXpRewards, levelProgress } from "./xp";
+
 import { isDifficulty, type Difficulty } from "./difficulty";
 import {
   BOARDS,
@@ -107,7 +117,7 @@ const EMPTY_SNAPSHOT: ProgressSnapshot = {
     longestSurvivalRun: 0,
     focusTunnelVision: false,
   },
-  achievements: { version: 2, unlocked: {} },
+  achievements: { version: 2, unlocked: {}, claimed: {} },
   daily: {
     version: 2,
     currentDate: "1970-01-01",
@@ -121,8 +131,10 @@ const EMPTY_SNAPSHOT: ProgressSnapshot = {
     lastCompletedDate: null,
     totalCompleted: 0,
   },
+  missions: defaultMissionsState("1970-01-01"),
   mission: null,
 };
+
 
 function emptyMode() {
   return {
