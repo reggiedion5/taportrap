@@ -72,7 +72,9 @@ export function GameOverScreen({
   };
 
   const newTitles = summary.unlockedTitleIds.map((id) => titleById(id).name);
-  const newBadges = summary.unlockedBadgeIds.map((id) => badgeById(id).name);
+  const newBadges = summary.unlockedBadgeIds
+    .map((id) => badgeById(id)?.name)
+    .filter((name): name is string => Boolean(name));
 
   const highlights = [
     summary.weeklyCompleted.length > 0 ? "Weekly done" : null,
