@@ -339,6 +339,42 @@ export function useProgress() {
     [patchProfile],
   );
 
+  /** Clears the first-launch flags so onboarding and the tutorial replay. */
+  const resetOnboarding = useCallback(
+    () => patchProfile({ onboardingCompleted: false, tutorialCompleted: false }),
+    [patchProfile],
+  );
+
+  /**
+   * Marks the interactive tutorial as finished. The 50 XP reward is paid at most
+   * once for the lifetime of the profile, no matter how often it is replayed.
+   */
+  const completeTutorial = useCallback((xp: number): number => {
+    let awarded = 0;
+    setSnapshot((prev) => {
+      const alreadyPaid = prev.profile.tutorialRewardClaimed;
+      awarded = alreadyPaid ? 0 : Math.max(0, Math.floor(xp));
+      const withXp = awarded > 0 ? applyXp(prev.profile, awarded) : null;
+      const profile: PlayerProfile = {
+        ...prev.profile,
+        tutorialCompleted: true,
+        tutorialRewardClaimed: true,
+        ...(withXp
+          ? { level: withXp.level, currentXp: withXp.currentXp, lifetimeXp: withXp.lifetimeXp }
+          : {}),
+      };
+      writeJson(KEYS.profile, profile);
+      return { ...prev, profile };
+    });
+    return awarded;
+  }, []);
+
+  /** Re-reads every store from disk (used after an imported or reset backup). */
+  const reloadFromStorage = useCallback(() => {
+    processedSessions.current.clear();
+    setSnapshot(loadProgress());
+  }, []);
+
   const markModeIntroSeen = useCallback((mode: GameMode) => {
     setSnapshot((prev) => {
       if (prev.profile.seenModeIntros.includes(mode)) return prev;
@@ -1172,6 +1208,9 @@ export function useProgress() {
     setBoard,
     markBoardsSeen,
     completeOnboarding,
+    resetOnboarding,
+    completeTutorial,
+    reloadFromStorage,
     markModeIntroSeen,
     patchProfile,
     grantXp,

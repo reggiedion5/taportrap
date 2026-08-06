@@ -114,20 +114,11 @@ function TapOrTrap() {
 
   const handleComplete = useCallback(
     (result: GameSessionResult) => {
-      console.info("[loss-debug] handleComplete entered", {
-        score: result.score,
-        currentRound: result.stats.successes,
-      });
-      console.info("[loss-debug] before recordSession");
       const next = progress.recordSession(result);
-      console.info("[loss-debug] after recordSession", { summaryExists: next !== null });
       if (!next) {
-        console.info("[loss-debug] handleComplete conditional return: no summary");
         return;
       }
-      console.info("[loss-debug] before setSummary", { sessionId: next.sessionId });
       setSummary(next);
-      console.info("[loss-debug] after setSummary");
       pendingToasts.current = next.unlockedAchievements;
       if (next.unlockedBoards.length > 0) {
         setBoardToasts((prev) => [
@@ -345,26 +336,6 @@ function TapOrTrap() {
 
   const showHome = game.phase === "start" && trainingPhase === "idle" && !countdown;
 
-  console.info("[loss-debug] TapOrTrap render branch", {
-    phase: game.phase,
-    summaryExists: summary !== null,
-    score: game.score,
-    bestScore: activeBest,
-    lives: game.lives,
-    currentRound: game.runStats.successes,
-    animationFlags: {
-      shake: game.shake,
-      flash: game.flash,
-      lifeLost: game.lifeLost,
-      countdown,
-      modeIntro,
-    },
-    branches: {
-      showHome,
-      game: game.phase === "playing" || game.phase === "paused",
-      gameOver: game.phase === "over",
-    },
-  });
 
   return shell(
     <main className="min-h-[100dvh] bg-arcade-bg-deep">
