@@ -774,13 +774,39 @@ export function useProgress() {
     return def ? { def, progress: open } : null;
   }, [achievementList]);
 
+
+  /** Achievements unlocked whose XP reward is still waiting to be collected. */
+  const claimableAchievementCount = useMemo(
+    () =>
+      ACHIEVEMENTS.filter(
+        (a) =>
+          snapshot.achievements.unlocked[a.id] !== undefined &&
+          snapshot.achievements.claimed[a.id] === undefined,
+      ).length,
+    [snapshot.achievements],
+  );
+
+  const claimableMissions = useMemo(
+    () => claimableMissionCount(snapshot.missions),
+    [snapshot.missions],
+  );
+
   return {
     hydrated,
     profile: snapshot.profile,
     statistics: snapshot.statistics,
     records: snapshot.records,
     daily: snapshot.daily,
+    missions: snapshot.missions,
+    achievementStore: snapshot.achievements,
+    claimableAchievementCount,
+    claimableMissions,
+    claimableRewardCount: claimableAchievementCount + claimableMissions,
+    claimDailyMission,
+    claimAchievement,
+    claimAllRewards,
     mission: snapshot.mission,
+
     challenge,
     level,
     achievementList,
