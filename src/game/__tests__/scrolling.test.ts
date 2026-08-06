@@ -56,7 +56,9 @@ describe("native scroll structure", () => {
   ];
 
   it.each(scrollableScreens)("%s does not clip its root container", (file) => {
-    const firstLine = read(file).split("\n").find((l) => l.includes("scroll-screen"));
+    const firstLine = read(file)
+      .split("\n")
+      .find((l) => l.includes("scroll-screen"));
     expect(firstLine).toBeTruthy();
     expect(read(file)).not.toMatch(/min-h-\[100dvh\] overflow-hidden/);
   });

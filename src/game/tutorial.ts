@@ -56,7 +56,6 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     repeat: 2,
   },
   {
-
     id: "timed",
     color: "green",
     title: "React fast",
