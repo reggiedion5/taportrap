@@ -110,7 +110,7 @@ export function GameOverScreen({
           <p className="ui-title text-[11px] tracking-[0.25em] text-arcade-muted">FINAL SCORE</p>
           <p className="score-digits text-[clamp(56px,20vw,84px)] leading-none">{result.score}</p>
           <p className="ui-title mt-1 text-[12px] tracking-[0.18em] text-arcade-muted">
-            {config.name.toUpperCase()} BEST {summary.modeHighScore}
+            {config.name.toUpperCase()} · {difficultyLabel.toUpperCase()} BEST {summary.modeHighScore}
           </p>
           {has("score") && (
             <p

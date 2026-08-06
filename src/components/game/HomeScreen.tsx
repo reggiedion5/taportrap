@@ -14,6 +14,7 @@ interface HomeScreenProps {
   modeBestLabel: string;
   isTrainingMode: boolean;
   difficulty: Difficulty;
+  difficultyBests: Record<Difficulty, number>;
   onDifficultyChange: (difficulty: Difficulty) => void;
   daily: DailyState;
   challenge: DailyChallenge;
@@ -37,6 +38,7 @@ export function HomeScreen({
   modeBestLabel,
   isTrainingMode,
   difficulty,
+  difficultyBests,
   onDifficultyChange,
   daily,
   challenge,
@@ -131,7 +133,7 @@ export function HomeScreen({
 
         {/* ---- difficulty ---- */}
         {!isTrainingMode && (
-          <DifficultySwitch value={difficulty} onChange={onDifficultyChange} />
+          <DifficultySwitch value={difficulty} bests={difficultyBests} onChange={onDifficultyChange} />
         )}
 
         {/* ---- play ---- */}
@@ -184,9 +186,11 @@ export function HomeScreen({
 
 function DifficultySwitch({
   value,
+  bests,
   onChange,
 }: {
   value: Difficulty;
+  bests: Record<Difficulty, number>;
   onChange: (difficulty: Difficulty) => void;
 }) {
   const active = DIFFICULTY_PRESETS[value] ?? DIFFICULTY_PRESETS.standard;
@@ -220,7 +224,12 @@ function DifficultySwitch({
                     }`}
                   >
                     <span className="btn-gloss" aria-hidden />
-                    <span className="relative z-10 truncate">{preset.label}</span>
+                    <span className="relative z-10 flex flex-col items-center leading-tight">
+                      <span className="truncate">{preset.label}</span>
+                      <span className="text-[10px] tracking-[0.12em] opacity-80">
+                        BEST {bests[id] ?? 0}
+                      </span>
+                    </span>
                   </span>
                 </button>
               );
