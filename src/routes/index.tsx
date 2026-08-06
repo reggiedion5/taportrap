@@ -393,6 +393,10 @@ function TapOrTrap() {
           scorePulse={game.scorePulse}
           difficultyLabel={game.difficulty.label}
           comboFlash={game.comboFlash}
+          milestone={game.milestone}
+          pulse={game.pulse}
+          perfectFlash={game.perfectFlash}
+          greatFlash={game.greatFlash}
           levelUp={game.levelUp}
           target={game.target}
           feedback={game.feedback}
