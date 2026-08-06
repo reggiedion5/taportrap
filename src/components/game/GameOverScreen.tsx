@@ -13,6 +13,7 @@ import { ArcButton, ChromeCard } from "./ArcUI";
 
 interface GameOverScreenProps {
   summary: SessionSummary;
+  difficultyLabel: string;
   levelCurrentXp: number;
   levelXpForNext: number;
   dailyObjective: string;
@@ -31,6 +32,7 @@ const STAGE_DELAYS = [420, 480, 520];
  */
 export function GameOverScreen({
   summary,
+  difficultyLabel,
   levelCurrentXp,
   levelXpForNext,
   dailyObjective,
@@ -87,7 +89,7 @@ export function GameOverScreen({
             className="pointer-events-none absolute inset-x-0 -top-8 h-40 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--logo-red)_38%,transparent),transparent_68%)] blur-xl"
           />
           <p className="ui-title relative text-center text-[11px] tracking-[0.3em] text-arcade-muted">
-            {config.name.toUpperCase()} MODE
+            {config.name.toUpperCase()} MODE · {difficultyLabel.toUpperCase()}
           </p>
           <h1
             className={`chrome-heading relative mt-1 text-center text-[clamp(38px,13vw,64px)] leading-[0.95] ${

@@ -1,5 +1,6 @@
 import { BarChart3, ChevronRight, HelpCircle, Palette, Settings2, Trophy, Zap } from "lucide-react";
 import type { DailyChallenge, DailyState, PlayerLevel } from "@/game/progressionTypes";
+import { DIFFICULTIES, DIFFICULTY_PRESETS, type Difficulty } from "@/game/difficulty";
 import logoAsset from "@/assets/tap-or-trap-logo.png.asset.json";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { DailyChallengeCard } from "./DailyChallengeCard";
@@ -12,6 +13,8 @@ interface HomeScreenProps {
   modeTagline: string;
   modeBestLabel: string;
   isTrainingMode: boolean;
+  difficulty: Difficulty;
+  onDifficultyChange: (difficulty: Difficulty) => void;
   daily: DailyState;
   challenge: DailyChallenge;
   themeHint: string | null;
@@ -33,6 +36,8 @@ export function HomeScreen({
   modeTagline,
   modeBestLabel,
   isTrainingMode,
+  difficulty,
+  onDifficultyChange,
   daily,
   challenge,
   themeHint,
@@ -124,6 +129,11 @@ export function HomeScreen({
           </span>
         </button>
 
+        {/* ---- difficulty ---- */}
+        {!isTrainingMode && (
+          <DifficultySwitch value={difficulty} onChange={onDifficultyChange} />
+        )}
+
         {/* ---- play ---- */}
         <ArcButton
           tone="green"
@@ -166,6 +176,57 @@ export function HomeScreen({
               onClick={onOpenHowToPlay}
             />
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DifficultySwitch({
+  value,
+  onChange,
+}: {
+  value: Difficulty;
+  onChange: (difficulty: Difficulty) => void;
+}) {
+  const active = DIFFICULTY_PRESETS[value] ?? DIFFICULTY_PRESETS.standard;
+  return (
+    <div className="mt-2.5">
+      <div className="chrome-card">
+        <div className="chrome-face px-3 py-3">
+          <span className="ui-title block text-[10px] tracking-[0.24em] text-arcade-muted">
+            DIFFICULTY
+          </span>
+          <div
+            role="radiogroup"
+            aria-label="Difficulty"
+            className="mt-2 grid grid-cols-3 gap-2"
+          >
+            {DIFFICULTIES.map((id) => {
+              const preset = DIFFICULTY_PRESETS[id];
+              const isActive = id === value;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="radio"
+                  aria-checked={isActive}
+                  onClick={() => onChange(id)}
+                  className={`btn-arc no-select rounded-xl ${isActive ? "" : "opacity-70"}`}
+                >
+                  <span
+                    className={`btn-arc-face ui-title min-h-11 justify-center px-2 text-[13px] ${
+                      isActive ? "btn-green" : "btn-steel"
+                    }`}
+                  >
+                    <span className="btn-gloss" aria-hidden />
+                    <span className="relative z-10 truncate">{preset.label}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="ui-body-tight mt-2 text-[14px] text-arcade-muted">{active.blurb}</p>
         </div>
       </div>
     </div>

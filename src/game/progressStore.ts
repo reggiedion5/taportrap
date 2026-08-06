@@ -1,4 +1,5 @@
 import { GAME_MODES, isGameMode, type GameMode } from "./modes";
+import { isDifficulty } from "./difficulty";
 import {
   generateDailyChallenge,
   isValidDateString,
@@ -118,6 +119,7 @@ export function defaultProfile(): PlayerProfile {
     lifetimeXp: 0,
     selectedTheme: DEFAULT_THEME_ID,
     selectedMode: "classic",
+    selectedDifficulty: "standard",
     onboardingCompleted: false,
     seenModeIntros: [],
     createdAt: now,
@@ -198,6 +200,7 @@ function parseProfile(raw: unknown): PlayerProfile {
     lifetimeXp: int(src.lifetimeXp),
     selectedTheme: THEMES.some((t) => t.id === theme) ? theme : DEFAULT_THEME_ID,
     selectedMode: isGameMode(src.selectedMode) ? src.selectedMode : "classic",
+    selectedDifficulty: isDifficulty(src.selectedDifficulty) ? src.selectedDifficulty : "standard",
     onboardingCompleted: bool(src.onboardingCompleted),
     seenModeIntros: seen,
     createdAt: int(src.createdAt, base.createdAt) || base.createdAt,

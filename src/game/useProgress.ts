@@ -21,6 +21,7 @@ import {
   type ProgressSnapshot,
 } from "./progressStore";
 import { applyXp, calculateXpRewards, levelProgress } from "./xp";
+import type { Difficulty } from "./difficulty";
 import {
   DEFAULT_THEME_ID,
   THEMES,
@@ -218,6 +219,11 @@ export function useProgress() {
 
   const setMode = useCallback(
     (mode: GameMode) => patchProfile({ selectedMode: mode }),
+    [patchProfile],
+  );
+
+  const setDifficulty = useCallback(
+    (difficulty: Difficulty) => patchProfile({ selectedDifficulty: difficulty }),
     [patchProfile],
   );
 
@@ -446,7 +452,11 @@ export function useProgress() {
 
       /* ---- xp + level ---- */
       const isNewModeHighScore = newRecords.includes("score");
-      const xp = calculateXpRewards({ result, isNewModeHighScore });
+      const xp = calculateXpRewards({
+        result,
+        isNewModeHighScore,
+        difficulty: snapshotRef.current.profile.selectedDifficulty,
+      });
 
       /* ---- achievements ---- */
       const ctx = {
@@ -617,11 +627,13 @@ export function useProgress() {
     themeContext,
     activeTheme,
     mode: snapshot.profile.selectedMode,
+    difficulty: snapshot.profile.selectedDifficulty ?? "standard",
     modeConfig: MODE_CONFIG[snapshot.profile.selectedMode],
     reminder,
     themeHint,
     nearestAchievement,
     setMode,
+    setDifficulty,
     setTheme,
     completeOnboarding,
     markModeIntroSeen,
