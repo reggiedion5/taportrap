@@ -47,6 +47,16 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     holdMs: 0,
   },
   {
+    id: "purple",
+    color: "purple",
+    title: "Double tap purple",
+    instruction: "Purple needs two quick taps to score. Tap it twice.",
+    action: "combo",
+    holdMs: 0,
+    repeat: 2,
+  },
+  {
+
     id: "timed",
     color: "green",
     title: "React fast",
