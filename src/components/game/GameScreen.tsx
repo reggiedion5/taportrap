@@ -27,6 +27,10 @@ interface GameScreenProps {
   scorePulse: number;
   difficultyLabel: string;
   comboFlash: number | null;
+  milestone: { id: number; label: string } | null;
+  pulse: number;
+  perfectFlash: boolean;
+  greatFlash: boolean;
   levelUp: DifficultyLevel | null;
   target: ActiveTarget | null;
   feedback: FloatingFeedback[];
