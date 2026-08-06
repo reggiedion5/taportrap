@@ -127,6 +127,8 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
   const historyRef = useRef<TargetColor[]>([]);
   const reactionsRef = useRef<number[]>([]);
   const runStatsRef = useRef<RunStats>({ ...EMPTY_RUN_STATS });
+  /** Phase 1 counters for the local statistics profile */
+  const runRecordRef = useRef<RunRecord>({ ...EMPTY_RUN_RECORD });
   const lastPositionRef = useRef<{ x: number; y: number } | null>(null);
   const boundsRef = useRef<AreaBounds>({ width: 320, height: 480 });
   const settingsRef = useRef(settings);
