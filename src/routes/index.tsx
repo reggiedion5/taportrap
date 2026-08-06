@@ -5,6 +5,7 @@ import { useProgress, type SessionSummary } from "@/game/useProgress";
 import { useTraining } from "@/game/useTraining";
 import type { Achievement, GameSessionResult } from "@/game/progressionTypes";
 import { isGameMode, MODE_CONFIG, type GameMode } from "@/game/modes";
+import type { Difficulty } from "@/game/difficulty";
 import { MODE_CATALOG } from "@/game/trainingConfig";
 import type {
   PlayableMode,
@@ -347,7 +348,7 @@ function TapOrTrap() {
           isTrainingMode={isTrainingMode}
           difficulty={progress.difficulty}
           onDifficultyChange={progress.setDifficulty}
-          difficultyBests={progress.records.highScoreByDifficulty[playableMode as GameMode]}
+          difficultyBests={bestsForMode(playableMode)}
           daily={progress.daily}
           challenge={progress.challenge}
           themeHint={progress.themeHint}
