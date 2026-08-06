@@ -1,3 +1,5 @@
+import type { MouseEvent, PointerEvent } from "react";
+
 interface PauseOverlayProps {
   /** "system" when a call, notification or app switch interrupted the run. */
   source?: "manual" | "system";
@@ -7,6 +9,20 @@ interface PauseOverlayProps {
 
 export function PauseOverlay({ source = "manual", onResume, onQuit }: PauseOverlayProps) {
   const interrupted = source === "system";
+
+  const runPointerAction = (event: PointerEvent<HTMLButtonElement>, action: () => void) => {
+    event.preventDefault();
+    event.stopPropagation();
+    action();
+  };
+
+  const runKeyboardAction = (event: MouseEvent<HTMLButtonElement>, action: () => void) => {
+    // Pointer input is handled on pointer-down for reliable Capacitor/iOS taps.
+    // Keep click support for keyboard and accessibility activation only.
+    if (event.detail !== 0) return;
+    event.stopPropagation();
+    action();
+  };
 
   return (
     <div
@@ -26,7 +42,8 @@ export function PauseOverlay({ source = "manual", onResume, onQuit }: PauseOverl
         <div className="mt-7 grid gap-3">
           <button
             type="button"
-            onClick={onResume}
+            onPointerDown={(event) => runPointerAction(event, onResume)}
+            onClick={(event) => runKeyboardAction(event, onResume)}
             style={{ touchAction: "manipulation", pointerEvents: "auto" }}
             className="arcade-btn sticker-sm min-h-14 bg-neon-green py-4 text-lg text-arcade-bg-deep"
           >
@@ -34,7 +51,8 @@ export function PauseOverlay({ source = "manual", onResume, onQuit }: PauseOverl
           </button>
           <button
             type="button"
-            onClick={onQuit}
+            onPointerDown={(event) => runPointerAction(event, onQuit)}
+            onClick={(event) => runKeyboardAction(event, onQuit)}
             style={{ touchAction: "manipulation", pointerEvents: "auto" }}
             className="arcade-btn ui-title min-h-14 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
           >

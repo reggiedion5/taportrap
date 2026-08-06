@@ -887,6 +887,9 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     clearAllTimers();
     phaseRef.current = "paused";
     setPhase("paused");
+    // Stop both audio engines immediately in the same input event. Waiting for
+    // the phase effect leaves an audible window and is unreliable in iOS WebViews.
+    suspendMusic();
     try {
       suspendAudio();
     } catch {
@@ -908,6 +911,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     } catch {
       /* audio must never block the phase change */
     }
+    resumeMusic();
     if (configRef.current.timeLimitMs !== null) startClock();
     const t = targetRef.current;
     if (t && !t.resolved && remainingTarget.current > 0) {
@@ -951,6 +955,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     setTimeLeft(null);
     phaseRef.current = "start";
     setPhase("start");
+    stopMusic();
   }, [clearAllTimers, clearDecorTimers, setActiveTarget]);
 
   /** Quit an active run — recorded as a quit, never as a completed session. */
