@@ -358,7 +358,6 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
           // Recording must never block the Game Over screen from rendering.
         }
       }
-
     },
     [clearAllTimers, clearDecorTimers, later, reducedMotion, setActiveTarget],
   );
