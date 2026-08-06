@@ -90,7 +90,7 @@ export function LeaderboardScreen({ open, history, onClose }: LeaderboardScreenP
                   </span>
                   <span className="ui-body block text-[13px] text-arcade-muted">
                     {MODE_CONFIG[row.mode].name} ·{" "}
-                    {DIFFICULTY_PRESETS[row.difficulty]?.name ?? row.difficulty} ·{" "}
+                    {DIFFICULTY_PRESETS[row.difficulty]?.label ?? row.difficulty} ·{" "}
                     {boardById(row.boardId).name} · {formatDate(row.timestamp)}
                   </span>
                 </span>
