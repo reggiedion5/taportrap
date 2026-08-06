@@ -26,6 +26,7 @@ import { SettingsModal } from "@/components/game/SettingsModal";
 import { OnboardingFlow } from "@/components/game/OnboardingFlow";
 import { ModeInfoModal, ModeSelector } from "@/components/game/ModeSelector";
 import { AchievementScreen } from "@/components/game/AchievementScreen";
+import { DailyMissionsScreen } from "@/components/game/DailyMissionsScreen";
 import { StatisticsScreen } from "@/components/game/StatisticsScreen";
 import { BOARDS } from "@/game/boards";
 import { BoardCollectionScreen } from "@/components/game/BoardCollectionScreen";
@@ -65,6 +66,7 @@ type Overlay =
   | "none"
   | "modes"
   | "achievements"
+  | "missions"
   | "statistics"
   | "boards"
   | "howto"
@@ -373,6 +375,9 @@ function TapOrTrap() {
           difficultyBests={bestsForMode(playableMode)}
           daily={progress.daily}
           challenge={progress.challenge}
+          missions={progress.missions}
+          claimableMissions={progress.claimableMissions}
+          claimableAchievements={progress.claimableAchievementCount}
           boardHint={progress.boardHint}
           boardsUnlocked={progress.unlockedBoardIds.length}
           boardsTotal={BOARDS.length}
@@ -383,6 +388,7 @@ function TapOrTrap() {
           onPlay={handlePlay}
           onOpenModes={() => setOverlay("modes")}
           onOpenAchievements={() => setOverlay("achievements")}
+          onOpenMissions={() => setOverlay("missions")}
           onOpenStatistics={() => setOverlay("statistics")}
           onOpenBoards={() => {
             progress.markBoardsSeen();
@@ -520,10 +526,21 @@ function TapOrTrap() {
         open={overlay === "achievements"}
         progress={progress.achievementList}
         focusId={focusAchievement}
+        claimedIds={progress.achievementStore.claimed}
+        onClaim={progress.claimAchievement}
+        onClaimAll={progress.claimAllRewards}
         onClose={() => {
           setOverlay("none");
           setFocusAchievement(null);
         }}
+      />
+
+      <DailyMissionsScreen
+        open={overlay === "missions"}
+        missions={progress.missions}
+        reducedMotion={game.reducedMotion}
+        onClaim={progress.claimDailyMission}
+        onClose={() => setOverlay("none")}
       />
 
       <StatisticsScreen
