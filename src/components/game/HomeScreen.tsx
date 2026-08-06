@@ -1,4 +1,16 @@
-import { BarChart3, ChevronRight, HelpCircle, Palette, Settings2, Trophy, Zap } from "lucide-react";
+import {
+  BarChart3,
+  Bell,
+  ChevronRight,
+  Flame,
+  HelpCircle,
+  Medal,
+  Palette,
+  Settings2,
+  Trophy,
+  UserRound,
+  Zap,
+} from "lucide-react";
 import type { DailyChallenge, DailyState, PlayerLevel } from "@/game/progressionTypes";
 import type { DailyMissionsState } from "@/game/dailyMissions";
 import { DIFFICULTIES, DIFFICULTY_PRESETS, type Difficulty } from "@/game/difficulty";
@@ -6,6 +18,8 @@ import logoAsset from "@/assets/tap-or-trap-logo.png.asset.json";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { DailyChallengeCard } from "./DailyChallengeCard";
 import { DailyMissionsCard } from "./DailyMissionsScreen";
+import { WeeklyChallengesCard } from "./WeeklyChallengesScreen";
+import type { WeeklyState } from "@/game/phase3Types";
 import { XpProgressBar } from "./XpProgressBar";
 import { ArcButton, ChromeBadge, ChromeCard } from "./ArcUI";
 
@@ -38,6 +52,18 @@ interface HomeScreenProps {
   onOpenHowToPlay: () => void;
   achievementsUnlocked: number;
   achievementsTotal: number;
+  /* phase 3 */
+  weekly: WeeklyState;
+  claimableWeekly: number;
+  playStreak: number;
+  playerTitle: string;
+  unreadNotifications: number;
+  loginAvailable: boolean;
+  onOpenWeekly: () => void;
+  onOpenProfile: () => void;
+  onOpenNotifications: () => void;
+  onOpenLeaderboard: () => void;
+  onOpenCollection: () => void;
 }
 
 
@@ -70,6 +96,17 @@ export function HomeScreen({
   onOpenHowToPlay,
   achievementsUnlocked,
   achievementsTotal,
+  weekly,
+  claimableWeekly,
+  playStreak,
+  playerTitle,
+  unreadNotifications,
+  loginAvailable,
+  onOpenWeekly,
+  onOpenProfile,
+  onOpenNotifications,
+  onOpenLeaderboard,
+  onOpenCollection,
 }: HomeScreenProps) {
 
   return (
@@ -78,12 +115,37 @@ export function HomeScreen({
       <div className="safe-area animate-screen-in relative mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col px-5 py-5">
         {/* ---- top ---- */}
         <header className="flex items-center justify-between gap-3">
-          <ChromeBadge>
-            <span className="score-digits text-sm">L{level.level}</span>
-            <span className="ui-title text-[11px] tracking-[0.18em] text-arcade-muted">
-              STREAK {daily.currentStreak}
-            </span>
-          </ChromeBadge>
+          <button type="button" onClick={onOpenProfile} className="btn-arc text-left">
+            <ChromeBadge>
+              <span className="score-digits text-sm">L{level.level}</span>
+              <span className="ui-title flex items-center gap-1 text-[11px] tracking-[0.18em] text-neon-gold">
+                <Flame className="size-3.5" aria-hidden />
+                {playStreak}
+              </span>
+              <span className="ui-title max-w-[92px] truncate text-[11px] tracking-[0.14em] text-arcade-muted">
+                {playerTitle}
+              </span>
+            </ChromeBadge>
+          </button>
+          <div className="flex items-center gap-2">
+          <ArcButton
+            aria-label={
+              unreadNotifications > 0
+                ? `Open notifications, ${unreadNotifications} unread`
+                : "Open notifications"
+            }
+            onClick={onOpenNotifications}
+            className="relative w-auto"
+            faceClassName="size-11 min-h-11 !px-0"
+            icon={<Bell className="icon-chrome size-5" />}
+          >
+            <span className="sr-only">Notifications</span>
+            {unreadNotifications > 0 && (
+              <span className="ui-title absolute -right-1 -top-1 z-20 min-w-5 rounded-full bg-logo-green px-1.5 py-0.5 text-center text-[10px] text-arcade-bg-deep">
+                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+              </span>
+            )}
+          </ArcButton>
           <ArcButton
             aria-label="Open settings"
             onClick={onOpenSettings}
@@ -93,6 +155,7 @@ export function HomeScreen({
           >
             <span className="sr-only">Settings</span>
           </ArcButton>
+          </div>
         </header>
 
         {/* ---- logo ---- */}
@@ -175,6 +238,13 @@ export function HomeScreen({
             onOpen={onOpenMissions}
           />
 
+          <WeeklyChallengesCard
+            weekly={weekly}
+            claimable={claimableWeekly}
+            reducedMotion={reducedMotion}
+            onOpen={onOpenWeekly}
+          />
+
           <DailyChallengeCard challenge={challenge} daily={daily} reducedMotion={reducedMotion} />
 
           <div className="grid grid-cols-2 gap-2.5">
@@ -200,6 +270,24 @@ export function HomeScreen({
               label={newBoardCount > 0 ? `Boards · ${newBoardCount} NEW` : "Boards"}
               sub={boardHint ?? `${boardsUnlocked}/${boardsTotal} unlocked`}
               onClick={onOpenBoards}
+            />
+            <NavTile
+              icon={<UserRound className="icon-chrome size-4" aria-hidden />}
+              label="Profile"
+              sub={loginAvailable ? "Login reward ready" : `${playStreak}-day streak`}
+              onClick={onOpenProfile}
+            />
+            <NavTile
+              icon={<Medal className="icon-chrome size-4" aria-hidden />}
+              label="Collection"
+              sub="Titles & badges"
+              onClick={onOpenCollection}
+            />
+            <NavTile
+              icon={<Trophy className="icon-chrome size-4" aria-hidden />}
+              label="Records"
+              sub="Your best runs"
+              onClick={onOpenLeaderboard}
             />
             <NavTile
               icon={<HelpCircle className="icon-chrome size-4" aria-hidden />}
