@@ -286,7 +286,12 @@ function TapOrTrap() {
             ...Object.values(training.training.trainer.modules).map((m) => m.bestAccuracy),
           ) * 100,
         )}%`
-    : `BEST ${formatCount(progress.records.highScore[playableMode as GameMode])}`;
+    : `BEST ${formatCount(
+        progress.records.highScoreByDifficulty[playableMode as GameMode][progress.difficulty],
+      )}`;
+
+  const activeBest =
+    progress.records.highScoreByDifficulty[progress.mode][progress.difficulty];
 
   const showHome = game.phase === "start" && trainingPhase === "idle" && !countdown;
 
@@ -294,7 +299,7 @@ function TapOrTrap() {
     phase: game.phase,
     summaryExists: summary !== null,
     score: game.score,
-    bestScore: progress.records.highScore[progress.mode],
+    bestScore: activeBest,
     lives: game.lives,
     currentRound: game.runStats.successes,
     animationFlags: {
@@ -324,6 +329,7 @@ function TapOrTrap() {
           isTrainingMode={isTrainingMode}
           difficulty={progress.difficulty}
           onDifficultyChange={progress.setDifficulty}
+          difficultyBests={progress.records.highScoreByDifficulty[playableMode as GameMode]}
           daily={progress.daily}
           challenge={progress.challenge}
           themeHint={progress.themeHint}
@@ -381,7 +387,7 @@ function TapOrTrap() {
         <GameScreen
           mode={progress.mode}
           score={game.score}
-          highScore={progress.records.highScore[progress.mode]}
+          highScore={activeBest}
           combo={game.combo}
           multiplier={game.multiplier}
           scorePulse={game.scorePulse}
@@ -429,7 +435,7 @@ function TapOrTrap() {
         ) : (
           <MinimalGameOverScreen
             score={game.lastResult?.score ?? game.score}
-            bestScore={progress.records.highScore[progress.mode]}
+            bestScore={activeBest}
             onPlayAgain={launchCompetitive}
             onHome={goToMenu}
           />
