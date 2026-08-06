@@ -278,11 +278,67 @@ function parseStatistics(raw: unknown): PlayerStatistics {
   };
 }
 
+/** True when the most recently parsed records blob predates per-difficulty bests. */
+let legacyRecordsShape = false;
+/**
+ * Seeds per-difficulty bests for saves written before the field existed.
+ * The legacy global best is credited only to the difficulty that was last
+ * selected; every other difficulty starts at 0. Never lowers a stored value.
+ */
+export function migrateDifficultyBests(
+  records: PersonalRecords,
+  lastPlayedDifficulty: unknown,
+): PersonalRecords {
+  const difficulty = isDifficulty(lastPlayedDifficulty) ? lastPlayedDifficulty : null;
+  if (!difficulty) return records;
+  const highScoreByDifficulty = emptyDifficultyBests();
+  let changed = false;
+  for (const mode of GAME_MODES) {
+    for (const id of DIFFICULTIES) {
+      highScoreByDifficulty[mode][id] = records.highScoreByDifficulty[mode][id];
+    }
+    const legacy = records.highScore[mode];
+    if (legacy > highScoreByDifficulty[mode][difficulty]) {
+      highScoreByDifficulty[mode][difficulty] = legacy;
+      changed = true;
+    }
+  }
+  if (!changed) return records;
+  return { ...records, highScoreByDifficulty };
+}
+
+/**
+ * Immutably raises the best score for one mode + difficulty. Unknown difficulty
+ * ids fall back to "standard" and other buckets are always preserved.
+ */
+export function applyDifficultyBest(
+  records: PersonalRecords,
+  mode: GameMode,
+  difficulty: unknown,
+  score: number,
+): PersonalRecords {
+  if (!isGameMode(mode)) return records;
+  const id = isDifficulty(difficulty) ? difficulty : "standard";
+  const value = int(score);
+  const current = records.highScoreByDifficulty[mode]?.[id] ?? 0;
+  if (value <= current) return records;
+  return {
+    ...records,
+    highScoreByDifficulty: {
+      ...records.highScoreByDifficulty,
+      [mode]: { ...records.highScoreByDifficulty[mode], [id]: value },
+    },
+  };
+}
+
+
+
 function parseRecords(raw: unknown): PersonalRecords {
   const src = asRecord(raw);
   const high = asRecord(src.highScore);
   const base = defaultRecords();
   const byDifficulty = asRecord(src.highScoreByDifficulty);
+  const isLegacy = src.highScoreByDifficulty === undefined;
   for (const mode of GAME_MODES) {
     base.highScore[mode] = int(high[mode]);
     const modeBests = asRecord(byDifficulty[mode]);
@@ -290,6 +346,8 @@ function parseRecords(raw: unknown): PersonalRecords {
       base.highScoreByDifficulty[mode][difficulty] = int(modeBests[difficulty]);
     }
   }
+  legacyRecordsShape = isLegacy;
+
   return {
     ...base,
     bestCombo: int(src.bestCombo),
@@ -463,10 +521,19 @@ export function loadProgress(): ProgressSnapshot {
   const profile = parseProfile(readJson(KEYS.profile));
   const parsedStats = parseStatistics(readJson(KEYS.statistics));
   const parsedRecords = parseRecords(readJson(KEYS.records));
-  const { stats, records } = migrateLegacy(parsedStats, parsedRecords);
+  const wasLegacyShape = legacyRecordsShape;
+  const migrated = migrateLegacy(parsedStats, parsedRecords);
+  let records = migrated.records;
+  if (wasLegacyShape) {
+    const seeded = migrateDifficultyBests(records, profile.selectedDifficulty);
+    if (seeded !== records) {
+      records = seeded;
+      writeJson(KEYS.records, records);
+    }
+  }
   return {
     profile,
-    statistics: stats,
+    statistics: migrated.stats,
     records,
     achievements: parseAchievements(readJson(KEYS.achievements)),
     daily: parseDaily(readJson(KEYS.daily)),

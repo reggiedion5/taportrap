@@ -15,6 +15,7 @@ import {
   pickColor,
   spawnDelayFor,
   presetFor,
+  isDifficulty,
   type Difficulty,
   type DifficultyLevel,
 } from "./difficulty";
@@ -114,6 +115,8 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
   configRef.current = MODE_CONFIG[mode];
   const presetRef = useRef(presetFor(difficulty));
   presetRef.current = presetFor(difficulty);
+  /** difficulty that was active when the current run started */
+  const runDifficultyRef = useRef<Difficulty>(isDifficulty(difficulty) ? difficulty : "standard");
   /** spawn gap for the current score, scaled by the chosen difficulty */
   const nextSpawnDelay = () =>
     spawnDelayFor(levelForScore(scoreRef.current), presetRef.current.spawnScale);
@@ -341,6 +344,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       const result: GameSessionResult = {
         sessionId: sessionIdRef.current || newSessionId(),
         mode: modeRef.current,
+        difficulty: runDifficultyRef.current,
         score: scoreRef.current,
         bestCombo: bestComboRef.current,
         bestMultiplier: bestMultiplierRef.current,
@@ -825,6 +829,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     runIdRef.current += 1;
     endedRef.current = false;
     sessionIdRef.current = newSessionId();
+    runDifficultyRef.current = isDifficulty(difficulty) ? difficulty : "standard";
     startedAtRef.current = performance.now();
     scoreRef.current = 0;
     comboRef.current = 0;
@@ -870,7 +875,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     }
 
     scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0], presetRef.current.spawnScale));
-  }, [clearAllTimers, clearDecorTimers, scheduleSpawn, setActiveTarget, startClock]);
+  }, [clearAllTimers, clearDecorTimers, difficulty, scheduleSpawn, setActiveTarget, startClock]);
 
   const pause = useCallback((source: "manual" | "system" = "manual") => {
     if (phaseRef.current !== "playing" || endedRef.current) return;

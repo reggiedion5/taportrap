@@ -212,6 +212,8 @@ export interface PostGameMission {
 export interface GameSessionResult {
   sessionId: string;
   mode: GameMode;
+  /** difficulty active when this run started — never re-read after the run */
+  difficulty?: Difficulty;
   score: number;
   bestCombo: number;
   bestMultiplier: number;

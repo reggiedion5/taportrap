@@ -19,10 +19,11 @@ import {
   resetStatistics,
   resetDailyProgress,
   writeJson,
+  applyDifficultyBest,
   type ProgressSnapshot,
 } from "./progressStore";
 import { applyXp, calculateXpRewards, levelProgress } from "./xp";
-import type { Difficulty } from "./difficulty";
+import { isDifficulty, type Difficulty } from "./difficulty";
 import {
   DEFAULT_THEME_ID,
   THEMES,
@@ -364,21 +365,20 @@ export function useProgress() {
 
       /* ---- personal records ---- */
       const newRecords: PersonalRecordKey[] = [];
-      const runDifficulty: Difficulty = prev.profile.selectedDifficulty ?? "standard";
+      // Difficulty is captured at run start and carried on the result, so a
+      // difficulty switched after the run cannot claim the record.
+      const runDifficulty: Difficulty = isDifficulty(result.difficulty)
+        ? result.difficulty
+        : isDifficulty(prev.profile.selectedDifficulty)
+          ? prev.profile.selectedDifficulty
+          : "standard";
       const records = {
-        ...prev.records,
+        ...applyDifficultyBest(prev.records, mode, runDifficulty, result.score),
         highScore: { ...prev.records.highScore },
-        highScoreByDifficulty: {
-          ...prev.records.highScoreByDifficulty,
-          [mode]: { ...prev.records.highScoreByDifficulty[mode] },
-        },
       };
       if (result.score > records.highScore[mode]) {
         records.highScore[mode] = result.score;
         newRecords.push("score");
-      }
-      if (result.score > records.highScoreByDifficulty[mode][runDifficulty]) {
-        records.highScoreByDifficulty[mode][runDifficulty] = result.score;
       }
       if (result.bestCombo > records.bestCombo) {
         records.bestCombo = result.bestCombo;
@@ -468,7 +468,7 @@ export function useProgress() {
       const xp = calculateXpRewards({
         result,
         isNewModeHighScore,
-        difficulty: snapshotRef.current.profile.selectedDifficulty,
+        difficulty: runDifficulty,
       });
 
       /* ---- achievements ---- */

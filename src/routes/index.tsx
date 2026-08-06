@@ -5,6 +5,7 @@ import { useProgress, type SessionSummary } from "@/game/useProgress";
 import { useTraining } from "@/game/useTraining";
 import type { Achievement, GameSessionResult } from "@/game/progressionTypes";
 import { isGameMode, MODE_CONFIG, type GameMode } from "@/game/modes";
+import type { Difficulty } from "@/game/difficulty";
 import { MODE_CATALOG } from "@/game/trainingConfig";
 import type {
   PlayableMode,
@@ -287,6 +288,17 @@ function TapOrTrap() {
     );
   }
 
+  const emptyBests: Record<Difficulty, number> = { beginner: 0, standard: 0, expert: 0 };
+  /** Per-difficulty bests for a mode, tolerant of unknown/training mode ids. */
+  const bestsForMode = (mode: string): Record<Difficulty, number> => {
+    const table = progress.records.highScoreByDifficulty as Record<
+      string,
+      Record<Difficulty, number> | undefined
+    >;
+    const modeBests = table[mode];
+    return modeBests ? { ...emptyBests, ...modeBests } : emptyBests;
+  };
+
   const bestLabel = isTrainingMode
     ? playableMode === "zen"
       ? `BEST ${formatCount(training.training.zen.bestTapCount)} TAPS`
@@ -296,12 +308,9 @@ function TapOrTrap() {
             ...Object.values(training.training.trainer.modules).map((m) => m.bestAccuracy),
           ) * 100,
         )}%`
-    : `BEST ${formatCount(
-        progress.records.highScoreByDifficulty[playableMode as GameMode][progress.difficulty],
-      )}`;
+    : `BEST ${formatCount(bestsForMode(playableMode)[progress.difficulty] ?? 0)}`;
 
-  const activeBest =
-    progress.records.highScoreByDifficulty[progress.mode][progress.difficulty];
+  const activeBest = bestsForMode(progress.mode)[progress.difficulty] ?? 0;
 
   const showHome = game.phase === "start" && trainingPhase === "idle" && !countdown;
 
@@ -339,7 +348,7 @@ function TapOrTrap() {
           isTrainingMode={isTrainingMode}
           difficulty={progress.difficulty}
           onDifficultyChange={progress.setDifficulty}
-          difficultyBests={progress.records.highScoreByDifficulty[playableMode as GameMode]}
+          difficultyBests={bestsForMode(playableMode)}
           daily={progress.daily}
           challenge={progress.challenge}
           themeHint={progress.themeHint}
