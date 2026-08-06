@@ -155,7 +155,6 @@ function TapOrTrap() {
   // equipped board drives the interface palette via :root custom properties
   useEffect(() => {
     const root = document.documentElement;
-    root.dataset.board = progress.activeBoard.id;
     const applied = Object.entries(progress.activeBoard.vars);
     applied.forEach(([key, value]) => root.style.setProperty(key, value));
     return () => {

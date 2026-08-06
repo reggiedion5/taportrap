@@ -42,7 +42,9 @@ export function AppBootstrap({
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    if (document.documentElement.dataset.board === boardId) setBoardApplied(true);
+    // apply the board identity here so startup never waits on another effect
+    document.documentElement.dataset.board = boardId;
+    setBoardApplied(true);
   }, [boardId, dataHydrated]);
 
   // Dev-only: warn if long-form copy renders in the arcade display font.
