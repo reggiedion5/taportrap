@@ -27,6 +27,10 @@ import { MODE_CONFIG, type GameMode } from "./modes";
 import type { GameSessionResult } from "./progressionTypes";
 import { onAppBackground } from "@/lib/appLifecycle";
 import { isIOS, isNativePlatform } from "@/lib/nativePlatform";
+import { GAME_FEATURES } from "@/config/gameFeatures";
+import { classifyTap, closeCallMessage, isCloseCall, TIMING_LABEL, type TapTiming } from "./tapTiming";
+import { milestoneFor } from "./comboMilestones";
+import { EMPTY_RUN_RECORD, recordRun, type RunRecord } from "./playerStats";
 
 export { difficultyProgress } from "./difficulty";
 
