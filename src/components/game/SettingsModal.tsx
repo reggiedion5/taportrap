@@ -162,6 +162,12 @@ export function SettingsModal({
             onChange={(v) => onChange({ screenShake: v })}
           />
           <Toggle
+            label="Board effects"
+            description="Ambient weather and particles on the selected board"
+            checked={settings.boardEffects}
+            onChange={(v) => onChange({ boardEffects: v })}
+          />
+          <Toggle
             label="Reduced motion"
             description="Calmer animations, no screen shake"
             checked={settings.reducedMotion}

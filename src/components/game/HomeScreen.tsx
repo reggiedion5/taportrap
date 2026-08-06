@@ -18,13 +18,16 @@ interface HomeScreenProps {
   onDifficultyChange: (difficulty: Difficulty) => void;
   daily: DailyState;
   challenge: DailyChallenge;
-  themeHint: string | null;
+  boardHint: string | null;
+  boardsUnlocked: number;
+  boardsTotal: number;
+  newBoardCount: number;
   reducedMotion: boolean;
   onPlay: () => void;
   onOpenModes: () => void;
   onOpenAchievements: () => void;
   onOpenStatistics: () => void;
-  onOpenThemes: () => void;
+  onOpenBoards: () => void;
   onOpenSettings: () => void;
   onOpenHowToPlay: () => void;
   achievementsUnlocked: number;
@@ -42,13 +45,16 @@ export function HomeScreen({
   onDifficultyChange,
   daily,
   challenge,
-  themeHint,
+  boardHint,
+  boardsUnlocked,
+  boardsTotal,
+  newBoardCount,
   reducedMotion,
   onPlay,
   onOpenModes,
   onOpenAchievements,
   onOpenStatistics,
-  onOpenThemes,
+  onOpenBoards,
   onOpenSettings,
   onOpenHowToPlay,
   achievementsUnlocked,
@@ -167,9 +173,9 @@ export function HomeScreen({
             />
             <NavTile
               icon={<Palette className="icon-chrome size-4" aria-hidden />}
-              label="Themes"
-              sub={themeHint ?? "Unlock looks"}
-              onClick={onOpenThemes}
+              label={newBoardCount > 0 ? `Boards · ${newBoardCount} NEW` : "Boards"}
+              sub={boardHint ?? `${boardsUnlocked}/${boardsTotal} unlocked`}
+              onClick={onOpenBoards}
             />
             <NavTile
               icon={<HelpCircle className="icon-chrome size-4" aria-hidden />}

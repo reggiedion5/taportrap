@@ -41,6 +41,8 @@ export interface GameSettings {
   vibration: boolean;
   /** Impact feedback: screen shake and hit flashes. */
   screenShake: boolean;
+  /** Ambient board effects (rain, snow, embers…). Art stays, motion stops. */
+  boardEffects: boolean;
   reducedMotion: boolean;
   /** Zen-only accessibility preset: larger, slower, gentler. */
   kidsAssist: boolean;

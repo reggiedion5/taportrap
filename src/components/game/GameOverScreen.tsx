@@ -6,6 +6,7 @@ import type { PersonalRecordKey } from "@/game/progressionTypes";
 import type { SessionSummary } from "@/game/useProgress";
 import { emptyShareData, type ShareResultData } from "@/game/shareResult";
 import { formatMsValue } from "@/game/format";
+import { boardById } from "@/game/boards";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { XpProgressBar } from "./XpProgressBar";
 import { ShareButton } from "./ShareButton";
@@ -73,7 +74,7 @@ export function GameOverScreen({
     summary.unlockedAchievements.length > 0
       ? `${summary.unlockedAchievements.length} achievement${summary.unlockedAchievements.length > 1 ? "s" : ""}`
       : null,
-    summary.unlockedThemes.length > 0 ? "New theme" : null,
+    summary.unlockedBoards.length > 0 ? "New board" : null,
     summary.dailyProgress?.completed ? "Daily done" : null,
   ].filter(Boolean) as string[];
 
@@ -281,13 +282,13 @@ export function GameOverScreen({
                   </ChromeCard>
                 )}
 
-                {summary.unlockedThemes.length > 0 && (
+                {summary.unlockedBoards.length > 0 && (
                   <ChromeCard faceClassName="p-4">
                     <p className="ui-title text-[10px] tracking-[0.22em] text-logo-green glow-green">
-                      THEME UNLOCKED
+                      BOARD UNLOCKED
                     </p>
                     <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
-                      {summary.unlockedThemes.join(", ")}
+                      {summary.unlockedBoards.map((id) => boardById(id).name).join(", ")}
                     </p>
                   </ChromeCard>
                 )}
