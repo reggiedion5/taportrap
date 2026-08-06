@@ -11,6 +11,7 @@ const LEGACY_SETTINGS_KEY = "tap-or-trap-settings-v1";
 export const DEFAULT_SETTINGS: GameSettings = {
   sound: true,
   vibration: true,
+  screenShake: true,
   reducedMotion: false,
   kidsAssist: false,
   skipCountdown: false,
@@ -71,6 +72,7 @@ export function loadSettings(): GameSettings {
   return {
     sound: safeBool(source.sound, DEFAULT_SETTINGS.sound),
     vibration: safeBool(source.vibration, DEFAULT_SETTINGS.vibration),
+    screenShake: safeBool(source.screenShake, DEFAULT_SETTINGS.screenShake),
     reducedMotion: safeBool(source.reducedMotion, DEFAULT_SETTINGS.reducedMotion),
     kidsAssist: safeBool(source.kidsAssist, DEFAULT_SETTINGS.kidsAssist),
     skipCountdown: safeBool(source.skipCountdown, DEFAULT_SETTINGS.skipCountdown),

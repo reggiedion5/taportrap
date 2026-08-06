@@ -37,6 +37,8 @@ export interface FloatingFeedback {
 export interface GameSettings {
   sound: boolean;
   vibration: boolean;
+  /** Impact feedback: screen shake and hit flashes. */
+  screenShake: boolean;
   reducedMotion: boolean;
   /** Zen-only accessibility preset: larger, slower, gentler. */
   kidsAssist: boolean;

@@ -996,7 +996,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     greatFlash,
     tier: levelForScore(score),
     levelUp,
-    shake,
+    shake: shake && settings.screenShake,
     flash,
     burst,
     settings,
