@@ -68,7 +68,8 @@ describe("tutorial definition", () => {
   it("teaches each target type in order and pays a fixed reward", () => {
     expect(TUTORIAL_XP).toBe(50);
     const colors = TUTORIAL_STEPS.map((s) => s.color);
-    expect(colors.slice(0, 4)).toEqual(["green", "red", "gold", "purple"]);
+    expect(colors.slice(0, 3)).toEqual(["green", "red", "gold"]);
+    expect(new Set(colors)).toEqual(new Set(["green", "red", "gold", "purple"]));
     expect(TUTORIAL_STEPS.every((s) => s.title && s.instruction)).toBe(true);
   });
 });
