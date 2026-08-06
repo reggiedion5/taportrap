@@ -15,6 +15,7 @@ import {
   pickColor,
   spawnDelayFor,
   presetFor,
+  isDifficulty,
   type Difficulty,
   type DifficultyLevel,
 } from "./difficulty";
