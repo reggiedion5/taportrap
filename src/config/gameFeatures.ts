@@ -30,13 +30,14 @@ export const GAME_FEATURES: GameFeatureFlags = {
   statisticsSystem: true,
   diagnosticPanel: false,
 
-  xpSystem: false,
+  xpSystem: true,
   themeSystem: false,
-  missionSystem: false,
-  achievementSystem: false,
+  missionSystem: true,
+  achievementSystem: true,
   audioSystem: false,
   sharingSystem: false,
   redesignedGameOver: false,
+
 };
 
 export const isFeatureEnabled = (key: keyof GameFeatureFlags): boolean =>

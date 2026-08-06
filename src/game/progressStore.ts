@@ -8,6 +8,12 @@ import {
 } from "./daily";
 import { DEFAULT_BOARD_ID, isBoardId } from "./boards";
 import {
+  defaultMissionsState,
+  type DailyMissionsState,
+  type MissionProgress,
+} from "./dailyMissions";
+
+import {
   STORAGE_VERSION,
   type AchievementStore,
   type DailyState,
@@ -23,10 +29,12 @@ export const KEYS = {
   statistics: "tap-or-trap-statistics-v2",
   achievements: "tap-or-trap-achievements-v2",
   daily: "tap-or-trap-daily-v2",
+  dailyMissions: "tap-or-trap-daily-missions-v2",
   records: "tap-or-trap-records-v2",
   mission: "tap-or-trap-mission-v2",
   migrated: "tap-or-trap-migrated-v2",
 } as const;
+
 
 const LEGACY_STATS_KEY = "tap-or-trap-stats-v1";
 const LEGACY_HIGH_SCORE_KEY = "tap-or-trap-high-score-v1";
@@ -177,8 +185,9 @@ export function defaultRecords(): PersonalRecords {
 }
 
 export function defaultAchievements(): AchievementStore {
-  return { version: STORAGE_VERSION, unlocked: {} };
+  return { version: STORAGE_VERSION, unlocked: {}, claimed: {} };
 }
+
 
 export function defaultDaily(date = localDateString()): DailyState {
   return {
@@ -379,8 +388,20 @@ function parseAchievements(raw: unknown): AchievementStore {
     const stamp = int(at);
     unlocked[id] = stamp > 0 ? stamp : Date.now();
   }
-  return { version: STORAGE_VERSION, unlocked };
+  const claimedSrc = asRecord(src.claimed);
+  const claimed: Record<string, number> = {};
+  for (const [id, at] of Object.entries(claimedSrc)) {
+    const stamp = int(at);
+    if (unlocked[id] !== undefined) claimed[id] = stamp > 0 ? stamp : Date.now();
+  }
+  // Legacy profiles were paid automatically at unlock time — treat those as
+  // already claimed so the reward can never be collected twice.
+  if (src.claimed === undefined) {
+    for (const id of Object.keys(unlocked)) claimed[id] = unlocked[id];
+  }
+  return { version: STORAGE_VERSION, unlocked, claimed };
 }
+
 
 function parseDaily(raw: unknown): DailyState {
   const src = asRecord(raw);
@@ -515,6 +536,35 @@ function migrateLegacy(
   return { stats: nextStats, records: nextRecords };
 }
 
+/* ---------------- daily missions ---------------- */
+
+function parseMissions(raw: unknown): DailyMissionsState {
+  const today = localDateString();
+  const src = asRecord(raw);
+  const base = defaultMissionsState(today);
+  const storedDate = isValidDateString(src.date) ? src.date : null;
+  const lifetimeCompleted = int(src.lifetimeCompleted);
+  const lifetimeClaimedXp = int(src.lifetimeClaimedXp);
+
+  if (storedDate !== today) {
+    return { ...base, lifetimeCompleted, lifetimeClaimedXp };
+  }
+
+  const progressSrc = asRecord(src.progress);
+  const progress: Record<string, MissionProgress> = {};
+  for (const mission of base.missions) {
+    const entry = asRecord(progressSrc[mission.id]);
+    const value = num(entry.value, 0);
+    const completed = bool(entry.completed);
+    progress[mission.id] = {
+      value: Number.isFinite(value) && value > 0 ? value : 0,
+      completed,
+      claimed: completed && bool(entry.claimed),
+    };
+  }
+  return { ...base, progress, lifetimeCompleted, lifetimeClaimedXp };
+}
+
 /* ---------------- public loaders ---------------- */
 
 export interface ProgressSnapshot {
@@ -523,6 +573,7 @@ export interface ProgressSnapshot {
   records: PersonalRecords;
   achievements: AchievementStore;
   daily: DailyState;
+  missions: DailyMissionsState;
   mission: PostGameMission | null;
 }
 
@@ -546,9 +597,23 @@ export function loadProgress(): ProgressSnapshot {
     records,
     achievements: parseAchievements(readJson(KEYS.achievements)),
     daily: parseDaily(readJson(KEYS.daily)),
+    missions: parseMissions(readJson(KEYS.dailyMissions)),
     mission: parseMission(readJson(KEYS.mission)),
   };
 }
+
+/** Clears today's missions only; lifetime mission counters are preserved. */
+export function resetDailyMissions(): DailyMissionsState {
+  const previous = parseMissions(readJson(KEYS.dailyMissions));
+  const fresh: DailyMissionsState = {
+    ...defaultMissionsState(),
+    lifetimeCompleted: previous.lifetimeCompleted,
+    lifetimeClaimedXp: previous.lifetimeClaimedXp,
+  };
+  writeJson(KEYS.dailyMissions, fresh);
+  return fresh;
+}
+
 
 /**
  * Deletes every Tap or Trap! key from this device. Irreversible, offline, and

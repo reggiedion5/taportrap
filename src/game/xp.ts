@@ -86,9 +86,16 @@ export function calculateXpRewards({
     }
   }
 
+  /* ---- Phase 2 timing bonuses (same for every mode) ---- */
+  add("Great timing", Math.max(0, stats.great ?? 0));
+  add("Close calls", Math.max(0, stats.closeCalls ?? 0) * 2);
+  const comboBonus = bestCombo >= 30 ? 40 : bestCombo >= 20 ? 25 : bestCombo >= 15 ? 15 : 0;
+  add(`Combo ${bestCombo} milestone`, comboBonus);
+
   if (isNewModeHighScore && score > 0) {
     add(`New ${modeLabel[mode]} best`, 25);
   }
+
 
   const base = entries.reduce((sum, e) => sum + e.xp, 0);
   const preset = presetFor(difficulty);

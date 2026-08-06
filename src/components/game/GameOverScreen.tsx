@@ -173,6 +173,17 @@ export function GameOverScreen({
                 LEVEL UP! {summary.levelBefore} → {summary.levelAfter}
               </p>
             )}
+            {summary.dailyMissionsCompleted.length > 0 && (
+              <p className="ui-title mt-3 text-center text-[11px] tracking-[0.16em] text-logo-green glow-green">
+                {summary.dailyMissionsCompleted.length} DAILY MISSION
+                {summary.dailyMissionsCompleted.length > 1 ? "S" : ""} COMPLETE
+              </p>
+            )}
+            {summary.claimableXp > 0 && (
+              <p className="ui-body mt-2 text-center text-[14px] text-arcade-muted">
+                +{summary.claimableXp} XP waiting to be claimed
+              </p>
+            )}
             {highlights.length > 0 && (
               <p className="ui-title mt-3 text-center text-[11px] tracking-[0.16em] text-neon-purple glow-purple">
                 {highlights.join(" · ")}
@@ -180,6 +191,7 @@ export function GameOverScreen({
             )}
           </ChromeCard>
         )}
+
 
         {/* ---- 5. details on demand ---- */}
         {stage >= 2 && (
