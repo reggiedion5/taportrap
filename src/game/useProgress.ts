@@ -765,7 +765,7 @@ export function useProgress() {
           id: `achievement-${a.id}`,
           kind: "achievement" as const,
           title: "Achievement unlocked",
-          body: `${a.name} — claim ${a.rewardXp} XP.`,
+          body: `${a.title} — claim ${a.rewardXp} XP.`,
           target: "achievements" as const,
         })),
         ...unlockedBoards.map((id) => ({
@@ -779,7 +779,7 @@ export function useProgress() {
           id: `mission-${today}-${m.id}`,
           kind: "mission" as const,
           title: "Daily mission complete",
-          body: `${m.title} — claim ${m.rewardXp} XP.`,
+          body: `${m.label} — claim ${m.rewardXp} XP.`,
           target: "missions" as const,
         })),
       ];
