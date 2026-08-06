@@ -143,10 +143,11 @@ export function presetFor(difficulty: Difficulty | undefined): DifficultyPreset 
 export function difficultyProgress(score: number) {
   const current = levelForScore(score);
   const next = DIFFICULTY_LEVELS[current.level] as DifficultyLevel | undefined;
-  if (!next) return { label: current.label, progress: 1, isMax: true };
+  if (!next) return { label: current.label, tier: current.level, progress: 1, isMax: true };
   const span = next.minimumScore - current.minimumScore;
   return {
     label: current.label,
+    tier: current.level,
     progress: Math.min(1, Math.max(0, (score - current.minimumScore) / span)),
     isMax: false,
   };
