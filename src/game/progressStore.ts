@@ -8,6 +8,12 @@ import {
 } from "./daily";
 import { DEFAULT_BOARD_ID, isBoardId } from "./boards";
 import {
+  defaultMissionsState,
+  type DailyMissionsState,
+  type MissionProgress,
+} from "./dailyMissions";
+
+import {
   STORAGE_VERSION,
   type AchievementStore,
   type DailyState,
