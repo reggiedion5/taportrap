@@ -169,31 +169,25 @@
   }
 
   /* Native WebView (capacitor://localhost): the page must be scrolled by the
-     VIEWPORT's own scrolling box (the native UIScrollView). Declaring
-     `overflow-x: hidden` / `overflow-y: auto` on <html> turns the root element
-     itself into a CSS scroll container; WKWebView then refuses to pan it with a
-     finger even though window.scrollTo() still works. So the root keeps the
-     default `overflow: visible`, and horizontal clipping happens on <body> and
-     on each `.scroll-screen` instead. */
+     VIEWPORT's own scrolling box (the native UIScrollView). ANY axis-specific
+     overflow on <html> or <body> (including `overflow-x: clip`, which iOS
+     computes as `hidden`) turns that element into a CSS scroll container;
+     WKWebView then refuses to pan it with a finger even though
+     window.scrollTo() still works. Both roots stay `overflow: visible`. */
   html,
   body {
     width: 100%;
     min-height: 100%;
+    overflow: visible;
   }
 
   html {
     -webkit-text-size-adjust: 100%;
-    overscroll-behavior-y: auto;
-    -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
   }
 
   body {
     margin: 0;
-    /* `clip` (not `hidden`) keeps both axes non-scrollable; `hidden` would make
-       body a scroll container that iOS refuses to pan. */
-    overflow-x: clip;
-    overflow-y: visible;
     touch-action: pan-y;
     background-color: var(--arcade-bg-deep);
     color: var(--arcade-text);
@@ -221,14 +215,15 @@
   touch-action: pan-y;
 }
 
-/* Vertically scrollable screen: content grows, page scrolls, no x-overflow. */
+/* Vertically scrollable screen: content grows, page scrolls, no x-overflow.
+   Width is capped instead of clipped so no ancestor becomes a scroll box. */
 @utility scroll-screen {
   min-height: 100dvh;
   height: auto;
-  overflow-x: clip;
-  overflow-y: visible;
+  max-width: 100%;
   touch-action: pan-y;
 }
+
 
 
 

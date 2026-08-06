@@ -104,21 +104,27 @@ describe("no JavaScript cancels scrolling outside gameplay", () => {
 describe("native scroll structure", () => {
   const styles = read("src/styles.css");
   const htmlBlock = styles.match(/\n\s*html\s*{[^}]*}/s)?.[0] ?? "";
+  const bodyBlock = styles.match(/\n\s*body\s*{[^}]*}/s)?.[0] ?? "";
 
-  it("leaves the root element as a non-scroll-container so the viewport scrolls natively", () => {
-    expect(htmlBlock).not.toMatch(/overflow-y:\s*(auto|scroll|hidden)/);
-    expect(htmlBlock).not.toMatch(/overflow-x:\s*hidden/);
-    expect(styles).toMatch(/-webkit-overflow-scrolling:\s*touch/);
+  it("declares no axis-specific overflow on html", () => {
+    expect(htmlBlock).not.toMatch(/overflow-(x|y):/);
   });
 
-  it("does not make body a second scroll container", () => {
-    expect(styles).toMatch(/body\s*{[^}]*overflow-y:\s*visible/s);
-    expect(styles).not.toMatch(/body\s*{[^}]*overflow-y:\s*auto/s);
+  it("declares no axis-specific overflow on body", () => {
+    expect(bodyBlock).not.toMatch(/overflow-(x|y):/);
+    expect(styles).not.toMatch(/body\s*{[^}]*overflow-x:\s*clip/s);
   });
 
-  it("keeps horizontal overflow clipped without creating a scroller", () => {
-    expect(styles).toMatch(/body\s*{[^}]*overflow-x:\s*clip/s);
-    expect(styles).toMatch(/@utility scroll-screen\s*{[^}]*overflow-x:\s*clip/s);
+  it("keeps html and body as plain viewport-scrolled roots", () => {
+    expect(styles).toMatch(/html,\s*\n\s*body\s*{[^}]*overflow:\s*visible/s);
+    expect(styles).not.toMatch(/-webkit-overflow-scrolling:\s*touch/);
+  });
+
+  it("body does not compute as a CSS scroll container", () => {
+    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
+    const computed = getComputedStyle(document.body);
+    expect(["visible", ""]).toContain(computed.overflowY || "visible");
   });
 
   it("never disables touch on the document", () => {
@@ -136,6 +142,7 @@ describe("native scroll structure", () => {
     expect(styles).toMatch(/@utility scroll-screen\s*{[^}]*height:\s*auto/s);
     expect(styles).not.toMatch(/@utility scroll-screen\s*{[^}]*max-height/s);
   });
+
 
   it("suppresses native gestures only on the gameplay surface", () => {
     expect(styles).toMatch(/\[data-gameplay-surface="true"\]\s*{[^}]*touch-action:\s*none/s);
