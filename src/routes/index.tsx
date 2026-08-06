@@ -44,7 +44,7 @@ import { DiagnosticPanel } from "@/components/game/DiagnosticPanel";
 
 const TITLE = "Tap or Trap! — Neon Reaction Arcade Game";
 const DESCRIPTION =
-  "Six ways to play: four competitive modes plus Zen and a Reflex Trainer. Daily challenges, XP levels, unlockable themes and 28 achievements.";
+  "Six ways to play: four competitive modes plus Zen and a Reflex Trainer. Daily challenges, XP levels, 15 unlockable boards and 28 achievements.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
