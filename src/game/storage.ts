@@ -11,6 +11,7 @@ const LEGACY_SETTINGS_KEY = "tap-or-trap-settings-v1";
 export const DEFAULT_SETTINGS: GameSettings = {
   sound: true,
   vibration: true,
+  screenShake: true,
   reducedMotion: false,
   kidsAssist: false,
   skipCountdown: false,
