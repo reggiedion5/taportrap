@@ -710,6 +710,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       // exit animation, then schedule the next target
       const runId = runIdRef.current;
       const level = levelForScore(scoreRef.current);
+      record.tier = Math.max(record.tier, level.level);
       const delay = configRef.current.instantRespawnOnScore
         ? 0
         : spawnDelayFor(level, presetRef.current.spawnScale);
@@ -720,7 +721,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       }, EXIT_MS);
       scheduleSpawn(delay);
     },
-    [later, pushFeedback, scheduleSpawn, setActiveTarget],
+    [later, pushFeedback, reducedMotion, scheduleSpawn, setActiveTarget],
   );
 
   const resolveSuccessRef = useRef(resolveSuccess);
