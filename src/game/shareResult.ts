@@ -66,7 +66,11 @@ export function shareLink(): string | null {
   if (!isValidHttpsUrl(APP_STORE_URL)) return null;
   try {
     const host = new URL(APP_STORE_URL).hostname.toLowerCase();
-    if (host === "localhost" || host.endsWith(".lovable.app") || host.endsWith(".lovableproject.com")) {
+    if (
+      host === "localhost" ||
+      host.endsWith(".lovable.app") ||
+      host.endsWith(".lovableproject.com")
+    ) {
       return null;
     }
   } catch {
@@ -97,7 +101,9 @@ export function formatCompetitiveShareText(data: ShareResultData): string {
     parts.push(`I scored ${score} in ${APP_NAME} ${mode}`);
     if (data.combo) parts.push(`with a ${data.combo} combo`);
     if (data.averageReaction !== null) {
-      parts.push(`${data.combo ? "and" : "with"} a ${Math.round(data.averageReaction)}ms average reaction time`);
+      parts.push(
+        `${data.combo ? "and" : "with"} a ${Math.round(data.averageReaction)}ms average reaction time`,
+      );
     }
   }
 

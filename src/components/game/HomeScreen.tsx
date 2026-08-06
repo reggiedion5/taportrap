@@ -66,7 +66,6 @@ interface HomeScreenProps {
   onOpenCollection: () => void;
 }
 
-
 export function HomeScreen({
   level,
   modeName,
@@ -108,7 +107,6 @@ export function HomeScreen({
   onOpenLeaderboard,
   onOpenCollection,
 }: HomeScreenProps) {
-
   return (
     <div className="no-select relative min-h-[100dvh] overflow-hidden">
       <ArcadeBackdrop />
@@ -128,33 +126,33 @@ export function HomeScreen({
             </ChromeBadge>
           </button>
           <div className="flex items-center gap-2">
-          <ArcButton
-            aria-label={
-              unreadNotifications > 0
-                ? `Open notifications, ${unreadNotifications} unread`
-                : "Open notifications"
-            }
-            onClick={onOpenNotifications}
-            className="relative w-auto"
-            faceClassName="size-11 min-h-11 !px-0"
-            icon={<Bell className="icon-chrome size-5" />}
-          >
-            <span className="sr-only">Notifications</span>
-            {unreadNotifications > 0 && (
-              <span className="ui-title absolute -right-1 -top-1 z-20 min-w-5 rounded-full bg-logo-green px-1.5 py-0.5 text-center text-[10px] text-arcade-bg-deep">
-                {unreadNotifications > 9 ? "9+" : unreadNotifications}
-              </span>
-            )}
-          </ArcButton>
-          <ArcButton
-            aria-label="Open settings"
-            onClick={onOpenSettings}
-            className="w-auto"
-            faceClassName="size-11 min-h-11 !px-0"
-            icon={<Settings2 className="icon-chrome size-5" />}
-          >
-            <span className="sr-only">Settings</span>
-          </ArcButton>
+            <ArcButton
+              aria-label={
+                unreadNotifications > 0
+                  ? `Open notifications, ${unreadNotifications} unread`
+                  : "Open notifications"
+              }
+              onClick={onOpenNotifications}
+              className="relative w-auto"
+              faceClassName="size-11 min-h-11 !px-0"
+              icon={<Bell className="icon-chrome size-5" />}
+            >
+              <span className="sr-only">Notifications</span>
+              {unreadNotifications > 0 && (
+                <span className="ui-title absolute -right-1 -top-1 z-20 min-w-5 rounded-full bg-logo-green px-1.5 py-0.5 text-center text-[10px] text-arcade-bg-deep">
+                  {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                </span>
+              )}
+            </ArcButton>
+            <ArcButton
+              aria-label="Open settings"
+              onClick={onOpenSettings}
+              className="w-auto"
+              faceClassName="size-11 min-h-11 !px-0"
+              icon={<Settings2 className="icon-chrome size-5" />}
+            >
+              <span className="sr-only">Settings</span>
+            </ArcButton>
           </div>
         </header>
 
@@ -214,7 +212,11 @@ export function HomeScreen({
 
         {/* ---- difficulty ---- */}
         {!isTrainingMode && (
-          <DifficultySwitch value={difficulty} bests={difficultyBests} onChange={onDifficultyChange} />
+          <DifficultySwitch
+            value={difficulty}
+            bests={difficultyBests}
+            onChange={onDifficultyChange}
+          />
         )}
 
         {/* ---- play ---- */}
@@ -319,11 +321,7 @@ function DifficultySwitch({
           <span className="ui-title block text-[10px] tracking-[0.24em] text-arcade-muted">
             DIFFICULTY
           </span>
-          <div
-            role="radiogroup"
-            aria-label="Difficulty"
-            className="mt-2 grid grid-cols-3 gap-2"
-          >
+          <div role="radiogroup" aria-label="Difficulty" className="mt-2 grid grid-cols-3 gap-2">
             {DIFFICULTIES.map((id) => {
               const preset = DIFFICULTY_PRESETS[id];
               const isActive = id === value;

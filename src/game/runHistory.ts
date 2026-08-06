@@ -25,7 +25,6 @@ function mistakesFor(result: GameSessionResult): number {
   return result.reason && result.reason !== "quit" ? 1 : 0;
 }
 
-
 export function buildRunEntry(input: RunHistoryInput): RunHistoryEntry {
   const { result } = input;
   const s = result.stats;
@@ -56,10 +55,7 @@ export function buildRunEntry(input: RunHistoryInput): RunHistoryEntry {
 }
 
 /** Newest first, de-duplicated by session id, capped at the storage limit. */
-export function appendRun(
-  history: RunHistoryEntry[],
-  entry: RunHistoryEntry,
-): RunHistoryEntry[] {
+export function appendRun(history: RunHistoryEntry[], entry: RunHistoryEntry): RunHistoryEntry[] {
   if (history.some((h) => h.id === entry.id)) return history;
   return [entry, ...history].slice(0, LIMITS.runHistory);
 }
@@ -113,9 +109,7 @@ function mostFrequent(values: string[]): string | null {
   for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
   let best: string | null = null;
   let bestCount = -1;
-  for (const [key, count] of Array.from(counts.entries()).sort((a, b) =>
-    a[0] < b[0] ? -1 : 1,
-  )) {
+  for (const [key, count] of Array.from(counts.entries()).sort((a, b) => (a[0] < b[0] ? -1 : 1))) {
     if (count > bestCount) {
       best = key;
       bestCount = count;

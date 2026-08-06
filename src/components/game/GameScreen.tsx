@@ -87,7 +87,6 @@ export function GameScreen(props: GameScreenProps) {
 
   const urgent = timeLeft !== null && timeLeft <= 10_000;
 
-
   return (
     <div
       className={`no-select safe-screen relative flex flex-col overflow-hidden ${
@@ -236,7 +235,6 @@ export function GameScreen(props: GameScreenProps) {
               GET READY…
             </span>
           )}
-
         </div>
       </div>
 

@@ -142,8 +142,8 @@ export function BoardCollectionScreen({
       }}
     >
       <p className="ui-body text-[15px] text-arcade-muted">
-        {unlockedIds.length} of {BOARDS.length} boards unlocked. Boards change the environment
-        only — targets, timing and scoring stay identical.
+        {unlockedIds.length} of {BOARDS.length} boards unlocked. Boards change the environment only
+        — targets, timing and scoring stay identical.
       </p>
 
       <div className="mt-4 grid grid-cols-3 gap-2">

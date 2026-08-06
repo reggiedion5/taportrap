@@ -90,7 +90,6 @@ export const EMPTY_RUN_STATS: RunStats = {
   closeCalls: 0,
 };
 
-
 export const TARGET_LABEL: Record<TargetColor, string> = {
   green: "TAP",
   red: "TRAP",

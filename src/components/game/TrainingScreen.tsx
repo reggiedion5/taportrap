@@ -129,7 +129,9 @@ export function TrainingScreen(props: TrainingScreenProps) {
         </div>
 
         {mode === "trainer" && (
-          <p className="ui-body-tight mt-1 px-4 text-[14px] text-arcade-muted">{moduleConfig.rule}</p>
+          <p className="ui-body-tight mt-1 px-4 text-[14px] text-arcade-muted">
+            {moduleConfig.rule}
+          </p>
         )}
 
         <div

@@ -7,7 +7,12 @@ const TONE: Record<TargetColor, { bg: string; text: string; label: string; name:
   green: { bg: "bg-neon-green", text: "text-arcade-bg-deep", label: "TAP", name: "Green target" },
   red: { bg: "bg-neon-red", text: "text-arcade-text", label: "TRAP", name: "Red trap" },
   gold: { bg: "bg-neon-gold", text: "text-arcade-bg-deep", label: "BONUS", name: "Gold bonus" },
-  purple: { bg: "bg-neon-purple", text: "text-arcade-text", label: "×2", name: "Purple multiplier" },
+  purple: {
+    bg: "bg-neon-purple",
+    text: "text-arcade-text",
+    label: "×2",
+    name: "Purple multiplier",
+  },
 };
 
 interface TutorialScreenProps {

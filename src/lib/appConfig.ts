@@ -52,7 +52,6 @@ export const LAUNCH_ASSET_VERIFIED = false;
 /** Mirrors `server.url` in capacitor.config.ts. Must stay empty for production. */
 export const NATIVE_SERVER_URL = "";
 
-
 export const APP_CONFIG = {
   name: APP_NAME,
   tagline: APP_TAGLINE,

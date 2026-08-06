@@ -26,7 +26,6 @@ export function AchievementCard({
   claimed = true,
   onClaim,
 }: AchievementCardProps) {
-
   const ref = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
@@ -177,4 +176,3 @@ export function AchievementScreen({
     </Sheet>
   );
 }
-

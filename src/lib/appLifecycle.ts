@@ -10,10 +10,7 @@
 import { isNativePlatform, isPluginAvailable } from "./nativePlatform";
 
 export type InterruptionSource =
-  | "capacitor-background"
-  | "browser-hidden"
-  | "manual-pause"
-  | "system-interruption";
+  "capacitor-background" | "browser-hidden" | "manual-pause" | "system-interruption";
 
 export interface InterruptionEvent {
   source: InterruptionSource;
@@ -95,7 +92,9 @@ async function bindNative() {
       if (isActive) emitForeground("capacitor-background");
       else emitBackground("capacitor-background");
     });
-    const pauseHandle = await app.addListener("pause", () => emitBackground("capacitor-background"));
+    const pauseHandle = await app.addListener("pause", () =>
+      emitBackground("capacitor-background"),
+    );
     const resumeHandle = await app.addListener("resume", () =>
       emitForeground("capacitor-background"),
     );

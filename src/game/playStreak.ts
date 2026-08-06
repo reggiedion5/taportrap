@@ -37,10 +37,7 @@ export interface StreakOutcome {
 }
 
 /** Registers one completed run on `date`. Idempotent within the same day. */
-export function registerPlayDay(
-  state: PlayStreakState,
-  date = localDateString(),
-): StreakOutcome {
+export function registerPlayDay(state: PlayStreakState, date = localDateString()): StreakOutcome {
   const today = isValidDateString(date) ? date : localDateString();
   const last = isValidDateString(state.lastQualifiedDate) ? state.lastQualifiedDate : null;
 

@@ -93,8 +93,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Tap or Trap!" },
       { property: "og:description", content: "Tap fast. Think faster." },
       { name: "twitter:description", content: "Tap fast. Think faster." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b16cba92-dce9-4393-86e6-4d21fb7ef05c/id-preview-3262913a--b5f0e44c-e102-455f-ab4b-beafda78f33a.lovable.app-1785417118700.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b16cba92-dce9-4393-86e6-4d21fb7ef05c/id-preview-3262913a--b5f0e44c-e102-455f-ab4b-beafda78f33a.lovable.app-1785417118700.png" },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b16cba92-dce9-4393-86e6-4d21fb7ef05c/id-preview-3262913a--b5f0e44c-e102-455f-ab4b-beafda78f33a.lovable.app-1785417118700.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b16cba92-dce9-4393-86e6-4d21fb7ef05c/id-preview-3262913a--b5f0e44c-e102-455f-ab4b-beafda78f33a.lovable.app-1785417118700.png",
+      },
     ],
     links: [
       {

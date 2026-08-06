@@ -202,9 +202,7 @@ export function PlayerProfileScreen({
             NEXT TITLE
           </h3>
           <ChromeCard faceClassName="mt-3 p-4">
-            <p className="ui-body-tight text-[15px] font-bold text-arcade-text">
-              {nextTitle.name}
-            </p>
+            <p className="ui-body-tight text-[15px] font-bold text-arcade-text">{nextTitle.name}</p>
             <p className="ui-body mt-1 text-[14px] text-arcade-muted">
               {nextTitle.description}{" "}
               {(() => {
@@ -217,22 +215,13 @@ export function PlayerProfileScreen({
       )}
 
       <div className="mt-6 grid gap-2.5">
-        <ArcButton
-          onClick={onOpenCollection}
-          icon={<Users className="size-4" aria-hidden />}
-        >
+        <ArcButton onClick={onOpenCollection} icon={<Users className="size-4" aria-hidden />}>
           Collection
         </ArcButton>
-        <ArcButton
-          onClick={onOpenStatistics}
-          icon={<BarChart3 className="size-4" aria-hidden />}
-        >
+        <ArcButton onClick={onOpenStatistics} icon={<BarChart3 className="size-4" aria-hidden />}>
           Statistics
         </ArcButton>
-        <ArcButton
-          onClick={onOpenLeaderboard}
-          icon={<Trophy className="size-4" aria-hidden />}
-        >
+        <ArcButton onClick={onOpenLeaderboard} icon={<Trophy className="size-4" aria-hidden />}>
           Your local records
         </ArcButton>
       </div>

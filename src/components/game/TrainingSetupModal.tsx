@@ -68,7 +68,9 @@ export function TrainingSetupModal({
             aria-checked={kidsAssist}
             onClick={() => onKidsAssistChange(!kidsAssist)}
             className={`mt-5 grid min-h-16 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-2xl border px-4 py-4 text-left ${
-              kidsAssist ? "border-neon-green bg-arcade-surface" : "border-arcade-line bg-arcade-surface/70"
+              kidsAssist
+                ? "border-neon-green bg-arcade-surface"
+                : "border-arcade-line bg-arcade-surface/70"
             }`}
           >
             <span className="min-w-0">
@@ -115,7 +117,9 @@ export function TrainingSetupModal({
                     aria-pressed={selected}
                     onClick={() => onModuleChange(id)}
                     className={`rounded-2xl border px-4 py-3 text-left ${
-                      selected ? "border-neon-green bg-arcade-surface" : "border-arcade-line bg-arcade-surface/70"
+                      selected
+                        ? "border-neon-green bg-arcade-surface"
+                        : "border-arcade-line bg-arcade-surface/70"
                     }`}
                   >
                     <span className="flex items-baseline justify-between gap-3">

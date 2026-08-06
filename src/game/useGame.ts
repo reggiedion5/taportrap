@@ -38,7 +38,13 @@ import type { GameSessionResult } from "./progressionTypes";
 import { onAppBackground, suppressBackgroundFor } from "@/lib/appLifecycle";
 import { isIOS, isNativePlatform } from "@/lib/nativePlatform";
 import { GAME_FEATURES } from "@/config/gameFeatures";
-import { classifyTap, closeCallMessage, isCloseCall, TIMING_LABEL, type TapTiming } from "./tapTiming";
+import {
+  classifyTap,
+  closeCallMessage,
+  isCloseCall,
+  TIMING_LABEL,
+  type TapTiming,
+} from "./tapTiming";
 import { milestoneFor } from "./comboMilestones";
 import { EMPTY_RUN_RECORD, recordRun, type RunRecord } from "./playerStats";
 
@@ -165,8 +171,16 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
 
   const reducedMotion = settings.reducedMotion || systemReducedMotion;
 
-  useEffect(() => {
-  }, [phase, score, lives, runStats.successes, shake, flash, lifeLost, lastResult]);
+  useEffect(() => {}, [
+    phase,
+    score,
+    lives,
+    runStats.successes,
+    shake,
+    flash,
+    lifeLost,
+    lastResult,
+  ]);
 
   // ---------- persistence ----------
   useEffect(() => {
@@ -340,8 +354,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       if (why !== "quit") {
         try {
           onCompleteRef.current(result);
-        } catch (error) {
-        }
+        } catch (error) {}
       } else {
       }
     },
@@ -416,7 +429,6 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
         return;
       }
       const config = configRef.current;
-
 
       comboRef.current = 0;
       runRecordRef.current.mistakes += 1;
@@ -632,7 +644,6 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
           stats.closeCalls += 1;
         }
         setLastTap({ timing, reaction: Math.round(ms), closeCall });
-
       }
       setRunStats({ ...stats });
 
@@ -831,30 +842,37 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0], presetRef.current.spawnScale));
   }, [clearAllTimers, clearDecorTimers, difficulty, scheduleSpawn, setActiveTarget, startClock]);
 
-  const pause = useCallback((source: "manual" | "system" = "manual") => {
-    if (phaseRef.current !== "playing" || endedRef.current) return;
-    setPauseSource(source);
-    const now = performance.now();
-    const t = targetRef.current;
-    remainingTarget.current =
-      t && !t.resolved && expireTimer.current !== null ? Math.max(60, expireAt.current - now) : 0;
-    remainingSpawn.current = spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
-    if (configRef.current.timeLimitMs !== null) {
-      clockRemaining.current = Math.max(0, clockRemaining.current - (now - clockStartedAt.current));
-      setTimeLeft(clockRemaining.current);
-    }
-    clearAllTimers();
-    phaseRef.current = "paused";
-    setPhase("paused");
-    // Stop both audio engines immediately in the same input event. Waiting for
-    // the phase effect leaves an audible window and is unreliable in iOS WebViews.
-    suspendMusic();
-    try {
-      suspendAudio();
-    } catch {
-      /* audio must never block the phase change */
-    }
-  }, [clearAllTimers]);
+  const pause = useCallback(
+    (source: "manual" | "system" = "manual") => {
+      if (phaseRef.current !== "playing" || endedRef.current) return;
+      setPauseSource(source);
+      const now = performance.now();
+      const t = targetRef.current;
+      remainingTarget.current =
+        t && !t.resolved && expireTimer.current !== null ? Math.max(60, expireAt.current - now) : 0;
+      remainingSpawn.current =
+        spawnTimer.current !== null ? Math.max(60, spawnAt.current - now) : 0;
+      if (configRef.current.timeLimitMs !== null) {
+        clockRemaining.current = Math.max(
+          0,
+          clockRemaining.current - (now - clockStartedAt.current),
+        );
+        setTimeLeft(clockRemaining.current);
+      }
+      clearAllTimers();
+      phaseRef.current = "paused";
+      setPhase("paused");
+      // Stop both audio engines immediately in the same input event. Waiting for
+      // the phase effect leaves an audible window and is unreliable in iOS WebViews.
+      suspendMusic();
+      try {
+        suspendAudio();
+      } catch {
+        /* audio must never block the phase change */
+      }
+    },
+    [clearAllTimers],
+  );
 
   const pauseRef = useRef(pause);
   pauseRef.current = pause;
@@ -890,11 +908,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       }, rem);
     } else {
       setActiveTarget(null);
-      scheduleSpawn(
-        remainingSpawn.current > 0
-          ? remainingSpawn.current
-          : nextSpawnDelay(),
-      );
+      scheduleSpawn(remainingSpawn.current > 0 ? remainingSpawn.current : nextSpawnDelay());
     }
     remainingTarget.current = 0;
     remainingSpawn.current = 0;
@@ -958,7 +972,6 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     });
     return off;
   }, []);
-
 
   // lock body scroll while a run is on screen
   useEffect(() => {

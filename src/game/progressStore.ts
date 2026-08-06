@@ -23,11 +23,7 @@ import {
   type PlayerStatistics,
   type PostGameMission,
 } from "./progressionTypes";
-import {
-  defaultPhase3State,
-  parsePhase3,
-  PHASE3_KEY,
-} from "./phase3Store";
+import { defaultPhase3State, parsePhase3, PHASE3_KEY } from "./phase3Store";
 import type { Phase3State } from "./phase3Types";
 
 export const KEYS = {
@@ -41,7 +37,6 @@ export const KEYS = {
   phase3: PHASE3_KEY,
   migrated: "tap-or-trap-migrated-v2",
 } as const;
-
 
 const LEGACY_STATS_KEY = "tap-or-trap-stats-v1";
 const LEGACY_HIGH_SCORE_KEY = "tap-or-trap-high-score-v1";
@@ -196,7 +191,6 @@ export function defaultRecords(): PersonalRecords {
 export function defaultAchievements(): AchievementStore {
   return { version: STORAGE_VERSION, unlocked: {}, claimed: {} };
 }
-
 
 export function defaultDaily(date = localDateString()): DailyState {
   return {
@@ -360,8 +354,6 @@ export function applyDifficultyBest(
   };
 }
 
-
-
 function parseRecords(raw: unknown): PersonalRecords {
   const src = asRecord(raw);
   const high = asRecord(src.highScore);
@@ -412,7 +404,6 @@ function parseAchievements(raw: unknown): AchievementStore {
   }
   return { version: STORAGE_VERSION, unlocked, claimed };
 }
-
 
 function parseDaily(raw: unknown): DailyState {
   const src = asRecord(raw);
@@ -626,7 +617,6 @@ export function resetDailyMissions(): DailyMissionsState {
   writeJson(KEYS.dailyMissions, fresh);
   return fresh;
 }
-
 
 /**
  * Deletes every Tap or Trap! key from this device. Irreversible, offline, and

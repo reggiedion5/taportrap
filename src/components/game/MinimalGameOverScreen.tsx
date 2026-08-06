@@ -15,7 +15,6 @@ export function MinimalGameOverScreen({
   onPlayAgain,
   onHome,
 }: MinimalGameOverScreenProps) {
-
   return (
     <section
       role="alert"

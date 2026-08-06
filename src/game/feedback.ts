@@ -34,10 +34,7 @@ export interface FeedbackInput {
 
 /** Coarse platform label only — no device ids, no identifiers, no analytics. */
 export function feedbackContext(): string[] {
-  return [
-    `App: ${APP_NAME} ${APP_VERSION} (build ${APP_BUILD})`,
-    `Platform: ${getPlatform()}`,
-  ];
+  return [`App: ${APP_NAME} ${APP_VERSION} (build ${APP_BUILD})`, `Platform: ${getPlatform()}`];
 }
 
 export function feedbackAvailable(): boolean {

@@ -47,8 +47,7 @@ export interface ImportSummary {
 }
 
 export type ImportCheck =
-  | { ok: true; document: BackupDocument; summary: ImportSummary }
-  | { ok: false; error: string };
+  { ok: true; document: BackupDocument; summary: ImportSummary } | { ok: false; error: string };
 
 function readRaw(key: string): unknown {
   if (typeof window === "undefined") return undefined;

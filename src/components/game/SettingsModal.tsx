@@ -32,7 +32,6 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-
 function Toggle({
   label,
   description,
@@ -100,7 +99,9 @@ function LinkRow({
       <span className="text-arcade-text/80">{icon}</span>
       <span className="min-w-0">
         <span className="ui-title block text-base">{label}</span>
-        <span className="ui-body-tight mt-0.5 block truncate text-[14px] text-arcade-muted">{hint}</span>
+        <span className="ui-body-tight mt-0.5 block truncate text-[14px] text-arcade-muted">
+          {hint}
+        </span>
       </span>
     </button>
   );
@@ -119,7 +120,6 @@ export function SettingsModal({
   onClose,
 }: SettingsModalProps) {
   const [resetOpen, setResetOpen] = useState(false);
-
 
   if (!open) return null;
 
@@ -193,7 +193,9 @@ export function SettingsModal({
           />
         </div>
 
-        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">SUPPORT</h3>
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">
+          SUPPORT
+        </h3>
         <div className="mt-3 grid gap-3">
           <LinkRow
             label="Send Feedback"
@@ -231,7 +233,9 @@ export function SettingsModal({
           />
         </div>
 
-        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">YOUR DATA</h3>
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">
+          YOUR DATA
+        </h3>
         <p className="ui-body mt-2.5 text-[15px] text-arcade-muted">
           {APP_NAME} works fully offline. Scores, XP, achievements and settings are stored only on
           this device — nothing is uploaded, and no account is required.
@@ -246,10 +250,7 @@ export function SettingsModal({
           <span>Reset Data…</span>
         </button>
 
-
-        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">
-          MORE
-        </h3>
+        <h3 className="sticker-sm mt-7 text-[13px] tracking-[0.16em] text-arcade-text/90">MORE</h3>
         <div className="mt-2.5 grid gap-2">
           <button
             type="button"
@@ -297,7 +298,6 @@ export function SettingsModal({
         }}
         onClose={() => setResetOpen(false)}
       />
-
     </div>
   );
 }

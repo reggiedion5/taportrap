@@ -70,9 +70,7 @@ describe("daily missions", () => {
     const claimed = claimMission(first.state, easy.id);
     expect(claimed.xp).toBe(easy.rewardXp);
     expect(claimMission(claimed.state, easy.id).xp).toBe(0);
-    expect(claimableMissionCount(claimed.state)).toBe(
-      claimableMissionCount(first.state) - 1,
-    );
+    expect(claimableMissionCount(claimed.state)).toBe(claimableMissionCount(first.state) - 1);
   });
 
   it("treats lower-is-better targets correctly", () => {

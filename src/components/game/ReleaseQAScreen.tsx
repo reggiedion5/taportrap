@@ -158,10 +158,11 @@ export function ReleaseQAScreen({
 
   if (!qaScreenVisible()) return null;
 
-  const counts = checks.reduce(
-    (acc, c) => ({ ...acc, [c.status]: acc[c.status] + 1 }),
-    { pass: 0, warn: 0, fail: 0 } as Record<Status, number>,
-  );
+  const counts = checks.reduce((acc, c) => ({ ...acc, [c.status]: acc[c.status] + 1 }), {
+    pass: 0,
+    warn: 0,
+    fail: 0,
+  } as Record<Status, number>);
 
   return (
     <Sheet open={open} title="Release QA (dev only)" onClose={onClose}>

@@ -148,7 +148,6 @@ export interface AchievementStore {
   claimed: Record<string, number>;
 }
 
-
 /* ---------------- daily challenge ---------------- */
 
 export type DailyChallengeType =

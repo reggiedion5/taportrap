@@ -77,11 +77,7 @@ export function OnboardingFlow({ reducedMotion, onFinish, onSkip }: OnboardingFl
           {panel.demo.map((color, i) => {
             const style = DEMO_STYLE[color];
             const size =
-              color === "purple"
-                ? "text-[32px]"
-                : color === "gold"
-                  ? "text-[17px]"
-                  : "text-[22px]";
+              color === "purple" ? "text-[32px]" : color === "gold" ? "text-[17px]" : "text-[22px]";
             return (
               <span
                 key={`${index}-${color}-${i}`}

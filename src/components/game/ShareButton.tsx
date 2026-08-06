@@ -1,10 +1,6 @@
 import { useCallback, useState } from "react";
 import { Share2 } from "lucide-react";
-import {
-  shareOutcomeMessage,
-  shareResult,
-  type ShareResultData,
-} from "@/game/shareResult";
+import { shareOutcomeMessage, shareResult, type ShareResultData } from "@/game/shareResult";
 
 interface ShareButtonProps {
   data: ShareResultData;

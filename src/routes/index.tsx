@@ -406,7 +406,6 @@ function TapOrTrap() {
 
   const showHome = game.phase === "start" && trainingPhase === "idle" && !countdown;
 
-
   return shell(
     <main className="min-h-[100dvh] bg-arcade-bg-deep">
       <h1 className="sr-only">Tap or Trap! — reaction arcade game</h1>
@@ -550,7 +549,7 @@ function TapOrTrap() {
             levelXpForNext={progress.level.xpForNext}
             dailyObjective={progress.challenge.objective}
             playerLevel={progress.level.level}
-          playerTitle={progress.equippedTitle.name}
+            playerTitle={progress.equippedTitle.name}
             reducedMotion={game.reducedMotion}
             onPlayAgain={launchCompetitive}
             onChangeMode={() => {

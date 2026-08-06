@@ -69,18 +69,19 @@ export function StatisticsScreen({
   const combos = comboTrend(history);
   const week = compareLastSevenDays(aggregates);
   const byDifficulty = gamesByDifficulty(history);
-  const consistency = accuracies.length > 1
-    ? Math.round(
-        100 -
-          Math.min(
-            100,
-            Math.sqrt(
-              accuracies.reduce((sum, v) => sum + (v - average(accuracies)) ** 2, 0) /
-                accuracies.length,
+  const consistency =
+    accuracies.length > 1
+      ? Math.round(
+          100 -
+            Math.min(
+              100,
+              Math.sqrt(
+                accuracies.reduce((sum, v) => sum + (v - average(accuracies)) ** 2, 0) /
+                  accuracies.length,
+              ),
             ),
-          ),
-      )
-    : null;
+        )
+      : null;
 
   return (
     <Sheet open={open} title="Statistics" onClose={onClose}>
@@ -96,13 +97,7 @@ export function StatisticsScreen({
           <>
             <div className="mt-3 grid gap-4">
               <Sparkline label="Score (last 20 runs)" values={scores} tone="green" />
-              <Sparkline
-                label="Average reaction"
-                values={reactions}
-                unit="ms"
-                tone="gold"
-                invert
-              />
+              <Sparkline label="Average reaction" values={reactions} unit="ms" tone="gold" invert />
               <Sparkline label="Accuracy" values={accuracies} unit="%" tone="purple" />
               <Sparkline label="Longest combo" values={combos} tone="green" />
             </div>

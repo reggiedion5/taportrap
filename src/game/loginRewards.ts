@@ -34,10 +34,7 @@ export function safeCycleDay(value: number): number {
   return day;
 }
 
-export function loginRewardAvailable(
-  state: LoginRewardState,
-  date = localDateString(),
-): boolean {
+export function loginRewardAvailable(state: LoginRewardState, date = localDateString()): boolean {
   const today = isValidDateString(date) ? date : localDateString();
   return state.lastClaimDate !== today;
 }
