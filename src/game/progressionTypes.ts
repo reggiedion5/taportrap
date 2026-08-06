@@ -1,3 +1,4 @@
+import type { Difficulty } from "./difficulty";
 import type { GameMode } from "./modes";
 import type { GameOverReason, RunStats } from "./types";
 
@@ -13,6 +14,7 @@ export interface PlayerProfile {
   lifetimeXp: number;
   selectedTheme: string;
   selectedMode: GameMode;
+  selectedDifficulty: Difficulty;
   onboardingCompleted: boolean;
   seenModeIntros: GameMode[];
   createdAt: number;

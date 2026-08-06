@@ -18,6 +18,8 @@ export interface GameModeConfig {
   timeLimitMs: number | null;
   /** number of mistakes allowed before the run ends */
   lives: number;
+  /** spawn the next target the instant one is tapped and scored */
+  instantRespawnOnScore?: boolean;
   /** ms removed from the clock per mistake (timed modes only) */
   penalties: { missed: number; trap: number; purple: number; extra: number } | null;
   overTitle: string;
@@ -51,6 +53,7 @@ export const MODE_CONFIG: Record<GameMode, GameModeConfig> = {
     description: "Mistakes burn clock instead of ending the run. Play until time runs out.",
     rules: [
       "30 second clock",
+      "Next target appears instantly",
       "Missed target: −2 seconds",
       "Tapped trap: −5 seconds",
       "Unfinished purple: −3 seconds",
@@ -58,6 +61,7 @@ export const MODE_CONFIG: Record<GameMode, GameModeConfig> = {
     colors: ["green", "red", "gold", "purple"],
     durationScale: 1,
     timeLimitMs: 30_000,
+    instantRespawnOnScore: true,
     lives: Number.POSITIVE_INFINITY,
     penalties: { missed: 2000, trap: 5000, purple: 3000, extra: 2000 },
     overTitle: "Time's Up",

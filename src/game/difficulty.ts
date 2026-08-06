@@ -79,9 +79,65 @@ export function levelForScore(score: number): DifficultyLevel {
   return current;
 }
 
-export function spawnDelayFor(level: DifficultyLevel): number {
+export function spawnDelayFor(level: DifficultyLevel, spawnScale = 1): number {
   const span = level.maximumSpawnDelay - level.minimumSpawnDelay;
-  return level.minimumSpawnDelay + Math.random() * span;
+  return (level.minimumSpawnDelay + Math.random() * span) * spawnScale;
+}
+
+/** Player-chosen difficulty. Scales pacing on top of the score-based ramp. */
+export type Difficulty = "beginner" | "standard" | "expert";
+
+export const DIFFICULTIES: Difficulty[] = ["beginner", "standard", "expert"];
+
+export interface DifficultyPreset {
+  id: Difficulty;
+  label: string;
+  short: string;
+  blurb: string;
+  /** multiplies how long a target stays on screen */
+  durationScale: number;
+  /** multiplies the gap between targets */
+  spawnScale: number;
+  /** multiplies the XP earned in a run */
+  xpScale: number;
+}
+
+export const DIFFICULTY_PRESETS: Record<Difficulty, DifficultyPreset> = {
+  beginner: {
+    id: "beginner",
+    label: "Beginner",
+    short: "EASY",
+    blurb: "Targets linger and arrive a little slower.",
+    durationScale: 1.25,
+    spawnScale: 1.25,
+    xpScale: 0.7,
+  },
+  standard: {
+    id: "standard",
+    label: "Standard",
+    short: "NORMAL",
+    blurb: "The classic Tap or Trap! pace.",
+    durationScale: 1,
+    spawnScale: 1,
+    xpScale: 1,
+  },
+  expert: {
+    id: "expert",
+    label: "Expert",
+    short: "HARD",
+    blurb: "Faster targets with barely any breathing room.",
+    durationScale: 0.8,
+    spawnScale: 0.7,
+    xpScale: 1.3,
+  },
+};
+
+export function isDifficulty(value: unknown): value is Difficulty {
+  return typeof value === "string" && (DIFFICULTIES as string[]).includes(value);
+}
+
+export function presetFor(difficulty: Difficulty | undefined): DifficultyPreset {
+  return DIFFICULTY_PRESETS[difficulty ?? "standard"] ?? DIFFICULTY_PRESETS.standard;
 }
 
 export function difficultyProgress(score: number) {
