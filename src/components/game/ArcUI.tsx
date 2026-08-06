@@ -14,6 +14,11 @@ interface ArcButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
   /** taller hero-sized button */
   size?: "md" | "lg";
+  /**
+   * Square icon button whose children are a screen-reader-only label. Drops the
+   * icon/label gap so the glyph sits dead-centre in the face.
+   */
+  iconOnly?: boolean;
   faceClassName?: string;
 }
 
@@ -25,6 +30,7 @@ export function ArcButton({
   tone = "steel",
   icon,
   size = "md",
+  iconOnly = false,
   className,
   faceClassName,
   children,
@@ -37,16 +43,18 @@ export function ArcButton({
           "btn-arc-face ui-title",
           TONE_FACE[tone],
           size === "lg" ? "min-h-16 px-5 text-2xl" : "min-h-12 px-4 text-base",
+          iconOnly && "gap-0",
           faceClassName,
         )}
       >
         <span className="btn-gloss" aria-hidden />
         {icon && <span className="relative z-10 flex shrink-0 items-center">{icon}</span>}
-        <span className="relative z-10 truncate">{children}</span>
+        {iconOnly ? children : <span className="relative z-10 truncate">{children}</span>}
       </span>
     </button>
   );
 }
+
 
 /** Metal card: chrome bezel + inner-glow face. */
 export function ChromeCard({
