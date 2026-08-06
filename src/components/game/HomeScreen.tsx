@@ -113,7 +113,7 @@ export function HomeScreen({
 }: HomeScreenProps) {
   // Home must always be finger-scrollable: defensively drop any scroll lock a
   // previous screen may have left behind, and (dev only) warn about blocking
-  // global touchmove listeners.
+  // global touch listeners that cancel scrolling.
   useEffect(() => {
     releaseBodyScrollLock();
     auditScreenListeners("home");
