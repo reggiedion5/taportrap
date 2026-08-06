@@ -364,7 +364,13 @@ export function useProgress() {
 
       /* ---- personal records ---- */
       const newRecords: PersonalRecordKey[] = [];
-      const runDifficulty: Difficulty = prev.profile.selectedDifficulty ?? "standard";
+      // Difficulty is captured at run start and carried on the result, so a
+      // difficulty switched after the run cannot claim the record.
+      const runDifficulty: Difficulty = isDifficulty(result.difficulty)
+        ? result.difficulty
+        : isDifficulty(prev.profile.selectedDifficulty)
+          ? prev.profile.selectedDifficulty
+          : "standard";
       const records = {
         ...prev.records,
         highScore: { ...prev.records.highScore },
