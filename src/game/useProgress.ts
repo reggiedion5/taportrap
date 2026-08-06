@@ -76,7 +76,14 @@ export interface SessionSummary {
   dailyProgress: { value: number; target: number; completed: boolean } | null;
   missionCompleted: PostGameMission | null;
   mission: PostGameMission | null;
+  /** daily missions that reached their target during this run */
+  dailyMissionsCompleted: DailyMission[];
+  /** daily missions whose progress moved during this run */
+  dailyMissionsAdvanced: { mission: DailyMission; value: number }[];
+  /** XP waiting to be claimed after this run (missions + achievements) */
+  claimableXp: number;
 }
+
 
 const EMPTY_SNAPSHOT: ProgressSnapshot = {
   profile: defaultProfile(),
