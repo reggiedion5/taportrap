@@ -25,6 +25,7 @@ interface GameScreenProps {
   combo: number;
   multiplier: number;
   scorePulse: number;
+  difficultyLabel: string;
   comboFlash: number | null;
   levelUp: DifficultyLevel | null;
   target: ActiveTarget | null;
@@ -115,6 +116,7 @@ export function GameScreen(props: GameScreenProps) {
           multiplier={props.multiplier}
           combo={props.combo}
           scorePulse={props.scorePulse}
+          difficultyLabel={props.difficultyLabel}
           onPause={props.onPause}
         />
 

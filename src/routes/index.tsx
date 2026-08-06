@@ -385,6 +385,7 @@ function TapOrTrap() {
           combo={game.combo}
           multiplier={game.multiplier}
           scorePulse={game.scorePulse}
+          difficultyLabel={game.difficulty.label}
           comboFlash={game.comboFlash}
           levelUp={game.levelUp}
           target={game.target}
@@ -412,6 +413,7 @@ function TapOrTrap() {
         (summary ? (
           <GameOverScreen
             summary={summary}
+            difficultyLabel={game.difficulty.label}
             levelCurrentXp={progress.level.currentXp}
             levelXpForNext={progress.level.xpForNext}
             dailyObjective={progress.challenge.objective}

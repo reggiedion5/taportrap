@@ -13,6 +13,7 @@ import { ArcButton, ChromeCard } from "./ArcUI";
 
 interface GameOverScreenProps {
   summary: SessionSummary;
+  difficultyLabel: string;
   levelCurrentXp: number;
   levelXpForNext: number;
   dailyObjective: string;
@@ -31,6 +32,7 @@ const STAGE_DELAYS = [420, 480, 520];
  */
 export function GameOverScreen({
   summary,
+  difficultyLabel,
   levelCurrentXp,
   levelXpForNext,
   dailyObjective,
