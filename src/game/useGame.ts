@@ -974,15 +974,10 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     return off;
   }, []);
 
-  // Lock body scroll only while a run is on screen. Always clear the inline
-  // style on release/unmount — restoring a captured "previous" value could
-  // latch `hidden` forever and permanently kill scrolling in the native WebView.
+  // Lock body scroll only while a run is on screen; always release afterwards.
   useEffect(() => {
-    const active = phase === "playing" || phase === "paused";
-    document.body.style.overflow = active ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    setBodyScrollLock(phase === "playing" || phase === "paused");
+    return releaseBodyScrollLock;
   }, [phase]);
 
   useEffect(
