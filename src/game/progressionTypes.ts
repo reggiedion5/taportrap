@@ -75,6 +75,8 @@ export interface PlayerStatistics {
 export interface PersonalRecords {
   version: StorageVersion;
   highScore: Record<GameMode, number>;
+  /** best score per mode, split by chosen difficulty tier */
+  highScoreByDifficulty: Record<GameMode, Record<Difficulty, number>>;
   bestCombo: number;
   fastestReaction: number | null;
   bestAvgReaction: number | null;

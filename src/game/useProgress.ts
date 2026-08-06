@@ -91,6 +91,7 @@ const EMPTY_SNAPSHOT: ProgressSnapshot = {
   records: {
     version: 2,
     highScore: { classic: 0, blitz: 0, survival: 0, focus: 0 },
+    highScoreByDifficulty: emptyDifficultyBests(),
     bestCombo: 0,
     fastestReaction: null,
     bestAvgReaction: null,
@@ -362,10 +363,21 @@ export function useProgress() {
 
       /* ---- personal records ---- */
       const newRecords: PersonalRecordKey[] = [];
-      const records = { ...prev.records, highScore: { ...prev.records.highScore } };
+      const runDifficulty: Difficulty = prev.profile.selectedDifficulty ?? "standard";
+      const records = {
+        ...prev.records,
+        highScore: { ...prev.records.highScore },
+        highScoreByDifficulty: {
+          ...prev.records.highScoreByDifficulty,
+          [mode]: { ...prev.records.highScoreByDifficulty[mode] },
+        },
+      };
       if (result.score > records.highScore[mode]) {
         records.highScore[mode] = result.score;
         newRecords.push("score");
+      }
+      if (result.score > records.highScoreByDifficulty[mode][runDifficulty]) {
+        records.highScoreByDifficulty[mode][runDifficulty] = result.score;
       }
       if (result.bestCombo > records.bestCombo) {
         records.bestCombo = result.bestCombo;
@@ -538,7 +550,7 @@ export function useProgress() {
         newRecords,
         unlockedAchievements: unlocked,
         unlockedThemes,
-        modeHighScore: records.highScore[mode],
+        modeHighScore: records.highScoreByDifficulty[mode][runDifficulty],
         dailyProgress,
         missionCompleted,
         mission,

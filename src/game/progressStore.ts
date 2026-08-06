@@ -150,10 +150,19 @@ export function defaultStatistics(): PlayerStatistics {
   };
 }
 
+export function emptyDifficultyBests(): PersonalRecords["highScoreByDifficulty"] {
+  const out = {} as PersonalRecords["highScoreByDifficulty"];
+  for (const mode of GAME_MODES) {
+    out[mode] = { beginner: 0, standard: 0, expert: 0 };
+  }
+  return out;
+}
+
 export function defaultRecords(): PersonalRecords {
   return {
     version: STORAGE_VERSION,
     highScore: { classic: 0, blitz: 0, survival: 0, focus: 0 },
+    highScoreByDifficulty: emptyDifficultyBests(),
     bestCombo: 0,
     fastestReaction: null,
     bestAvgReaction: null,
@@ -273,8 +282,13 @@ function parseRecords(raw: unknown): PersonalRecords {
   const src = asRecord(raw);
   const high = asRecord(src.highScore);
   const base = defaultRecords();
+  const byDifficulty = asRecord(src.highScoreByDifficulty);
   for (const mode of GAME_MODES) {
     base.highScore[mode] = int(high[mode]);
+    const modeBests = asRecord(byDifficulty[mode]);
+    for (const difficulty of DIFFICULTIES) {
+      base.highScoreByDifficulty[mode][difficulty] = int(modeBests[difficulty]);
+    }
   }
   return {
     ...base,
