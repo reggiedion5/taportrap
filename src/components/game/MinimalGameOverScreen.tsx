@@ -1,5 +1,3 @@
-import { NATIVE_GAME_OVER_DEBUG_MARKER } from "./GameOverDebugPanel";
-
 interface MinimalGameOverScreenProps {
   score: number;
   bestScore: number;
@@ -17,8 +15,6 @@ export function MinimalGameOverScreen({
   onPlayAgain,
   onHome,
 }: MinimalGameOverScreenProps) {
-  console.info(NATIVE_GAME_OVER_DEBUG_MARKER);
-  console.info("[loss-debug] MinimalGameOverScreen render", { score, bestScore });
 
   return (
     <section
