@@ -64,7 +64,7 @@ export function AchievementToastQueue({
         role="status"
         className={`chrome-card pointer-events-auto w-full max-w-sm touch-pan-y border-2 ${
           TIER_STYLE[current.tier]
-        } ${reducedMotion ? "animate-fade-in" : "animate-pop-word"}`}
+        } ${reducedMotion ? "animate-toast-fade" : "animate-pop-word"}`}
         style={{
           transform: dragX ? `translateX(${dragX}px)` : undefined,
           opacity: dragX ? Math.max(0, 1 - Math.abs(dragX) / 220) : undefined,
