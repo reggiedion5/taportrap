@@ -4,6 +4,7 @@ import { useAppStartup } from "@/hooks/useAppStartup";
 import { useNativeStatusBar } from "@/hooks/useNativeStatusBar";
 import { resetAllLocalData } from "@/game/progressStore";
 import { startTypographyGuard } from "@/lib/typographyGuard";
+import { installListenerAudit } from "@/lib/listenerAudit";
 
 interface AppBootstrapProps {
   /** True once local progress has been read from storage. */
@@ -49,6 +50,10 @@ export function AppBootstrap({
 
   // Dev-only: warn if long-form copy renders in the arcade display font.
   useEffect(() => startTypographyGuard(), []);
+
+  // Dev-only: track global touch listeners so a blocking touchmove handler can
+  // never silently kill native scrolling again.
+  useEffect(() => installListenerAudit(), []);
 
   const startup = useAppStartup(dataHydrated, boardApplied);
 

@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { releaseBodyScrollLock } from "@/lib/bodyScrollLock";
+import { auditScreenListeners } from "@/lib/listenerAudit";
 import {
   BarChart3,
   Bell,
@@ -107,9 +110,18 @@ export function HomeScreen({
   onOpenLeaderboard,
   onOpenCollection,
 }: HomeScreenProps) {
+  // Home must always be finger-scrollable: defensively drop any scroll lock a
+  // previous screen may have left behind, and (dev only) warn about blocking
+  // global touch listeners that cancel scrolling.
+  useEffect(() => {
+    releaseBodyScrollLock();
+    auditScreenListeners("home");
+  }, []);
+
   return (
-    <div className="no-select scroll-screen relative">
+    <div className="no-select scroll-screen relative" data-screen="home">
       <ArcadeBackdrop />
+
       <div className="safe-area animate-screen-in relative z-[1] mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
         {/* ---- top ---- */}
         <header className="flex items-center justify-between gap-3">
