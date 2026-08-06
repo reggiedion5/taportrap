@@ -10,6 +10,7 @@ import { boardById } from "@/game/boards";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { XpProgressBar } from "./XpProgressBar";
 import { ShareButton } from "./ShareButton";
+import { badgeById, titleById } from "@/game/cosmetics";
 import { ArcButton, ChromeCard } from "./ArcUI";
 
 interface GameOverScreenProps {
@@ -70,7 +71,13 @@ export function GameOverScreen({
     playerLevel,
   };
 
+  const newTitles = summary.unlockedTitleIds.map((id) => titleById(id).name);
+  const newBadges = summary.unlockedBadgeIds.map((id) => badgeById(id).name);
+
   const highlights = [
+    summary.weeklyCompleted.length > 0 ? "Weekly done" : null,
+    newTitles.length > 0 ? "New title" : null,
+    newBadges.length > 0 ? "New badge" : null,
     summary.unlockedAchievements.length > 0
       ? `${summary.unlockedAchievements.length} achievement${summary.unlockedAchievements.length > 1 ? "s" : ""}`
       : null,
@@ -182,6 +189,27 @@ export function GameOverScreen({
             {summary.claimableXp > 0 && (
               <p className="ui-body mt-2 text-center text-[14px] text-arcade-muted">
                 +{summary.claimableXp} XP waiting to be claimed
+              </p>
+            )}
+            {summary.playStreak > 1 && (
+              <p className="ui-title mt-3 text-center text-[11px] tracking-[0.16em] text-neon-gold">
+                {summary.playStreak}-DAY PLAY STREAK
+                {summary.streakXpAwarded > 0 ? ` · +${summary.streakXpAwarded} XP` : ""}
+              </p>
+            )}
+            {summary.streakMilestones.length > 0 && (
+              <p className="ui-body mt-1 text-center text-[14px] text-arcade-muted">
+                Streak milestone reached: {summary.streakMilestones.join(", ")} days
+              </p>
+            )}
+            {(newTitles.length > 0 || newBadges.length > 0) && (
+              <p className="ui-body mt-2 text-center text-[14px] text-arcade-muted">
+                Unlocked {[...newTitles, ...newBadges].join(", ")}
+              </p>
+            )}
+            {summary.weeklyCompleted.length > 0 && (
+              <p className="ui-title mt-2 text-center text-[11px] tracking-[0.16em] text-logo-green glow-green">
+                WEEKLY CHALLENGE COMPLETE
               </p>
             )}
             {highlights.length > 0 && (
