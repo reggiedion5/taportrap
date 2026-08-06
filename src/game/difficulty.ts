@@ -16,7 +16,7 @@ export interface DifficultyLevel {
 export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
   {
     level: 1,
-    label: "Warm-up",
+    label: "Warm-Up",
     minimumScore: 0,
     maximumScore: 9,
     targetDuration: 1400,
@@ -38,7 +38,7 @@ export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
   },
   {
     level: 3,
-    label: "Sharp",
+    label: "Fast",
     minimumScore: 20,
     maximumScore: 34,
     targetDuration: 950,
@@ -49,7 +49,7 @@ export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
   },
   {
     level: 4,
-    label: "Blazing",
+    label: "Blitz",
     minimumScore: 35,
     maximumScore: 49,
     targetDuration: 800,
@@ -60,7 +60,7 @@ export const DIFFICULTY_LEVELS: DifficultyLevel[] = [
   },
   {
     level: 5,
-    label: "Insane",
+    label: "Chaos",
     minimumScore: 50,
     maximumScore: Number.POSITIVE_INFINITY,
     targetDuration: 650,
