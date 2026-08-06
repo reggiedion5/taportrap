@@ -279,7 +279,7 @@ function TapOrTrap() {
   const shell = (content: React.ReactNode) => (
     <AppBootstrap
       dataHydrated={progress.hydrated && training.ready}
-      themeId={progress.activeBoard.id}
+      boardId={progress.activeBoard.id}
       onReturnToMenu={goToMenu}
     >
       <BoardProvider

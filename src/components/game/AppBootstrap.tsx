@@ -8,8 +8,8 @@ import { startTypographyGuard } from "@/lib/typographyGuard";
 interface AppBootstrapProps {
   /** True once local progress has been read from storage. */
   dataHydrated: boolean;
-  /** Theme id currently applied to the document. */
-  themeId: string;
+  /** Board id currently applied to the document. */
+  boardId: string;
   /** Sends the player back to the home screen after an error. */
   onReturnToMenu: () => void;
   children: React.ReactNode;
@@ -28,27 +28,27 @@ function BootSplash() {
 }
 
 /**
- * Owns the startup sequence: storage check, theme application, splash hand-off
+ * Owns the startup sequence: storage check, board application, splash hand-off
  * and the top-level error boundary. Nothing gameplay-related happens here.
  */
 export function AppBootstrap({
   dataHydrated,
-  themeId,
+  boardId,
   onReturnToMenu,
   children,
 }: AppBootstrapProps) {
-  const [themeApplied, setThemeApplied] = useState(false);
-  useNativeStatusBar(themeId);
+  const [boardApplied, setBoardApplied] = useState(false);
+  useNativeStatusBar(boardId);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    if (document.documentElement.dataset.theme === themeId) setThemeApplied(true);
-  }, [themeId, dataHydrated]);
+    if (document.documentElement.dataset.board === boardId) setBoardApplied(true);
+  }, [boardId, dataHydrated]);
 
   // Dev-only: warn if long-form copy renders in the arcade display font.
   useEffect(() => startTypographyGuard(), []);
 
-  const startup = useAppStartup(dataHydrated, themeApplied);
+  const startup = useAppStartup(dataHydrated, boardApplied);
 
   const handleReset = useCallback(() => {
     resetAllLocalData();
