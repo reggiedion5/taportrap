@@ -19,7 +19,7 @@ import { playSound } from "@/game/audio";
 import { formatCount } from "@/game/format";
 import { HomeScreen } from "@/components/game/HomeScreen";
 import { GameScreen } from "@/components/game/GameScreen";
-import { GameOverDebugPanel } from "@/components/game/GameOverDebugPanel";
+import { MinimalGameOverScreen } from "@/components/game/MinimalGameOverScreen";
 import { SettingsModal } from "@/components/game/SettingsModal";
 import { OnboardingFlow } from "@/components/game/OnboardingFlow";
 import { ModeInfoModal, ModeSelector } from "@/components/game/ModeSelector";
@@ -402,20 +402,14 @@ function TapOrTrap() {
       )}
 
       {game.phase === "over" && (
-        <GameOverDebugPanel
-          phase={game.phase}
+        <MinimalGameOverScreen
           score={game.lastResult?.score ?? game.score}
           bestScore={progress.records.highScore[progress.mode]}
-          lives={game.lastResult?.livesRemaining ?? game.lives}
-          currentRound={game.lastResult?.stats.successes ?? game.runStats.successes}
-          summaryExists={summary !== null}
-          shake={game.shake}
-          flash={game.flash}
-          lifeLost={game.lifeLost}
           onPlayAgain={launchCompetitive}
           onHome={goToMenu}
         />
       )}
+
 
       <ModeSelector
         open={overlay === "modes"}
