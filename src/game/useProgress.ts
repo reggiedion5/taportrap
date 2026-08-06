@@ -13,6 +13,7 @@ import {
 import {
   KEYS,
   defaultProfile,
+  emptyDifficultyBests,
   loadProgress,
   resetAllLocalData,
   resetStatistics,
