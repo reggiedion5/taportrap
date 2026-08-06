@@ -822,6 +822,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     historyRef.current = [];
     reactionsRef.current = [];
     runStatsRef.current = { ...EMPTY_RUN_STATS };
+    runRecordRef.current = { ...EMPTY_RUN_RECORD };
     lastPositionRef.current = null;
     livesRef.current = config.lives;
     lastBeepSecond.current = -1;
