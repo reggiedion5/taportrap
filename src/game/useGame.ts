@@ -895,9 +895,15 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
 
   const resume = useCallback(() => {
     if (phaseRef.current !== "paused" || endedRef.current) return;
+    // Focus churn around the resume tap must not immediately re-pause the run.
+    suppressBackgroundFor(700);
     phaseRef.current = "playing";
     setPhase("playing");
-    resumeAudio();
+    try {
+      resumeAudio();
+    } catch {
+      /* audio must never block the phase change */
+    }
     if (configRef.current.timeLimitMs !== null) startClock();
     const t = targetRef.current;
     if (t && !t.resolved && remainingTarget.current > 0) {
