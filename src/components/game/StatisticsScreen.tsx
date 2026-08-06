@@ -41,6 +41,7 @@ interface StatisticsScreenProps {
   level: PlayerLevel;
   lifetimeXp: number;
   onReset: () => void;
+  onClearHistory: () => void;
   onClose: () => void;
 }
 
@@ -54,8 +55,10 @@ export function StatisticsScreen({
   level,
   lifetimeXp,
   onReset,
+  onClearHistory,
   onClose,
 }: StatisticsScreenProps) {
+  const [clearing, setClearing] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
   const highestOverall = Math.max(...GAME_MODES.map((m) => records.highScore[m]), 0);
@@ -214,8 +217,32 @@ export function StatisticsScreen({
 
       <button
         type="button"
+        onClick={() => setClearing(true)}
+        className="arcade-btn ui-title mt-8 min-h-12 w-full border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
+      >
+        Clear Run History
+      </button>
+
+      <ConfirmationModal
+        open={clearing}
+        title="Clear Run History?"
+        body="This clears local trend data only."
+        bullets={[
+          "Recent runs, trend charts and local records",
+          "Streaks, titles, badges and lifetime stats are kept",
+        ]}
+        confirmLabel="Clear History"
+        onConfirm={() => {
+          onClearHistory();
+          setClearing(false);
+        }}
+        onCancel={() => setClearing(false)}
+      />
+
+      <button
+        type="button"
         onClick={() => setConfirming(true)}
-        className="arcade-btn ui-title mt-8 min-h-12 w-full border border-neon-red bg-arcade-surface py-4 text-base text-neon-red"
+        className="arcade-btn ui-title mt-3 min-h-12 w-full border border-neon-red bg-arcade-surface py-4 text-base text-neon-red"
       >
         Reset Statistics
       </button>

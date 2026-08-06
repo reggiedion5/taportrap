@@ -566,6 +566,7 @@ function TapOrTrap() {
         statistics={progress.statistics}
         history={progress.runHistory}
         aggregates={progress.phase3.dailyAggregates}
+        onClearHistory={progress.clearHistory}
         records={progress.records}
         daily={progress.daily}
         level={progress.level}
