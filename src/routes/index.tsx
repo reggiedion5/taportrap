@@ -564,7 +564,7 @@ function TapOrTrap() {
         open={overlay === "statistics"}
         statistics={progress.statistics}
         history={progress.runHistory}
-        aggregates={progress.phase3.aggregates}
+        aggregates={progress.phase3.dailyAggregates}
         records={progress.records}
         daily={progress.daily}
         level={progress.level}
