@@ -165,7 +165,7 @@ describe("player statistics", () => {
 
 describe("missing summaries and Play Again", () => {
   it("falls back to the run score when no summary exists", () => {
-    const summary: { score: number } | null = null;
+    const summary = null as { score: number } | null;
     const lastResultScore = 31;
     expect(summary?.score ?? lastResultScore).toBe(31);
   });

@@ -9,6 +9,7 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "vitest run",
     "format": "prettier --write .",
     "build:native": "node scripts/build-native.mjs",
     "verify:native": "node scripts/verify-native.mjs",
