@@ -1,6 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { IS_DEV } from "@/lib/appConfig";
 import { hideSplashScreen } from "@/lib/nativeSplash";
+import { releaseBodyScrollLock } from "@/lib/bodyScrollLock";
+
 
 interface Props {
   children: ReactNode;
