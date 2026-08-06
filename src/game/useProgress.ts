@@ -186,6 +186,9 @@ export function useProgress() {
       writeJson(KEYS.profile, loaded.profile);
     }
     writeJson(KEYS.daily, loaded.daily);
+    loaded.missions = rolloverMissions(loaded.missions, today);
+    writeJson(KEYS.dailyMissions, loaded.missions);
+
     setSnapshot(loaded);
     setHydrated(true);
   }, []);
@@ -345,8 +348,70 @@ export function useProgress() {
 
   const clearDailyProgress = useCallback(() => {
     const fresh = resetDailyProgress();
-    setSnapshot((prev) => ({ ...prev, daily: fresh }));
+    const freshMissions = resetDailyMissions();
+    setSnapshot((prev) => ({ ...prev, daily: fresh, missions: freshMissions }));
   }, []);
+
+  /* ---------------- reward claims ---------------- */
+
+  /** Pays a completed daily mission exactly once. */
+  const claimDailyMission = useCallback((missionId: string): number => {
+    const prev = snapshotRef.current;
+    const { state, xp } = claimMissionState(prev.missions, missionId);
+    if (xp <= 0) return 0;
+    const applied = applyXp(prev.profile, xp);
+    const profile: PlayerProfile = {
+      ...prev.profile,
+      level: applied.level,
+      currentXp: applied.currentXp,
+      lifetimeXp: applied.lifetimeXp,
+    };
+    writeJson(KEYS.dailyMissions, state);
+    writeJson(KEYS.profile, profile);
+    const next = { ...prev, missions: state, profile };
+    snapshotRef.current = next;
+    setSnapshot(next);
+    return xp;
+  }, []);
+
+  /** Pays an unlocked achievement's reward exactly once. */
+  const claimAchievement = useCallback((achievementId: string): number => {
+    const prev = snapshotRef.current;
+    const def = ACHIEVEMENTS.find((a) => a.id === achievementId);
+    if (!def) return 0;
+    if (prev.achievements.unlocked[def.id] === undefined) return 0;
+    if (prev.achievements.claimed[def.id] !== undefined) return 0;
+    const achievements = {
+      ...prev.achievements,
+      claimed: { ...prev.achievements.claimed, [def.id]: Date.now() },
+    };
+    const applied = applyXp(prev.profile, def.rewardXp);
+    const profile: PlayerProfile = {
+      ...prev.profile,
+      level: applied.level,
+      currentXp: applied.currentXp,
+      lifetimeXp: applied.lifetimeXp,
+    };
+    writeJson(KEYS.achievements, achievements);
+    writeJson(KEYS.profile, profile);
+    const next = { ...prev, achievements, profile };
+    snapshotRef.current = next;
+    setSnapshot(next);
+    return def.rewardXp;
+  }, []);
+
+  /** Claims every pending mission and achievement reward in one pass. */
+  const claimAllRewards = useCallback((): number => {
+    let total = 0;
+    for (const mission of snapshotRef.current.missions.missions) {
+      total += claimDailyMission(mission.id);
+    }
+    for (const a of ACHIEVEMENTS) {
+      total += claimAchievement(a.id);
+    }
+    return total;
+  }, [claimDailyMission, claimAchievement]);
+
 
 
 
