@@ -144,10 +144,16 @@ export function SettingsModal({
             onChange={(v) => onChange({ sound: v })}
           />
           <Toggle
-            label="Vibration"
-            description="Haptic feedback on supported devices"
+            label="Haptic feedback"
+            description="Vibration on taps, combos and traps"
             checked={settings.vibration}
             onChange={(v) => onChange({ vibration: v })}
+          />
+          <Toggle
+            label="Screen shake"
+            description="Impact shake when you hit a trap"
+            checked={settings.screenShake}
+            onChange={(v) => onChange({ screenShake: v })}
           />
           <Toggle
             label="Reduced motion"
