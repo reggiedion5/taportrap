@@ -1,5 +1,6 @@
 import { Pause } from "lucide-react";
 import { difficultyProgress } from "@/game/useGame";
+import { ChromeBadge } from "./ArcUI";
 
 interface ScoreHeaderProps {
   score: number;
@@ -23,26 +24,21 @@ export function ScoreHeader({
   return (
     <header className="no-select relative z-20 px-4 pt-4">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-        <div className="flex min-w-0 items-end gap-5">
-          <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">SCORE</p>
-            <p
-              key={scorePulse}
-              className="sticker-sm animate-score-bump text-4xl leading-none text-arcade-text glow-white tabular-nums"
-            >
+        <div className="flex min-w-0 items-center gap-2">
+          <ChromeBadge faceClassName="flex-col items-start gap-0 px-3.5 py-1.5">
+            <span className="ui-title text-[9px] tracking-[0.22em] text-arcade-muted">SCORE</span>
+            <span key={scorePulse} className="score-digits animate-score-bump text-3xl leading-none">
               {score}
-            </p>
-          </div>
-          <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">BEST</p>
-            <p className="sticker-sm text-lg leading-none text-neon-gold glow-gold tabular-nums">
-              {highScore}
-            </p>
-          </div>
-          <div className="min-w-0">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">COMBO</p>
-            <p
-              className={`sticker-sm text-lg leading-none tabular-nums ${
+            </span>
+          </ChromeBadge>
+          <ChromeBadge faceClassName="flex-col items-start gap-0 px-3 py-1.5">
+            <span className="ui-title text-[9px] tracking-[0.22em] text-arcade-muted">BEST</span>
+            <span className="score-digits text-base leading-none">{highScore}</span>
+          </ChromeBadge>
+          <ChromeBadge faceClassName="flex-col items-start gap-0 px-3 py-1.5">
+            <span className="ui-title text-[9px] tracking-[0.22em] text-arcade-muted">COMBO</span>
+            <span
+              className={`ui-title text-base leading-none tabular-nums ${
                 multiplier > 1 ? "text-neon-purple glow-purple" : "text-arcade-text"
               }`}
             >
@@ -53,26 +49,28 @@ export function ScoreHeader({
               >
                 ×{multiplier}
               </span>
-            </p>
-          </div>
+            </span>
+          </ChromeBadge>
         </div>
         <button
           type="button"
           onClick={onPause}
           aria-label="Pause game"
-          className="arcade-btn grid size-12 shrink-0 place-items-center border border-arcade-line bg-arcade-surface text-arcade-text"
+          className="btn-arc chrome-badge shrink-0"
         >
-          <Pause className="size-5" />
+          <span className="chrome-badge-face grid size-12 place-items-center">
+            <Pause className="icon-chrome size-5" />
+          </span>
         </button>
       </div>
 
       <div className="mt-3 flex items-center gap-3">
-        <span className="sticker-sm shrink-0 text-[10px] tracking-[0.2em] text-arcade-text/80">
+        <span className="ui-title shrink-0 text-[10px] tracking-[0.2em] text-arcade-muted">
           {diff.label.toUpperCase()}
         </span>
-        <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-arcade-surface">
+        <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full border border-arcade-line/70 bg-arcade-bg-deep shadow-[inset_0_1px_3px_oklch(0_0_0_/_0.8)]">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-neon-green to-neon-gold transition-all duration-300"
+            className="h-full rounded-full bg-[linear-gradient(90deg,var(--logo-green),var(--logo-gold))] shadow-[0_0_12px_var(--logo-green)] transition-all duration-300"
             style={{ width: `${Math.round(diff.progress * 100)}%` }}
           />
         </div>
