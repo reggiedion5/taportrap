@@ -140,7 +140,10 @@ export interface AchievementProgress {
 export interface AchievementStore {
   version: StorageVersion;
   unlocked: Record<string, number>;
+  /** achievement ids whose XP reward has already been paid out */
+  claimed: Record<string, number>;
 }
+
 
 /* ---------------- daily challenge ---------------- */
 
