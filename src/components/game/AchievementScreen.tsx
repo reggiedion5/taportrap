@@ -90,6 +90,18 @@ export function AchievementCard({
           <div className="h-full rounded-full bg-neon-green" style={{ width: `${pct}%` }} />
         </div>
       )}
+      {progress.unlocked && !claimed && onClaim && (
+        <button
+          type="button"
+          onClick={() => onClaim(achievement.id)}
+          className="btn-arc mt-3 w-full rounded-xl"
+        >
+          <span className="btn-arc-face btn-green ui-title min-h-11 justify-center px-3 text-[13px]">
+            <span className="btn-gloss" aria-hidden />
+            <span className="relative z-10">Claim {achievement.rewardXp} XP</span>
+          </span>
+        </button>
+      )}
     </li>
   );
 }
@@ -98,6 +110,9 @@ interface AchievementScreenProps {
   open: boolean;
   progress: AchievementProgress[];
   focusId?: string | null;
+  claimedIds?: Record<string, number>;
+  onClaim?: (id: string) => void;
+  onClaimAll?: () => void;
   onClose: () => void;
 }
 
@@ -105,16 +120,33 @@ export function AchievementScreen({
   open,
   progress,
   focusId = null,
+  claimedIds,
+  onClaim,
+  onClaimAll,
   onClose,
 }: AchievementScreenProps) {
   const byId = new Map(progress.map((p) => [p.id, p]));
   const unlockedCount = progress.filter((p) => p.unlocked).length;
+  const claimable = claimedIds
+    ? progress.filter((p) => p.unlocked && claimedIds[p.id] === undefined).length
+    : 0;
 
   return (
     <Sheet open={open} title="Achievements" onClose={onClose}>
       <p className="sticker-sm text-sm tracking-[0.16em] text-neon-gold glow-gold">
         {unlockedCount} / {ACHIEVEMENTS.length} UNLOCKED
       </p>
+
+      {claimable > 0 && onClaimAll && (
+        <button type="button" onClick={onClaimAll} className="btn-arc mt-3 w-full rounded-xl">
+          <span className="btn-arc-face btn-green ui-title min-h-12 justify-center px-3 text-[14px]">
+            <span className="btn-gloss" aria-hidden />
+            <span className="relative z-10">
+              Claim all {claimable} reward{claimable > 1 ? "s" : ""}
+            </span>
+          </span>
+        </button>
+      )}
 
       {ACHIEVEMENT_CATEGORIES.map((category) => {
         const items = ACHIEVEMENTS.filter((a) => a.category === category.id);
@@ -133,6 +165,8 @@ export function AchievementScreen({
                     achievement={a}
                     progress={p}
                     focused={open && a.id === focusId}
+                    claimed={claimedIds ? claimedIds[a.id] !== undefined : true}
+                    onClaim={onClaim}
                   />
                 );
               })}
@@ -143,3 +177,4 @@ export function AchievementScreen({
     </Sheet>
   );
 }
+
