@@ -1,9 +1,11 @@
 import { BarChart3, ChevronRight, HelpCircle, Palette, Settings2, Trophy, Zap } from "lucide-react";
 import type { DailyChallenge, DailyState, PlayerLevel } from "@/game/progressionTypes";
+import type { DailyMissionsState } from "@/game/dailyMissions";
 import { DIFFICULTIES, DIFFICULTY_PRESETS, type Difficulty } from "@/game/difficulty";
 import logoAsset from "@/assets/tap-or-trap-logo.png.asset.json";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { DailyChallengeCard } from "./DailyChallengeCard";
+import { DailyMissionsCard } from "./DailyMissionsScreen";
 import { XpProgressBar } from "./XpProgressBar";
 import { ArcButton, ChromeBadge, ChromeCard } from "./ArcUI";
 
@@ -18,6 +20,9 @@ interface HomeScreenProps {
   onDifficultyChange: (difficulty: Difficulty) => void;
   daily: DailyState;
   challenge: DailyChallenge;
+  missions: DailyMissionsState;
+  claimableMissions: number;
+  claimableAchievements: number;
   boardHint: string | null;
   boardsUnlocked: number;
   boardsTotal: number;
@@ -26,6 +31,7 @@ interface HomeScreenProps {
   onPlay: () => void;
   onOpenModes: () => void;
   onOpenAchievements: () => void;
+  onOpenMissions: () => void;
   onOpenStatistics: () => void;
   onOpenBoards: () => void;
   onOpenSettings: () => void;
@@ -33,6 +39,7 @@ interface HomeScreenProps {
   achievementsUnlocked: number;
   achievementsTotal: number;
 }
+
 
 export function HomeScreen({
   level,
