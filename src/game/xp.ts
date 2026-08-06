@@ -1,3 +1,4 @@
+import { presetFor, type Difficulty } from "./difficulty";
 import type { GameMode } from "./modes";
 import type {
   GameSessionResult,
@@ -51,9 +52,14 @@ export function applyXp(profile: PlayerProfile, amount: number): LevelUpResult {
 interface XpContext {
   result: GameSessionResult;
   isNewModeHighScore: boolean;
+  difficulty?: Difficulty;
 }
 
-export function calculateXpRewards({ result, isNewModeHighScore }: XpContext): XpRewardBreakdown {
+export function calculateXpRewards({
+  result,
+  isNewModeHighScore,
+  difficulty,
+}: XpContext): XpRewardBreakdown {
   const entries: { label: string; xp: number }[] = [];
   const { stats, score, bestCombo, mode } = result;
   const add = (label: string, xp: number) => {
@@ -84,6 +90,14 @@ export function calculateXpRewards({ result, isNewModeHighScore }: XpContext): X
     add(`New ${modeLabel[mode]} best`, 25);
   }
 
-  const total = entries.reduce((sum, e) => sum + e.xp, 0);
+  const base = entries.reduce((sum, e) => sum + e.xp, 0);
+  const preset = presetFor(difficulty);
+  const total = Math.max(0, Math.round(base * preset.xpScale));
+  if (base > 0 && preset.xpScale !== 1) {
+    entries.push({
+      label: `${preset.label} difficulty (x${preset.xpScale})`,
+      xp: total - base,
+    });
+  }
   return { entries, total };
 }
