@@ -495,10 +495,19 @@ export function loadProgress(): ProgressSnapshot {
   const profile = parseProfile(readJson(KEYS.profile));
   const parsedStats = parseStatistics(readJson(KEYS.statistics));
   const parsedRecords = parseRecords(readJson(KEYS.records));
-  const { stats, records } = migrateLegacy(parsedStats, parsedRecords);
+  const wasLegacyShape = legacyRecordsShape;
+  const migrated = migrateLegacy(parsedStats, parsedRecords);
+  let records = migrated.records;
+  if (wasLegacyShape) {
+    const seeded = migrateDifficultyBests(records, profile.selectedDifficulty);
+    if (seeded !== records) {
+      records = seeded;
+      writeJson(KEYS.records, records);
+    }
+  }
   return {
     profile,
-    statistics: stats,
+    statistics: migrated.stats,
     records,
     achievements: parseAchievements(readJson(KEYS.achievements)),
     daily: parseDaily(readJson(KEYS.daily)),
