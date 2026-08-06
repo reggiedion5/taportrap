@@ -168,19 +168,52 @@
     border-color: var(--color-border);
   }
 
+  /* Native WebView (capacitor://localhost) needs the document itself to be the
+     single vertical scroller — never a fixed-height clipped app shell. */
+  html,
   body {
+    width: 100%;
+    min-height: 100%;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
     background-color: var(--arcade-bg-deep);
     color: var(--arcade-text);
     font-family: var(--font-display);
     -webkit-tap-highlight-color: transparent;
+  }
+
+  body > * {
+    min-height: 100dvh;
   }
 }
 
 @utility no-select {
   user-select: none;
   -webkit-user-select: none;
+  /* `manipulation` keeps double-tap-zoom off while leaving panning intact. */
   touch-action: manipulation;
 }
+
+/* Vertically scrollable screen: content grows, page scrolls, no x-overflow. */
+@utility scroll-screen {
+  min-height: 100dvh;
+  height: auto;
+  overflow-x: clip;
+  overflow-y: visible;
+  touch-action: pan-y;
+}
+
 
 @utility arcade-panel {
   background: linear-gradient(

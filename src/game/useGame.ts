@@ -38,6 +38,7 @@ import type { GameSessionResult } from "./progressionTypes";
 import { onAppBackground, suppressBackgroundFor } from "@/lib/appLifecycle";
 import { isIOS, isNativePlatform } from "@/lib/nativePlatform";
 import { GAME_FEATURES } from "@/config/gameFeatures";
+import { releaseBodyScrollLock, setBodyScrollLock } from "@/lib/bodyScrollLock";
 import {
   classifyTap,
   closeCallMessage,
@@ -974,14 +975,10 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     return off;
   }, []);
 
-  // lock body scroll while a run is on screen
+  // Lock body scroll only while a run is on screen; always release afterwards.
   useEffect(() => {
-    const active = phase === "playing" || phase === "paused";
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = active ? "hidden" : previous || "";
-    return () => {
-      document.body.style.overflow = previous || "";
-    };
+    setBodyScrollLock(phase === "playing" || phase === "paused");
+    return releaseBodyScrollLock;
   }, [phase]);
 
   useEffect(

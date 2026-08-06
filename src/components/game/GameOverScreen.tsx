@@ -92,9 +92,9 @@ export function GameOverScreen({
   ].filter(Boolean) as string[];
 
   return (
-    <div className="no-select safe-area relative min-h-[100dvh] overflow-hidden">
+    <div className="no-select safe-area scroll-screen relative">
       <ArcadeBackdrop />
-      <div className="animate-screen-in relative mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center px-5 py-8">
+      <div className="animate-screen-in relative z-[1] mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center px-5 py-8">
         {/* ---- 1. outcome ---- */}
         <div className="relative">
           {/* red energy behind the title */}

@@ -108,9 +108,9 @@ export function HomeScreen({
   onOpenCollection,
 }: HomeScreenProps) {
   return (
-    <div className="no-select relative min-h-[100dvh] overflow-hidden">
+    <div className="no-select scroll-screen relative">
       <ArcadeBackdrop />
-      <div className="safe-area animate-screen-in relative mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col px-5 py-5">
+      <div className="safe-area animate-screen-in relative z-[1] mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col px-5 pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
         {/* ---- top ---- */}
         <header className="flex items-center justify-between gap-3">
           <button type="button" onClick={onOpenProfile} className="btn-arc text-left">
