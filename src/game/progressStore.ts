@@ -177,8 +177,9 @@ export function defaultRecords(): PersonalRecords {
 }
 
 export function defaultAchievements(): AchievementStore {
-  return { version: STORAGE_VERSION, unlocked: {} };
+  return { version: STORAGE_VERSION, unlocked: {}, claimed: {} };
 }
+
 
 export function defaultDaily(date = localDateString()): DailyState {
   return {
@@ -379,8 +380,20 @@ function parseAchievements(raw: unknown): AchievementStore {
     const stamp = int(at);
     unlocked[id] = stamp > 0 ? stamp : Date.now();
   }
-  return { version: STORAGE_VERSION, unlocked };
+  const claimedSrc = asRecord(src.claimed);
+  const claimed: Record<string, number> = {};
+  for (const [id, at] of Object.entries(claimedSrc)) {
+    const stamp = int(at);
+    if (unlocked[id] !== undefined) claimed[id] = stamp > 0 ? stamp : Date.now();
+  }
+  // Legacy profiles were paid automatically at unlock time — treat those as
+  // already claimed so the reward can never be collected twice.
+  if (src.claimed === undefined) {
+    for (const id of Object.keys(unlocked)) claimed[id] = unlocked[id];
+  }
+  return { version: STORAGE_VERSION, unlocked, claimed };
 }
+
 
 function parseDaily(raw: unknown): DailyState {
   const src = asRecord(raw);
