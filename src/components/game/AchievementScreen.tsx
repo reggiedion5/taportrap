@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Lock, Trophy } from "lucide-react";
 import { ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES, TIER_LABEL } from "@/game/achievements";
 import type { Achievement, AchievementProgress } from "@/game/progressionTypes";
@@ -13,16 +14,29 @@ const TIER_BORDER: Record<Achievement["tier"], string> = {
 interface AchievementCardProps {
   achievement: Achievement;
   progress: AchievementProgress;
+  focused?: boolean;
 }
 
-export function AchievementCard({ achievement, progress }: AchievementCardProps) {
+export function AchievementCard({ achievement, progress, focused = false }: AchievementCardProps) {
+  const ref = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    if (!focused) return;
+    const id = window.setTimeout(
+      () => ref.current?.scrollIntoView({ block: "center", behavior: "smooth" }),
+      120,
+    );
+    return () => window.clearTimeout(id);
+  }, [focused]);
+
   const pct = Math.min(100, (progress.value / achievement.target) * 100);
   const showBar = !progress.unlocked && achievement.target > 1;
   return (
     <li
+      ref={ref}
       className={`arcade-panel p-4 ${TIER_BORDER[achievement.tier]} ${
         progress.unlocked ? "" : "opacity-95"
-      }`}
+      } ${focused ? "ring-2 ring-neon-green" : ""}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -74,10 +88,16 @@ export function AchievementCard({ achievement, progress }: AchievementCardProps)
 interface AchievementScreenProps {
   open: boolean;
   progress: AchievementProgress[];
+  focusId?: string | null;
   onClose: () => void;
 }
 
-export function AchievementScreen({ open, progress, onClose }: AchievementScreenProps) {
+export function AchievementScreen({
+  open,
+  progress,
+  focusId = null,
+  onClose,
+}: AchievementScreenProps) {
   const byId = new Map(progress.map((p) => [p.id, p]));
   const unlockedCount = progress.filter((p) => p.unlocked).length;
 
@@ -98,7 +118,14 @@ export function AchievementScreen({ open, progress, onClose }: AchievementScreen
               {items.map((a) => {
                 const p = byId.get(a.id);
                 if (!p) return null;
-                return <AchievementCard key={a.id} achievement={a} progress={p} />;
+                return (
+                  <AchievementCard
+                    key={a.id}
+                    achievement={a}
+                    progress={p}
+                    focused={open && a.id === focusId}
+                  />
+                );
               })}
             </ul>
           </section>
