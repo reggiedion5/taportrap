@@ -47,22 +47,28 @@ function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className="grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-2xl border border-arcade-line bg-arcade-surface px-4 py-4 text-left"
+      className="chrome-card btn-arc w-full text-left"
     >
-      <span className="min-w-0">
-        <span className="ui-title block text-base">{label}</span>
-        <span className="ui-body-tight mt-0.5 block text-[14px] text-arcade-muted">{description}</span>
-      </span>
-      <span
-        className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
-          checked ? "bg-neon-green" : "bg-arcade-line"
-        }`}
-      >
+      <span className="chrome-face grid min-h-14 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-4">
+        <span className="min-w-0">
+          <span className="ui-title block text-base">{label}</span>
+          <span className="ui-body-tight mt-0.5 block text-[14px] text-arcade-muted">
+            {description}
+          </span>
+        </span>
         <span
-          className={`absolute top-1 size-5 rounded-full bg-arcade-text transition-all ${
-            checked ? "left-6" : "left-1"
+          className={`relative h-7 w-12 shrink-0 rounded-full border transition-all ${
+            checked
+              ? "border-logo-green/70 bg-[linear-gradient(180deg,oklch(0.93_0.22_142),var(--logo-green-deep))] shadow-[0_0_16px_-2px_var(--logo-green),inset_0_1px_0_oklch(1_0_0_/_0.5)]"
+              : "border-logo-red/50 bg-[linear-gradient(180deg,oklch(0.42_0.16_28),oklch(0.24_0.08_28))] shadow-[inset_0_1px_0_oklch(1_0_0_/_0.2)]"
           }`}
-        />
+        >
+          <span
+            className={`absolute top-1 size-5 rounded-full bg-[linear-gradient(180deg,var(--chrome-hi),var(--chrome-lo))] shadow-[0_1px_3px_oklch(0_0_0_/_0.7)] transition-all ${
+              checked ? "left-6" : "left-1"
+            }`}
+          />
+        </span>
       </span>
     </button>
   );
