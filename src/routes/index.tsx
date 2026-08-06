@@ -147,6 +147,7 @@ function TapOrTrap() {
         ]);
       }
       if (next.unlockedAchievements.length > 0) playSound("unlock");
+      trackEvent("game_completed", { mode: result.mode, score: result.score });
     },
     [progress],
   );
@@ -171,6 +172,16 @@ function TapOrTrap() {
       }
     }
   }, [game.phase]);
+
+  useEffect(() => {
+    trackEvent("app_open", {});
+  }, []);
+
+  useEffect(() => {
+    if (tutorialXp === null) return;
+    const t = window.setTimeout(() => setTutorialXp(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [tutorialXp]);
 
   // equipped board drives the interface palette via :root custom properties
   useEffect(() => {
@@ -209,8 +220,9 @@ function TapOrTrap() {
     setSummary(null);
     setModeIntro(false);
     setCountdown(false);
+    trackEvent("game_started", { mode: progress.mode, difficulty: progress.difficulty });
     game.startGame();
-  }, [game]);
+  }, [game, progress.mode, progress.difficulty]);
 
   const launchCompetitive = useCallback(() => {
     setSummary(null);
@@ -444,6 +456,14 @@ function TapOrTrap() {
           onOpenLeaderboard={() => setOverlay("leaderboard")}
           onOpenCollection={() => setOverlay("collection")}
         />
+      )}
+
+      {showHome && tutorialXp !== null && (
+        <div className="pointer-events-none fixed inset-x-0 top-3 z-[70] flex justify-center px-4">
+          <p className="ui-title rounded-xl border border-neon-green/60 bg-arcade-surface px-4 py-2 text-[15px] text-neon-green">
+            {tutorialXp > 0 ? `Tutorial complete · +${tutorialXp} XP` : "Tutorial complete"}
+          </p>
+        </div>
       )}
 
       {countdown && (
