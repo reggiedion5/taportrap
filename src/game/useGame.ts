@@ -114,6 +114,8 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
   configRef.current = MODE_CONFIG[mode];
   const presetRef = useRef(presetFor(difficulty));
   presetRef.current = presetFor(difficulty);
+  /** difficulty that was active when the current run started */
+  const runDifficultyRef = useRef<Difficulty>(isDifficulty(difficulty) ? difficulty : "standard");
   /** spawn gap for the current score, scaled by the chosen difficulty */
   const nextSpawnDelay = () =>
     spawnDelayFor(levelForScore(scoreRef.current), presetRef.current.spawnScale);
