@@ -525,7 +525,7 @@ export function useProgress() {
         difficulty: runDifficulty,
       });
 
-      /* ---- achievements ---- */
+      /* ---- achievements (unlock now, XP is claimed by the player) ---- */
       const ctx = {
         stats: statistics,
         records,
@@ -533,23 +533,40 @@ export function useProgress() {
         profile: prev.profile,
       };
       const unlocked = evaluateAchievements(ctx, prev.achievements);
-      const achievementXp = unlocked.reduce((s, a) => s + a.rewardXp, 0);
       const achievements = {
         ...prev.achievements,
         unlocked: { ...prev.achievements.unlocked },
+        claimed: { ...prev.achievements.claimed },
       };
       const now = Date.now();
       unlocked.forEach((a) => {
         achievements.unlocked[a.id] = now;
       });
 
-      const totalXp = xp.total + dailyXp + achievementXp;
+      /* ---- daily missions ---- */
+      const missionOutcome = applyRunToMissions(prev.missions, result, today);
+      const missions = missionOutcome.state;
+      const claimableXp =
+        missions.missions.reduce((sum, m) => {
+          const p = missions.progress[m.id];
+          return p?.completed && !p.claimed ? sum + m.rewardXp : sum;
+        }, 0) +
+        ACHIEVEMENTS.reduce(
+          (sum, a) =>
+            achievements.unlocked[a.id] !== undefined && achievements.claimed[a.id] === undefined
+              ? sum + a.rewardXp
+              : sum,
+          0,
+        );
+
+      const totalXp = xp.total + dailyXp;
       const levelBefore = prev.profile.level;
       const applied = applyXp(prev.profile, totalXp);
       const achievementCount = Object.keys(achievements.unlocked).length;
 
       const profile: PlayerProfile = {
         ...prev.profile,
+
         level: applied.level,
         currentXp: applied.currentXp,
         lifetimeXp: applied.lifetimeXp,
