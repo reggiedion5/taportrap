@@ -974,13 +974,14 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     return off;
   }, []);
 
-  // lock body scroll while a run is on screen
+  // Lock body scroll only while a run is on screen. Always clear the inline
+  // style on release/unmount — restoring a captured "previous" value could
+  // latch `hidden` forever and permanently kill scrolling in the native WebView.
   useEffect(() => {
     const active = phase === "playing" || phase === "paused";
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = active ? "hidden" : previous || "";
+    document.body.style.overflow = active ? "hidden" : "";
     return () => {
-      document.body.style.overflow = previous || "";
+      document.body.style.overflow = "";
     };
   }, [phase]);
 
