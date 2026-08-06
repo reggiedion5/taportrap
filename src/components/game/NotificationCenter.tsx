@@ -48,14 +48,14 @@ export function NotificationCenter({
       {notifications.length > 0 && (
         <div className="mt-4 flex gap-2">
           <ArcButton
-            tone="chrome"
+            tone="steel"
             onClick={onMarkAllRead}
             icon={<Check className="size-4" aria-hidden />}
           >
             Mark all read
           </ArcButton>
           <ArcButton
-            tone="chrome"
+            tone="steel"
             onClick={onClear}
             icon={<Trash2 className="size-4" aria-hidden />}
           >

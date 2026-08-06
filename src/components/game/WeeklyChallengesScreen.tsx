@@ -1,10 +1,6 @@
 import { CheckCircle2, CalendarDays } from "lucide-react";
-import {
-  WEEKLY_TIER_LABEL,
-  weeklyRatio,
-  type WeeklyChallenge,
-  type WeeklyState,
-} from "@/game/weeklyChallenges";
+import { WEEKLY_TIER_LABEL, weeklyRatio } from "@/game/weeklyChallenges";
+import type { WeeklyChallenge, WeeklyState } from "@/game/phase3Types";
 import { Sheet } from "./Sheet";
 import { ArcButton, ChromeCard } from "./ArcUI";
 
