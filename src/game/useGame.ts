@@ -38,6 +38,7 @@ import type { GameSessionResult } from "./progressionTypes";
 import { onAppBackground, suppressBackgroundFor } from "@/lib/appLifecycle";
 import { isIOS, isNativePlatform } from "@/lib/nativePlatform";
 import { GAME_FEATURES } from "@/config/gameFeatures";
+import { releaseBodyScrollLock, setBodyScrollLock } from "@/lib/bodyScrollLock";
 import {
   classifyTap,
   closeCallMessage,
