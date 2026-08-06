@@ -28,7 +28,7 @@ export const GAME_FEATURES: GameFeatureFlags = {
   closeCallSystem: true,
   dynamicDifficulty: true,
   statisticsSystem: true,
-  diagnosticPanel: true,
+  diagnosticPanel: false,
 
   xpSystem: false,
   themeSystem: false,
@@ -42,6 +42,19 @@ export const GAME_FEATURES: GameFeatureFlags = {
 export const isFeatureEnabled = (key: keyof GameFeatureFlags): boolean =>
   GAME_FEATURES[key] === true;
 
-/** The diagnostic panel is dev-only regardless of the flag. */
-export const diagnosticsVisible = (): boolean =>
-  GAME_FEATURES.diagnosticPanel && import.meta.env.DEV === true;
+/**
+ * The diagnostic panel is hidden everywhere by default. It only appears in a
+ * local dev server AND after a deliberate opt-in:
+ *   localStorage.setItem("showDiagnosticPanel", "true")
+ * It can never render in preview builds, production, or the native iOS bundle.
+ */
+export const diagnosticsVisible = (): boolean => {
+  if (import.meta.env.DEV !== true) return false;
+  if (typeof window === "undefined") return false;
+  try {
+    if (window.localStorage.getItem("showDiagnosticPanel") !== "true") return false;
+  } catch {
+    return false;
+  }
+  return true;
+};
