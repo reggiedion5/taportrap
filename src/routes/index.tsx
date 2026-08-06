@@ -499,6 +499,7 @@ function TapOrTrap() {
             levelXpForNext={progress.level.xpForNext}
             dailyObjective={progress.challenge.objective}
             playerLevel={progress.level.level}
+          playerTitle={progress.equippedTitle.name}
             reducedMotion={game.reducedMotion}
             onPlayAgain={launchCompetitive}
             onChangeMode={() => {

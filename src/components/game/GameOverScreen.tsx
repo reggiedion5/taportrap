@@ -20,6 +20,7 @@ interface GameOverScreenProps {
   levelXpForNext: number;
   dailyObjective: string;
   playerLevel: number;
+  playerTitle: string;
   reducedMotion: boolean;
   onPlayAgain: () => void;
   onChangeMode: () => void;
@@ -39,6 +40,7 @@ export function GameOverScreen({
   levelXpForNext,
   dailyObjective,
   playerLevel,
+  playerTitle,
   reducedMotion,
   onPlayAgain,
   onChangeMode,
@@ -69,6 +71,8 @@ export function GameOverScreen({
     successes: result.stats.successes,
     personalBest: has("score"),
     playerLevel,
+    playerTitle,
+    playStreak: summary.playStreak,
   };
 
   const newTitles = summary.unlockedTitleIds.map((id) => titleById(id).name);
