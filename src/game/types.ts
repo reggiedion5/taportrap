@@ -71,6 +71,9 @@ export interface RunStats {
   purpleCompletions: number;
   avgReaction: number | null;
   fastestReaction: number | null;
+  /** window-relative timing counts (Phase 1 classification) */
+  great: number;
+  closeCalls: number;
 }
 
 export const EMPTY_RUN_STATS: RunStats = {
@@ -83,7 +86,10 @@ export const EMPTY_RUN_STATS: RunStats = {
   purpleCompletions: 0,
   avgReaction: null,
   fastestReaction: null,
+  great: 0,
+  closeCalls: 0,
 };
+
 
 export const TARGET_LABEL: Record<TargetColor, string> = {
   green: "TAP",
