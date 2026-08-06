@@ -474,7 +474,7 @@ export function useProgress() {
       const xp = calculateXpRewards({
         result,
         isNewModeHighScore,
-        difficulty: snapshotRef.current.profile.selectedDifficulty,
+        difficulty: runDifficulty,
       });
 
       /* ---- achievements ---- */
