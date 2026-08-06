@@ -19,6 +19,7 @@ import {
   resetStatistics,
   resetDailyProgress,
   writeJson,
+  applyDifficultyBest,
   type ProgressSnapshot,
 } from "./progressStore";
 import { applyXp, calculateXpRewards, levelProgress } from "./xp";
