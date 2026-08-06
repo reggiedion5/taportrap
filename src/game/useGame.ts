@@ -953,11 +953,33 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     goToMenu();
   }, [clearAllTimers, goToMenu]);
 
+  // ---------- background music ----------
+  // Menu loop on every non-playing screen, faster game loop during a run.
+  useEffect(() => {
+    if (!hydrated) return;
+    if (phase === "playing") {
+      playTrack("game");
+      resumeMusic();
+    } else if (phase === "paused") {
+      suspendMusic();
+    } else {
+      playTrack("menu");
+    }
+  }, [hydrated, phase]);
+
+  // gameplay tempo rises with the difficulty tier
+  useEffect(() => {
+    setMusicIntensity(levelForScore(score).level);
+  }, [score]);
+
+  useEffect(() => () => stopMusic(), []);
+
   // ---------- interruptions ----------
   // A single bus feeds browser visibility and native lifecycle events, so one
   // interruption pauses the run exactly once. Returning never auto-resumes.
   useEffect(() => {
     const off = onAppBackground(() => {
+      suspendMusic();
       if (phaseRef.current !== "playing") return;
       pauseRef.current("system");
     });
