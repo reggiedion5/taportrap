@@ -30,6 +30,11 @@ import { DailyMissionsScreen } from "@/components/game/DailyMissionsScreen";
 import { StatisticsScreen } from "@/components/game/StatisticsScreen";
 import { BOARDS } from "@/game/boards";
 import { BoardCollectionScreen } from "@/components/game/BoardCollectionScreen";
+import { WeeklyChallengesScreen } from "@/components/game/WeeklyChallengesScreen";
+import { PlayerProfileScreen } from "@/components/game/PlayerProfileScreen";
+import { CollectionHubScreen } from "@/components/game/CollectionHubScreen";
+import { NotificationCenter } from "@/components/game/NotificationCenter";
+import { LeaderboardScreen } from "@/components/game/LeaderboardScreen";
 import { BoardUnlockToast } from "@/components/game/BoardUnlockToast";
 import { BoardProvider } from "@/components/game/BoardContext";
 import { HowToPlayModal } from "@/components/game/HowToPlayModal";
@@ -72,7 +77,12 @@ type Overlay =
   | "howto"
   | "settings"
   | "feedback"
-  | "trainingSetup";
+  | "trainingSetup"
+  | "weekly"
+  | "profile"
+  | "collection"
+  | "notifications"
+  | "leaderboard";
 
 /** Non-competitive play runs on its own screen stack. */
 type TrainingPhase = "idle" | "playing" | "summary";
@@ -393,6 +403,17 @@ function TapOrTrap() {
           }}
           onOpenSettings={() => setOverlay("settings")}
           onOpenHowToPlay={() => setOverlay("howto")}
+          weekly={progress.weekly}
+          claimableWeekly={progress.claimableWeekly}
+          playStreak={progress.playStreak}
+          playerTitle={progress.equippedTitle.name}
+          unreadNotifications={progress.unreadNotifications}
+          loginAvailable={progress.loginAvailable}
+          onOpenWeekly={() => setOverlay("weekly")}
+          onOpenProfile={() => setOverlay("profile")}
+          onOpenNotifications={() => setOverlay("notifications")}
+          onOpenLeaderboard={() => setOverlay("leaderboard")}
+          onOpenCollection={() => setOverlay("collection")}
         />
       )}
 
@@ -557,6 +578,77 @@ function TapOrTrap() {
         effectsEnabled={game.settings.boardEffects}
         reducedMotion={game.reducedMotion}
         onSelect={progress.setBoard}
+        onClose={() => setOverlay("none")}
+      />
+
+      <WeeklyChallengesScreen
+        open={overlay === "weekly"}
+        weekly={progress.weekly}
+        reducedMotion={game.reducedMotion}
+        onClaim={progress.claimWeeklyChallenge}
+        onClose={() => setOverlay("none")}
+      />
+
+      <PlayerProfileScreen
+        open={overlay === "profile"}
+        phase3={progress.phase3}
+        level={progress.level}
+        lifetimeXp={progress.profile.lifetimeXp}
+        gamesPlayed={progress.statistics.gamesPlayed}
+        achievementsUnlocked={progress.unlockedAchievementCount}
+        achievementsTotal={ACHIEVEMENTS.length}
+        boardsUnlocked={progress.unlockedBoardIds.length}
+        boardsTotal={BOARDS.length}
+        playStreak={progress.playStreak}
+        loginAvailable={progress.loginAvailable}
+        cosmetics={progress.cosmeticContext}
+        favorites={progress.favorites}
+        reducedMotion={game.reducedMotion}
+        onClaimLogin={progress.claimDailyLogin}
+        onOpenStatistics={() => setOverlay("statistics")}
+        onOpenCollection={() => setOverlay("collection")}
+        onOpenLeaderboard={() => setOverlay("leaderboard")}
+        onClose={() => setOverlay("none")}
+      />
+
+      <CollectionHubScreen
+        open={overlay === "collection"}
+        cosmetics={progress.cosmeticContext}
+        unlockedTitleIds={progress.unlockedTitleIds}
+        unlockedBadgeIds={progress.unlockedBadgeIds}
+        equippedTitleId={progress.phase3.equippedTitleId}
+        equippedBadgeId={progress.phase3.equippedBadgeId}
+        boardsUnlocked={progress.unlockedBoardIds.length}
+        boardsTotal={BOARDS.length}
+        onEquipTitle={progress.equipTitle}
+        onEquipBadge={progress.equipBadge}
+        onOpenBoards={() => {
+          progress.markBoardsSeen();
+          setOverlay("boards");
+        }}
+        onClose={() => setOverlay("none")}
+      />
+
+      <LeaderboardScreen
+        open={overlay === "leaderboard"}
+        history={progress.runHistory}
+        onClose={() => setOverlay("none")}
+      />
+
+      <NotificationCenter
+        open={overlay === "notifications"}
+        notifications={progress.notifications}
+        onRead={progress.markNotificationRead}
+        onMarkAllRead={progress.markNotificationsRead}
+        onClear={progress.clearNotifications}
+        onOpenTarget={(target) => {
+          if (target === "achievements") setOverlay("achievements");
+          else if (target === "boards") setOverlay("boards");
+          else if (target === "missions") setOverlay("missions");
+          else if (target === "weekly") setOverlay("weekly");
+          else if (target === "collection") setOverlay("collection");
+          else if (target === "profile") setOverlay("profile");
+        }}
         onClose={() => setOverlay("none")}
       />
 
