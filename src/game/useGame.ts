@@ -87,6 +87,16 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
   const [lives, setLives] = useState<number | null>(null);
   const [lifeLost, setLifeLost] = useState(false);
   const [lastResult, setLastResult] = useState<GameSessionResult | null>(null);
+  /** Phase 1 feel: milestone banner, timing badge and screen pulse. */
+  const [milestone, setMilestone] = useState<{ id: number; label: string } | null>(null);
+  const [pulse, setPulse] = useState(0);
+  const [lastTap, setLastTap] = useState<{
+    timing: TapTiming;
+    reaction: number;
+    closeCall: boolean;
+  } | null>(null);
+  const [perfectFlash, setPerfectFlash] = useState(false);
+  const [greatFlash, setGreatFlash] = useState(false);
 
   // ---- refs: always-current gameplay values (no stale closures) ----
   const modeRef = useRef(mode);
