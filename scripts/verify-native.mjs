@@ -25,19 +25,6 @@ async function exists(file) {
   }
 }
 
-async function containsInJavaScript(directory, expected) {
-  const entries = await readdir(directory, { withFileTypes: true });
-  for (const entry of entries) {
-    const file = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      if (await containsInJavaScript(file, expected)) return true;
-    } else if (entry.isFile() && entry.name.endsWith(".js")) {
-      const source = await readFile(file, "utf8");
-      if (source.includes(expected)) return true;
-    }
-  }
-  return false;
-}
 
 export async function verifyNativeBundle() {
   const errors = [];
