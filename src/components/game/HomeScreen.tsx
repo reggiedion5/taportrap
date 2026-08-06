@@ -159,12 +159,9 @@ export function HomeScreen({
         {/* ---- logo ---- */}
         <div className="relative mt-2 grid place-items-center">
           <div className="pointer-events-none absolute size-[78%] rounded-full bg-logo-green/10 blur-3xl" />
-          <img
-            src={logoAsset.url}
-            alt="Tap or Trap! — tap fast, think faster"
-            width={1024}
-            height={1024}
-            className={`relative w-[min(84vw,340px)] [mask-image:radial-gradient(circle_at_center,black_58%,transparent_76%)] drop-shadow-[0_24px_50px_oklch(0_0_0_/_0.7)] ${
+          <BrandLogo
+            size={340}
+            className={`relative max-w-[84vw] [mask-image:radial-gradient(circle_at_center,black_58%,transparent_76%)] drop-shadow-[0_24px_50px_oklch(0_0_0_/_0.7)] ${
               reducedMotion ? "" : "animate-float-soft"
             }`}
           />
