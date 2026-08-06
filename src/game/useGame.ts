@@ -344,6 +344,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       const result: GameSessionResult = {
         sessionId: sessionIdRef.current || newSessionId(),
         mode: modeRef.current,
+        difficulty: runDifficultyRef.current,
         score: scoreRef.current,
         bestCombo: bestComboRef.current,
         bestMultiplier: bestMultiplierRef.current,
