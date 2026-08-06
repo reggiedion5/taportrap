@@ -94,7 +94,6 @@ export function GameScreen(props: GameScreenProps) {
         shake && !reducedMotion ? "animate-shake-hit" : ""
       }`}
     >
-
       <ArcadeBackdrop />
       {flash && !reducedMotion && (
         <div className="animate-flash-red pointer-events-none absolute inset-0 z-40 bg-neon-red" />

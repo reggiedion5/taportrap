@@ -30,8 +30,13 @@ function keyFor(target: object, type: string, handler: unknown, capture: boolean
   return { target, type, handler, capture } as unknown as object;
 }
 
-const keys: Array<{ id: object; target: object; type: string; handler: unknown; capture: boolean }> =
-  [];
+const keys: Array<{
+  id: object;
+  target: object;
+  type: string;
+  handler: unknown;
+  capture: boolean;
+}> = [];
 
 function findKey(target: object, type: string, handler: unknown, capture: boolean) {
   return keys.find(

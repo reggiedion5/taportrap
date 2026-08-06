@@ -1,15 +1,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it, beforeEach, afterEach } from "vitest";
-import {
-  isBodyScrollLocked,
-  releaseBodyScrollLock,
-  setBodyScrollLock,
-} from "@/lib/bodyScrollLock";
-import {
-  installListenerAudit,
-  listActiveGlobalTouchListeners,
-} from "@/lib/listenerAudit";
+import { isBodyScrollLocked, releaseBodyScrollLock, setBodyScrollLock } from "@/lib/bodyScrollLock";
+import { installListenerAudit, listActiveGlobalTouchListeners } from "@/lib/listenerAudit";
 
 const root = process.cwd();
 const read = (p: string) => readFileSync(path.join(root, p), "utf8");
@@ -135,15 +128,11 @@ describe("native scroll structure", () => {
   });
 
   it("suppresses native gestures only on the gameplay surface", () => {
-    expect(styles).toMatch(
-      /\[data-gameplay-surface="true"\]\s*{[^}]*touch-action:\s*none/s,
-    );
+    expect(styles).toMatch(/\[data-gameplay-surface="true"\]\s*{[^}]*touch-action:\s*none/s);
   });
 
   it("marks the gameplay screen as the gameplay surface", () => {
-    expect(read("src/components/game/GameScreen.tsx")).toMatch(
-      /data-gameplay-surface="true"/,
-    );
+    expect(read("src/components/game/GameScreen.tsx")).toMatch(/data-gameplay-surface="true"/);
   });
 
   const scrollableScreens = [
