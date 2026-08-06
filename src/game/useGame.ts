@@ -601,9 +601,10 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
         expireTimer.current = null;
       }
 
+      const nativeIOS = isNativePlatform() && isIOS();
       const result = resolveScore(base, comboRef.current);
-      comboRef.current = result.combo;
-      setCombo(result.combo);
+      comboRef.current = GAME_FEATURES.comboSystem ? result.combo : 0;
+      setCombo(comboRef.current);
       bestComboRef.current = Math.max(bestComboRef.current, result.combo);
       bestMultiplierRef.current = Math.max(bestMultiplierRef.current, result.multiplier);
       setBestCombo(bestComboRef.current);
@@ -611,25 +612,73 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       setScore(scoreRef.current);
       setScorePulse((p) => p + 1);
 
+      // ---- timing classification (Phase 1) ----
+      const window_ = Math.max(1, t.duration);
+      const hasReaction = reaction !== null && Number.isFinite(reaction);
+      const timing: TapTiming = hasReaction ? classifyTap(reaction as number, window_) : "good";
+      const closeCall =
+        GAME_FEATURES.closeCallSystem && hasReaction
+          ? isCloseCall(reaction as number, window_)
+          : false;
+
       const stats = runStatsRef.current;
+      const record = runRecordRef.current;
       stats.successes += 1;
+      record.taps += 1;
       if (t.color === "gold") stats.gold += 1;
       if (t.color === "red") stats.trapsAvoided += 1;
       if (t.color === "purple") stats.purpleCompletions += 1;
-      if (reaction !== null && Number.isFinite(reaction)) {
-        reactionsRef.current.push(reaction);
-        const grade = gradeReaction(reaction);
+      if (hasReaction) {
+        const ms = reaction as number;
+        reactionsRef.current.push(ms);
+        record.reactionSamples += 1;
+        record.totalReactionTime += ms;
+        record.fastestReaction =
+          record.fastestReaction === null ? ms : Math.min(record.fastestReaction, ms);
+        const grade = gradeReaction(ms);
         if (grade === "PERFECT") stats.perfect += 1;
         else if (grade === "FAST") stats.fast += 1;
         else stats.good += 1;
+        if (GAME_FEATURES.perfectTapSystem) {
+          if (timing === "perfect") record.perfectTaps += 1;
+          else if (timing === "great") record.greatTaps += 1;
+        }
+        if (closeCall) record.closeCalls += 1;
+        setLastTap({ timing, reaction: Math.round(ms), closeCall });
       }
       setRunStats({ ...stats });
 
-      pushFeedback(`+${result.total} • ${result.multiplier}X`, label, t.x, t.y, t.color);
+      const timingText = closeCall
+        ? closeCallMessage(reaction as number, window_)
+        : GAME_FEATURES.perfectTapSystem && hasReaction && timing !== "good"
+          ? TIMING_LABEL[timing]
+          : label;
+      const tone =
+        closeCall || timing === "great" ? "green" : timing === "perfect" ? "gold" : t.color;
+      pushFeedback(timingText, `+${result.total} ×${result.multiplier}`, t.x, t.y, tone);
+
+      // ---- game feel ----
+      if (!reducedMotion && !nativeIOS) {
+        if (GAME_FEATURES.perfectTapSystem && timing === "perfect" && hasReaction) {
+          setPerfectFlash(true);
+          later(() => setPerfectFlash(false), 220);
+          setBurst({ id: t.id, x: t.x, y: t.y });
+          later(() => setBurst(null), 700);
+        } else if (GAME_FEATURES.perfectTapSystem && timing === "great" && hasReaction) {
+          setGreatFlash(true);
+          later(() => setGreatFlash(false), 180);
+        }
+        if (closeCall) {
+          setShake(true);
+          later(() => setShake(false), 220);
+        }
+      }
 
       if (t.color === "gold") {
-        setBurst({ id: t.id, x: t.x, y: t.y });
-        later(() => setBurst(null), 700);
+        if (!nativeIOS && !reducedMotion) {
+          setBurst({ id: t.id, x: t.x, y: t.y });
+          later(() => setBurst(null), 700);
+        }
         playSound("gold");
         vibrate("gold");
       } else if (t.color === "purple") {
@@ -640,14 +689,22 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
         vibrate("success");
       } else {
         playSound("tap");
-        vibrate("success");
+        vibrate(timing === "perfect" ? "gold" : "success");
+      }
+
+      // ---- combo milestones ----
+      const reached = GAME_FEATURES.comboSystem ? milestoneFor(comboRef.current) : null;
+      if (reached) {
+        setMilestone({ id: ++idRef.current, label: reached.label });
+        setPulse((p) => p + 1);
+        later(() => setMilestone(null), 950);
+        playSound("combo");
+        vibrate("combo");
       }
 
       if (result.isMilestone) {
         setComboFlash(result.multiplier);
         later(() => setComboFlash(null), 900);
-        playSound("combo");
-        vibrate("combo");
       }
 
       // exit animation, then schedule the next target
