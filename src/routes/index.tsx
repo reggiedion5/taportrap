@@ -146,10 +146,7 @@ function TapOrTrap() {
       fresh.forEach((a) => shownToastIds.current.add(a.id));
       pendingToasts.current = [];
       if (fresh.length > 0) {
-        setToasts((prev) => [
-          ...prev,
-          ...fresh.filter((a) => !prev.some((p) => p.id === a.id)),
-        ]);
+        setToasts((prev) => [...prev, ...fresh.filter((a) => !prev.some((p) => p.id === a.id))]);
       }
     }
   }, [game.phase]);
@@ -497,7 +494,6 @@ function TapOrTrap() {
             onHome={goToMenu}
           />
         ))}
-
 
       <ModeSelector
         open={overlay === "modes"}

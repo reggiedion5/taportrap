@@ -84,7 +84,6 @@ export interface SessionSummary {
   claimableXp: number;
 }
 
-
 const EMPTY_SNAPSHOT: ProgressSnapshot = {
   profile: defaultProfile(),
   statistics: {
@@ -141,7 +140,6 @@ const EMPTY_SNAPSHOT: ProgressSnapshot = {
   missions: defaultMissionsState("1970-01-01"),
   mission: null,
 };
-
 
 function emptyMode() {
   return {
@@ -411,9 +409,6 @@ export function useProgress() {
     }
     return total;
   }, [claimDailyMission, claimAchievement]);
-
-
-
 
   /* ---------------- session recording ---------------- */
 
@@ -725,7 +720,6 @@ export function useProgress() {
         daily,
         missions,
         mission,
-
       };
     })(snapshotRef.current);
 
@@ -773,7 +767,6 @@ export function useProgress() {
     const def = ACHIEVEMENTS.find((a) => a.id === open.id);
     return def ? { def, progress: open } : null;
   }, [achievementList]);
-
 
   /** Achievements unlocked whose XP reward is still waiting to be collected. */
   const claimableAchievementCount = useMemo(

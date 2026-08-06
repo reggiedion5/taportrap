@@ -273,11 +273,7 @@ export function missionValueFromRun(
   }
 }
 
-export function mergeMissionValue(
-  mission: DailyMission,
-  previous: number,
-  next: number,
-): number {
+export function mergeMissionValue(mission: DailyMission, previous: number, next: number): number {
   if (!Number.isFinite(next) || next < 0) return previous;
   if (mission.accumulate === "sum") return previous + next;
   if (mission.lowerIsBetter) return previous <= 0 ? next : Math.min(previous, next);

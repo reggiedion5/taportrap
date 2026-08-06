@@ -65,7 +65,10 @@ export function MissionRow({
         >
           <div
             className="h-full rounded-full bg-gradient-to-r from-logo-green to-neon-gold"
-            style={{ width: `${pct}%`, transition: reducedMotion ? "none" : "width 400ms ease-out" }}
+            style={{
+              width: `${pct}%`,
+              transition: reducedMotion ? "none" : "width 400ms ease-out",
+            }}
           />
         </div>
 
