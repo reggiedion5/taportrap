@@ -29,6 +29,7 @@ import { AchievementScreen } from "@/components/game/AchievementScreen";
 import { StatisticsScreen } from "@/components/game/StatisticsScreen";
 import { BOARDS } from "@/game/boards";
 import { BoardCollectionScreen } from "@/components/game/BoardCollectionScreen";
+import { BoardUnlockToast } from "@/components/game/BoardUnlockToast";
 import { BoardProvider } from "@/components/game/BoardContext";
 import { HowToPlayModal } from "@/components/game/HowToPlayModal";
 import { AchievementToastQueue } from "@/components/game/AchievementToastQueue";
@@ -85,6 +86,7 @@ function TapOrTrap() {
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [toasts, setToasts] = useState<Achievement[]>([]);
   const [focusAchievement, setFocusAchievement] = useState<string | null>(null);
+  const [boardToasts, setBoardToasts] = useState<string[]>([]);
   const shownToastIds = useRef<Set<string>>(new Set());
 
   // selected playable mode (competitive modes live in progress, training here)
@@ -115,6 +117,12 @@ function TapOrTrap() {
       setSummary(next);
       console.info("[loss-debug] after setSummary");
       pendingToasts.current = next.unlockedAchievements;
+      if (next.unlockedBoards.length > 0) {
+        setBoardToasts((prev) => [
+          ...prev,
+          ...next.unlockedBoards.filter((id) => !prev.includes(id)),
+        ]);
+      }
       if (next.unlockedAchievements.length > 0) playSound("unlock");
     },
     [progress],
@@ -580,6 +588,15 @@ function TapOrTrap() {
           setOverlay("achievements");
         }}
       />
+
+      {showHome && (
+        <BoardUnlockToast
+          queue={boardToasts}
+          reducedMotion={game.reducedMotion}
+          onDismiss={(id) => setBoardToasts((prev) => prev.filter((b) => b !== id))}
+          onEquip={progress.setBoard}
+        />
+      )}
 
       <DiagnosticPanel
         phase={game.phase}
