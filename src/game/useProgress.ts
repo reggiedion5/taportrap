@@ -703,6 +703,107 @@ export function useProgress() {
       });
       const unlockedBoards = afterBoards.filter((id) => !beforeBoards.includes(id));
 
+      /* ---- phase 3: history, streak, weekly, cosmetics ---- */
+      const lifetimeCloseCalls =
+        prev.phase3.runHistory.reduce((sum, h) => sum + h.closeCalls, 0) +
+        (stats.closeCalls ?? 0);
+      const bestExpertScore = Object.values(records.highScoreByDifficulty).reduce(
+        (best, byDifficulty) => Math.max(best, byDifficulty.expert ?? 0),
+        0,
+      );
+      const cosmetics: CosmeticContext = {
+        ...emptyCosmeticContext(),
+        perfectCount: statistics.perfectCount,
+        bestCombo: statistics.bestCombo,
+        closeCalls: lifetimeCloseCalls,
+        chaosRuns: prev.phase3.chaosRuns,
+        boardsEquipped: prev.phase3.uniqueBoardEquipHistory.length,
+        boardsUnlocked: afterBoards.length,
+        boardsTotal: BOARDS.length,
+        dailyMissionsCompleted: missions.lifetimeCompleted,
+        playStreakLongest: prev.phase3.streak.longest,
+        gamesPlayed: statistics.gamesPlayed,
+        level: applied.level,
+        bestScore: Math.max(0, ...Object.values(records.highScore)),
+        bestExpertScore,
+        loginCyclesCompleted: prev.phase3.login.completedCycles,
+      };
+
+      const phase3Outcome = applyRunToPhase3(prev.phase3, {
+        result,
+        difficulty: runDifficulty,
+        boardId: prev.profile.selectedBoardId ?? DEFAULT_BOARD_ID,
+        xpEarned: totalXp,
+        newBest: isNewModeHighScore,
+        dailyMissionsCompleted: missionOutcome.completed.length,
+        cosmetics,
+        today,
+        timestamp: now,
+      });
+
+      // Streak milestone XP is paid immediately, on top of the run's XP.
+      let phase3 = phase3Outcome.state;
+      let finalProfile = profile;
+      let levelsGained = applied.levelsGained;
+      let grandTotalXp = totalXp;
+      if (phase3Outcome.streakXp > 0) {
+        const streakApplied = applyXp(profile, phase3Outcome.streakXp);
+        finalProfile = {
+          ...profile,
+          level: streakApplied.level,
+          currentXp: streakApplied.currentXp,
+          lifetimeXp: streakApplied.lifetimeXp,
+        };
+        levelsGained += streakApplied.levelsGained;
+        grandTotalXp += phase3Outcome.streakXp;
+        xp.entries.push({ label: "Play streak", xp: phase3Outcome.streakXp });
+      }
+
+      /* ---- notifications for phase 1/2 unlocks ---- */
+      const runNotifications: NotificationInput[] = [
+        ...unlocked.map((a) => ({
+          id: `achievement-${a.id}`,
+          kind: "achievement" as const,
+          title: "Achievement unlocked",
+          body: `${a.name} — claim ${a.rewardXp} XP.`,
+          target: "achievements" as const,
+        })),
+        ...unlockedBoards.map((id) => ({
+          id: `board-${id}`,
+          kind: "board" as const,
+          title: "New board unlocked",
+          body: boardById(id).name,
+          target: "boards" as const,
+        })),
+        ...missionOutcome.completed.map((m) => ({
+          id: `mission-${today}-${m.id}`,
+          kind: "mission" as const,
+          title: "Daily mission complete",
+          body: `${m.title} — claim ${m.rewardXp} XP.`,
+          target: "missions" as const,
+        })),
+      ];
+      if (finalProfile.level > levelBefore) {
+        runNotifications.push({
+          id: `level-${finalProfile.level}`,
+          kind: "level",
+          title: `Level ${finalProfile.level}`,
+          body: "You levelled up. New boards may be waiting.",
+          target: "profile",
+        });
+      }
+      const pushedRun = pushNotifications(
+        phase3.notifications,
+        phase3.processedNotificationIds,
+        runNotifications,
+        now,
+      );
+      phase3 = {
+        ...phase3,
+        notifications: pushedRun.notifications,
+        processedNotificationIds: pushedRun.processedIds,
+      };
+
       /* ---- post-game mission ---- */
       let missionCompleted: PostGameMission | null = null;
       let mission = prev.mission;
@@ -727,11 +828,11 @@ export function useProgress() {
       summary = {
         sessionId: result.sessionId,
         result,
-        xp: { entries: xp.entries, total: totalXp },
+        xp: { entries: xp.entries, total: grandTotalXp },
         dailyXp,
         levelBefore,
-        levelAfter: applied.level,
-        levelsGained: applied.levelsGained,
+        levelAfter: finalProfile.level,
+        levelsGained,
         newRecords,
         unlockedAchievements: unlocked,
         unlockedBoards,
@@ -742,6 +843,12 @@ export function useProgress() {
         dailyMissionsCompleted: missionOutcome.completed,
         dailyMissionsAdvanced: missionOutcome.advanced,
         claimableXp,
+        playStreak: phase3Outcome.streakDays,
+        streakXpAwarded: phase3Outcome.streakXp,
+        streakMilestones: phase3Outcome.milestoneDays,
+        weeklyCompleted: phase3Outcome.weeklyCompleted,
+        unlockedTitleIds: phase3Outcome.unlockedTitleIds,
+        unlockedBadgeIds: phase3Outcome.unlockedBadgeIds,
       };
 
       writeJson(KEYS.statistics, statistics);
@@ -749,17 +856,19 @@ export function useProgress() {
       writeJson(KEYS.daily, daily);
       writeJson(KEYS.dailyMissions, missions);
       writeJson(KEYS.achievements, achievements);
-      writeJson(KEYS.profile, profile);
+      writeJson(KEYS.profile, finalProfile);
       writeJson(KEYS.mission, mission);
+      writeJson(KEYS.phase3, phase3);
 
       return {
-        profile,
+        profile: finalProfile,
         statistics,
         records,
         achievements,
         daily,
         missions,
         mission,
+        phase3,
       };
     })(snapshotRef.current);
 
