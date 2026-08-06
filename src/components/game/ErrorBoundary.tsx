@@ -28,6 +28,9 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: ErrorInfo) {
     // The native splash must never be left covering a recovery screen.
     hideSplashScreen();
+    // A crash mid-run must not leave the document scroll-locked.
+    releaseBodyScrollLock();
+
     if (IS_DEV) {
       console.error("[Tap or Trap!] Unhandled UI error", error, info.componentStack);
     }
