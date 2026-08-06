@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Home, Repeat, Trophy, Zap } from "lucide-react";
 import { MODE_CONFIG } from "@/game/modes";
 import { GAME_OVER_HEADLINE, GAME_OVER_MESSAGE } from "@/game/types";
 import type { PersonalRecordKey } from "@/game/progressionTypes";
@@ -9,6 +9,7 @@ import { formatMsValue } from "@/game/format";
 import { ArcadeBackdrop } from "./ArcadeBackdrop";
 import { XpProgressBar } from "./XpProgressBar";
 import { ShareButton } from "./ShareButton";
+import { ArcButton, ChromeCard } from "./ArcUI";
 
 interface GameOverScreenProps {
   summary: SessionSummary;
@@ -25,9 +26,8 @@ interface GameOverScreenProps {
 const STAGE_DELAYS = [420, 480, 520];
 
 /**
- * Hierarchy, top to bottom: outcome → score → what to do next → everything
- * else. Rewards and run details are secondary and never push the primary
- * action below the fold.
+ * Chrome arcade game over: metallic headline over red energy, a chrome score
+ * card, then glowing actions. Rewards and details stay secondary.
  */
 export function GameOverScreen({
   summary,
@@ -44,16 +44,6 @@ export function GameOverScreen({
   const config = MODE_CONFIG[result.mode];
   const [stage, setStage] = useState(reducedMotion ? 3 : 0);
   const [detailsOpen, setDetailsOpen] = useState(false);
-
-  console.info("[loss-debug] GameOverScreen render", {
-    phase: "over",
-    summaryExists: true,
-    score: summary.result.score,
-    bestScore: summary.modeHighScore,
-    lives: summary.result.livesRemaining,
-    currentRound: summary.result.stats.successes,
-    animationFlags: { stage, reducedMotion, detailsOpen },
-  });
 
   useEffect(() => {
     if (reducedMotion || stage >= 3) return;
@@ -88,77 +78,80 @@ export function GameOverScreen({
   return (
     <div className="no-select safe-area relative min-h-[100dvh] overflow-hidden">
       <ArcadeBackdrop />
-      <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center px-5 py-8">
+      <div className="animate-screen-in relative mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col justify-center px-5 py-8">
         {/* ---- 1. outcome ---- */}
-        <p className="sticker-sm text-center text-[11px] tracking-[0.3em] text-arcade-text/80">
-          {config.name.toUpperCase()} MODE
-        </p>
-        <h1 className="mt-2 text-center text-[clamp(34px,11vw,56px)] leading-none">
-          <span
-            className={`sticker-text text-neon-red glow-red ${reducedMotion ? "" : "animate-slam"}`}
+        <div className="relative">
+          {/* red energy behind the title */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -top-8 h-40 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--logo-red)_38%,transparent),transparent_68%)] blur-xl"
+          />
+          <p className="ui-title relative text-center text-[11px] tracking-[0.3em] text-arcade-muted">
+            {config.name.toUpperCase()} MODE
+          </p>
+          <h1
+            className={`chrome-heading relative mt-1 text-center text-[clamp(38px,13vw,64px)] leading-[0.95] ${
+              reducedMotion ? "" : "animate-slam"
+            }`}
           >
             {result.reason ? GAME_OVER_HEADLINE[result.reason] : config.overTitle.toUpperCase()}
-          </span>
-        </h1>
-        {result.reason && (
-          <p className="ui-body mt-2.5 text-center text-[15px] font-semibold text-arcade-text">
-            {GAME_OVER_MESSAGE[result.reason]}
-          </p>
-        )}
-
-        {/* ---- 2. score ---- */}
-        <div className="arcade-panel mt-4 p-5 text-center">
-          <p className="sticker-sm text-[11px] tracking-[0.25em] text-arcade-text/80">
-            FINAL SCORE
-          </p>
-          <p className="sticker-text text-[clamp(56px,20vw,84px)] leading-none text-neon-gold glow-gold tabular-nums">
-            {result.score}
-          </p>
-          <p className="sticker-sm mt-1 text-[11px] tracking-[0.18em] text-arcade-text/85">
-            {config.name.toUpperCase()} BEST {summary.modeHighScore}
-          </p>
-          {has("score") && (
-            <p className="sticker-sm shimmer-text mt-2 text-sm tracking-[0.2em]">NEW BEST</p>
+          </h1>
+          {result.reason && (
+            <p className="ui-body relative mt-2 text-center text-[15px] font-semibold text-arcade-text">
+              {GAME_OVER_MESSAGE[result.reason]}
+            </p>
           )}
         </div>
 
+        {/* ---- 2. score ---- */}
+        <ChromeCard className="mt-4" faceClassName="p-5 text-center">
+          <p className="ui-title text-[11px] tracking-[0.25em] text-arcade-muted">FINAL SCORE</p>
+          <p className="score-digits text-[clamp(56px,20vw,84px)] leading-none">{result.score}</p>
+          <p className="ui-title mt-1 text-[12px] tracking-[0.18em] text-arcade-muted">
+            {config.name.toUpperCase()} BEST {summary.modeHighScore}
+          </p>
+          {has("score") && (
+            <p
+              className={`score-digits mt-2 text-lg tracking-[0.2em] ${reducedMotion ? "" : "animate-gold-burst"}`}
+            >
+              NEW BEST!
+            </p>
+          )}
+        </ChromeCard>
+
         {/* ---- 3. what to do next ---- */}
         <div className="mt-4 grid gap-3">
-          <button
-            type="button"
+          <ArcButton
+            tone="green"
+            size="lg"
             onClick={onPlayAgain}
-            className="arcade-btn sticker-sm min-h-16 w-full bg-neon-green py-5 text-2xl tracking-tight text-arcade-bg-deep shadow-[0_0_40px_-8px_var(--neon-green)]"
+            className={reducedMotion ? "" : "animate-glow-pulse"}
+            faceClassName="text-2xl tracking-tight"
+            icon={<Zap className="size-6 fill-current" aria-hidden />}
           >
-            Play Again →
-          </button>
+            PLAY AGAIN
+          </ArcButton>
           <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
+            <ArcButton
               onClick={onChangeMode}
-              className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
+              icon={<Repeat className="icon-chrome size-4" aria-hidden />}
             >
               Change Mode
-            </button>
-            <button
-              type="button"
-              onClick={onMenu}
-              className="arcade-btn ui-title min-h-12 border border-arcade-line bg-arcade-surface py-4 text-base text-arcade-text"
-            >
-              Main Menu
-            </button>
+            </ArcButton>
+            <ArcButton onClick={onMenu} icon={<Home className="icon-chrome size-4" aria-hidden />}>
+              Home
+            </ArcButton>
           </div>
         </div>
 
         {/* ---- 4. rewards ---- */}
         {stage >= 1 && (
-          <div className="arcade-panel mt-4 p-4">
+          <ChromeCard className="mt-4" faceClassName="p-4">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="sticker-sm text-[11px] tracking-[0.2em] text-arcade-text/80">
+              <span className="ui-title text-[11px] tracking-[0.2em] text-arcade-muted">
                 XP EARNED
               </span>
-              <span className="sticker-sm text-2xl text-neon-green glow-green tabular-nums">
-                +{summary.xp.total}
-              </span>
+              <span className="score-digits text-2xl">+{summary.xp.total}</span>
             </div>
             <div className="mt-3">
               <XpProgressBar
@@ -171,39 +164,39 @@ export function GameOverScreen({
             </div>
             {summary.levelsGained > 0 && (
               <p
-                className={`sticker-text mt-3 text-center text-2xl text-neon-gold glow-gold ${reducedMotion ? "" : "animate-slam"}`}
+                className={`score-digits mt-3 text-center text-2xl ${reducedMotion ? "" : "animate-gold-burst"}`}
                 aria-live="polite"
               >
                 LEVEL UP! {summary.levelBefore} → {summary.levelAfter}
               </p>
             )}
             {highlights.length > 0 && (
-              <p className="sticker-sm mt-3 text-center text-[11px] tracking-[0.16em] text-neon-purple glow-purple">
+              <p className="ui-title mt-3 text-center text-[11px] tracking-[0.16em] text-neon-purple glow-purple">
                 {highlights.join(" · ")}
               </p>
             )}
-          </div>
+          </ChromeCard>
         )}
 
         {/* ---- 5. details on demand ---- */}
         {stage >= 2 && (
           <div className="mt-4">
-            <button
-              type="button"
+            <ArcButton
               aria-expanded={detailsOpen}
               onClick={() => setDetailsOpen((v) => !v)}
-              className="arcade-btn ui-title flex min-h-12 w-full items-center justify-center gap-2 border border-arcade-line bg-arcade-surface py-3 text-[15px] text-arcade-text"
+              icon={
+                <ChevronDown
+                  className={`icon-chrome size-4 transition-transform ${detailsOpen ? "rotate-180" : ""}`}
+                  aria-hidden
+                />
+              }
             >
               {detailsOpen ? "Hide run details" : "Run details"}
-              <ChevronDown
-                className={`size-4 transition-transform ${detailsOpen ? "rotate-180" : ""}`}
-                aria-hidden
-              />
-            </button>
+            </ArcButton>
 
             {detailsOpen && (
               <div className="mt-3 grid gap-3">
-                <div className="arcade-panel grid grid-cols-3 gap-3 p-4">
+                <ChromeCard faceClassName="grid grid-cols-3 gap-3 p-4">
                   <Stat
                     label="BEST COMBO"
                     value={`${result.bestCombo}x`}
@@ -230,11 +223,11 @@ export function GameOverScreen({
                     value={String(result.stats.trapsAvoided)}
                     isRecord={has("mostTrapsAvoidedInRun")}
                   />
-                </div>
+                </ChromeCard>
 
                 {summary.xp.entries.length > 0 && (
-                  <div className="arcade-panel p-4">
-                    <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
+                  <ChromeCard faceClassName="p-4">
+                    <p className="ui-title text-[10px] tracking-[0.22em] text-arcade-muted">
                       XP BREAKDOWN
                     </p>
                     <ul className="mt-2 space-y-1">
@@ -248,60 +241,64 @@ export function GameOverScreen({
                         </li>
                       ))}
                     </ul>
-                  </div>
+                  </ChromeCard>
                 )}
 
                 {summary.dailyProgress && (
-                  <div className="arcade-panel p-4">
-                    <p className="sticker-sm text-[10px] tracking-[0.22em] text-neon-gold glow-gold">
+                  <ChromeCard faceClassName="p-4">
+                    <p className="ui-title text-[10px] tracking-[0.22em] text-neon-gold glow-gold">
                       DAILY CHALLENGE
                     </p>
                     <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
                       {dailyObjective}
                     </p>
-                    <p className="sticker-sm mt-1 text-xs tracking-[0.14em] text-arcade-text/85">
+                    <p className="ui-title mt-1 text-xs tracking-[0.14em] text-arcade-muted">
                       {summary.dailyProgress.completed
                         ? "COMPLETED · New challenge tomorrow"
                         : `${Math.round(summary.dailyProgress.value)} / ${summary.dailyProgress.target}`}
                     </p>
-                  </div>
+                  </ChromeCard>
                 )}
 
                 {summary.unlockedAchievements.length > 0 && (
-                  <div className="arcade-panel p-4">
-                    <p className="sticker-sm text-[10px] tracking-[0.22em] text-neon-purple glow-purple">
+                  <ChromeCard faceClassName="p-4">
+                    <p className="ui-title flex items-center gap-2 text-[10px] tracking-[0.22em] text-neon-purple glow-purple">
+                      <Trophy className="icon-chrome size-3.5" aria-hidden />
                       ACHIEVEMENTS UNLOCKED
                     </p>
                     <ul className="mt-1 space-y-1">
                       {summary.unlockedAchievements.map((a) => (
-                        <li key={a.id} className="ui-body text-[15px] font-semibold text-arcade-text">
+                        <li
+                          key={a.id}
+                          className="ui-body text-[15px] font-semibold text-arcade-text"
+                        >
                           {a.title} · +{a.rewardXp} XP
                         </li>
                       ))}
                     </ul>
-                  </div>
+                  </ChromeCard>
                 )}
 
                 {summary.unlockedThemes.length > 0 && (
-                  <div className="arcade-panel p-4">
-                    <p className="sticker-sm text-[10px] tracking-[0.22em] text-neon-green glow-green">
+                  <ChromeCard faceClassName="p-4">
+                    <p className="ui-title text-[10px] tracking-[0.22em] text-logo-green glow-green">
                       THEME UNLOCKED
                     </p>
                     <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
                       {summary.unlockedThemes.join(", ")}
                     </p>
-                  </div>
+                  </ChromeCard>
                 )}
 
                 {summary.missionCompleted && (
-                  <div className="arcade-panel border-2 border-neon-green p-4">
-                    <p className="sticker-sm text-[10px] tracking-[0.22em] text-neon-green glow-green">
+                  <ChromeCard faceClassName="p-4">
+                    <p className="ui-title text-[10px] tracking-[0.22em] text-logo-green glow-green">
                       MISSION COMPLETE
                     </p>
                     <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
                       {summary.missionCompleted.label}
                     </p>
-                  </div>
+                  </ChromeCard>
                 )}
               </div>
             )}
@@ -309,14 +306,14 @@ export function GameOverScreen({
         )}
 
         {stage >= 3 && summary.mission && (
-          <div className="arcade-panel mt-4 p-4">
-            <p className="sticker-sm text-[10px] tracking-[0.22em] text-arcade-text/80">
+          <ChromeCard className="mt-4" faceClassName="p-4">
+            <p className="ui-title text-[10px] tracking-[0.22em] text-arcade-muted">
               NEXT RUN MISSION
             </p>
             <p className="ui-body mt-1.5 text-[15px] font-semibold text-arcade-text">
               {summary.mission.label}
             </p>
-          </div>
+          </ChromeCard>
         )}
 
         <div className="mt-4 pb-2">
@@ -338,14 +335,14 @@ function Stat({
 }) {
   return (
     <div
-      className={`rounded-2xl border bg-arcade-surface/70 px-2 py-3 text-center ${
-        isRecord ? "border-neon-gold" : "border-arcade-line"
+      className={`rounded-2xl border bg-arcade-surface/60 px-2 py-3 text-center shadow-[inset_0_1px_0_oklch(1_0_0_/_0.12)] ${
+        isRecord ? "border-neon-gold" : "border-arcade-line/70"
       }`}
     >
-      <p className="sticker-sm text-[11px] tracking-[0.12em] text-arcade-muted">{label}</p>
-      <p className="sticker-sm mt-1 text-lg text-arcade-text tabular-nums">{value}</p>
+      <p className="ui-title text-[11px] tracking-[0.12em] text-arcade-muted">{label}</p>
+      <p className="score-digits mt-1 text-lg">{value}</p>
       {isRecord && (
-        <p className="sticker-sm mt-1 text-[10px] tracking-[0.14em] text-neon-gold glow-gold">
+        <p className="ui-title mt-1 text-[10px] tracking-[0.14em] text-neon-gold glow-gold">
           NEW BEST
         </p>
       )}
