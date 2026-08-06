@@ -307,6 +307,32 @@ export function migrateDifficultyBests(
   return { ...records, highScoreByDifficulty };
 }
 
+/**
+ * Immutably raises the best score for one mode + difficulty. Unknown difficulty
+ * ids fall back to "standard" and other buckets are always preserved.
+ */
+export function applyDifficultyBest(
+  records: PersonalRecords,
+  mode: GameMode,
+  difficulty: unknown,
+  score: number,
+): PersonalRecords {
+  if (!isGameMode(mode)) return records;
+  const id = isDifficulty(difficulty) ? difficulty : "standard";
+  const value = int(score);
+  const current = records.highScoreByDifficulty[mode]?.[id] ?? 0;
+  if (value <= current) return records;
+  return {
+    ...records,
+    highScoreByDifficulty: {
+      ...records.highScoreByDifficulty,
+      [mode]: { ...records.highScoreByDifficulty[mode], [id]: value },
+    },
+  };
+}
+
+
+
 function parseRecords(raw: unknown): PersonalRecords {
   const src = asRecord(raw);
   const high = asRecord(src.highScore);
