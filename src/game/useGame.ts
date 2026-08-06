@@ -829,6 +829,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     runIdRef.current += 1;
     endedRef.current = false;
     sessionIdRef.current = newSessionId();
+    runDifficultyRef.current = isDifficulty(difficulty) ? difficulty : "standard";
     startedAtRef.current = performance.now();
     scoreRef.current = 0;
     comboRef.current = 0;
