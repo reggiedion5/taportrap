@@ -19,6 +19,15 @@ import {
   type DifficultyLevel,
 } from "./difficulty";
 import { playSound, resumeAudio, setSoundEnabled, suspendAudio, unlockAudio } from "./audio";
+import {
+  installMusicUnlock,
+  playTrack,
+  resumeMusic,
+  setMusicEnabled,
+  setMusicIntensity,
+  stopMusic,
+  suspendMusic,
+} from "./music";
 import { setVibrationEnabled, vibrate } from "./haptics";
 import { gradeReaction, multiplierForCombo, resolveScore } from "./scoring";
 import { pickPlacement, targetSizeFor, type AreaBounds } from "./positioning";
