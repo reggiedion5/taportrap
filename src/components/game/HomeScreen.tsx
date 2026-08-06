@@ -145,6 +145,7 @@ export function HomeScreen({
                   : "Open notifications"
               }
               onClick={onOpenNotifications}
+              iconOnly
               className="relative w-auto"
               faceClassName="size-11 min-h-11 !px-0"
               icon={<Bell className="icon-chrome size-5" />}
@@ -159,12 +160,14 @@ export function HomeScreen({
             <ArcButton
               aria-label="Open settings"
               onClick={onOpenSettings}
+              iconOnly
               className="w-auto"
               faceClassName="size-11 min-h-11 !px-0"
               icon={<Settings2 className="icon-chrome size-5" />}
             >
               <span className="sr-only">Settings</span>
             </ArcButton>
+
           </div>
         </header>
 
