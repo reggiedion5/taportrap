@@ -29,7 +29,7 @@ const config: CapacitorConfig = {
     contentInset: "never",
     backgroundColor: "#07080f",
     limitsNavigationsToAppBoundDomains: true,
-    scrollEnabled: false,
+    scrollEnabled: true,
   },
   android: {
     backgroundColor: "#07080f",
