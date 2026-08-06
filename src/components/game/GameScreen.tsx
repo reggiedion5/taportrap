@@ -218,6 +218,17 @@ export function GameScreen(props: GameScreenProps) {
             </span>
           )}
 
+          {props.milestone && (
+            <span
+              key={props.milestone.id}
+              className={`sticker-text pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 text-center text-3xl text-neon-gold glow-gold ${
+                reducedMotion ? "" : "animate-float-up"
+              }`}
+            >
+              {props.milestone.label}
+            </span>
+          )}
+
           {props.levelUp && props.levelUp.level > 1 && (
             <span className="sticker-sm animate-float-up pointer-events-none absolute top-6 left-1/2 -translate-x-1/2 text-xs tracking-[0.3em] text-neon-gold glow-gold">
               LEVEL {props.levelUp.level} · {props.levelUp.label.toUpperCase()}
