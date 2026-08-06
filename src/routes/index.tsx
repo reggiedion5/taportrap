@@ -37,6 +37,7 @@ import { FeedbackModal } from "@/components/game/FeedbackModal";
 import { PreGameCountdown } from "@/components/game/PreGameCountdown";
 import type { ResetScope } from "@/components/game/DataResetSheet";
 import { ACHIEVEMENTS } from "@/game/achievements";
+import { DiagnosticPanel } from "@/components/game/DiagnosticPanel";
 
 const TITLE = "Tap or Trap! — Neon Reaction Arcade Game";
 const DESCRIPTION =
