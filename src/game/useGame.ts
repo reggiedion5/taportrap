@@ -295,9 +295,25 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
         fastestReaction: fastest,
       };
       runStatsRef.current = stats;
+
+      // Phase 1 statistics: persisted defensively, never blocking the loss flow.
+      if (GAME_FEATURES.statisticsSystem) {
+        try {
+          recordRun({
+            ...runRecordRef.current,
+            score: scoreRef.current,
+            longestCombo: bestComboRef.current,
+            durationMs: Math.max(0, Math.round(performance.now() - startedAtRef.current)),
+          });
+        } catch (error) {
+          console.warn("[phase1] statistics write failed", error);
+        }
+      }
+
       console.info("[loss-debug] before losing state setters", { stats, why });
       setRunStats(stats);
       setReason(why);
+      setMilestone(null);
 
       if (!nativeIOS && !reducedMotion && why !== null) {
         setShake(true);
