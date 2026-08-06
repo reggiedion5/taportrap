@@ -144,6 +144,12 @@ export function SettingsModal({
             onChange={(v) => onChange({ sound: v })}
           />
           <Toggle
+            label="Music"
+            description="Looping arcade background track"
+            checked={settings.music}
+            onChange={(v) => onChange({ music: v })}
+          />
+          <Toggle
             label="Haptic feedback"
             description="Vibration on taps, combos and traps"
             checked={settings.vibration}
