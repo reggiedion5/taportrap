@@ -372,19 +372,12 @@ export function useProgress() {
           ? prev.profile.selectedDifficulty
           : "standard";
       const records = {
-        ...prev.records,
+        ...applyDifficultyBest(prev.records, mode, runDifficulty, result.score),
         highScore: { ...prev.records.highScore },
-        highScoreByDifficulty: {
-          ...prev.records.highScoreByDifficulty,
-          [mode]: { ...prev.records.highScoreByDifficulty[mode] },
-        },
       };
       if (result.score > records.highScore[mode]) {
         records.highScore[mode] = result.score;
         newRecords.push("score");
-      }
-      if (result.score > records.highScoreByDifficulty[mode][runDifficulty]) {
-        records.highScoreByDifficulty[mode][runDifficulty] = result.score;
       }
       if (result.bestCombo > records.bestCombo) {
         records.bestCombo = result.bestCombo;
