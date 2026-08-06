@@ -878,6 +878,210 @@ export function useProgress() {
     return summary;
   }, []);
 
+  /* ---------------- phase 3: identity + retention ---------------- */
+
+  const phase3 = snapshot.phase3;
+
+  const commitPhase3 = useCallback(
+    (mutate: (state: Phase3State) => Phase3State | null) => {
+      const prev = snapshotRef.current;
+      const next = mutate(prev.phase3);
+      if (!next || next === prev.phase3) return;
+      writeJson(KEYS.phase3, next);
+      const merged = { ...prev, phase3: next };
+      snapshotRef.current = merged;
+      setSnapshot(merged);
+    },
+    [],
+  );
+
+  /** Grants XP and writes the profile synchronously (claim flows). */
+  const payXp = useCallback((amount: number, patch: Partial<ProgressSnapshot>) => {
+    const prev = snapshotRef.current;
+    let profile = prev.profile;
+    if (amount > 0) {
+      const applied = applyXp(prev.profile, amount);
+      profile = {
+        ...prev.profile,
+        level: applied.level,
+        currentXp: applied.currentXp,
+        lifetimeXp: applied.lifetimeXp,
+      };
+      writeJson(KEYS.profile, profile);
+    }
+    if (patch.phase3) writeJson(KEYS.phase3, patch.phase3);
+    const next = { ...prev, ...patch, profile };
+    snapshotRef.current = next;
+    setSnapshot(next);
+  }, []);
+
+  const today = localDateString();
+
+  const playStreak = useMemo(
+    () => displayedStreak(phase3.streak, today),
+    [phase3.streak, today],
+  );
+
+  const loginAvailable = useMemo(
+    () => loginRewardAvailable(phase3.login, today),
+    [phase3.login, today],
+  );
+
+  /** Claims today's login reward once. Returns the XP paid (0 if unavailable). */
+  const claimDailyLogin = useCallback((): number => {
+    const prev = snapshotRef.current;
+    const date = localDateString();
+    const claim = claimLoginReward(prev.phase3.login, date);
+    if (claim.xp <= 0 && !claim.badgeId) return 0;
+    const badgeIds = claim.badgeId && !prev.phase3.unlockedBadgeIds.includes(claim.badgeId)
+      ? [claim.badgeId]
+      : [];
+    const pushed = pushNotifications(
+      prev.phase3.notifications,
+      prev.phase3.processedNotificationIds,
+      [
+        {
+          id: `login-${date}`,
+          kind: "login",
+          title: "Login reward claimed",
+          body: `+${claim.xp} XP for today.`,
+          target: "profile",
+        },
+        ...badgeIds.map((id) => ({
+          id: `badge-${id}`,
+          kind: "badge" as const,
+          title: "New badge earned",
+          body: BADGES.find((b) => b.id === id)?.name ?? id,
+          target: "collection" as const,
+        })),
+      ],
+    );
+    const now = Date.now();
+    payXp(claim.xp, {
+      phase3: {
+        ...prev.phase3,
+        login: claim.state,
+        unlockedBadgeIds: [...prev.phase3.unlockedBadgeIds, ...badgeIds],
+        badgeUnlockDates: badgeIds.reduce(
+          (acc, id) => ({ ...acc, [id]: now }),
+          prev.phase3.badgeUnlockDates,
+        ),
+        notifications: pushed.notifications,
+        processedNotificationIds: pushed.processedIds,
+      },
+    });
+    return claim.xp;
+  }, [payXp]);
+
+  /** Claims a completed weekly challenge exactly once. */
+  const claimWeeklyChallenge = useCallback(
+    (challengeId: string): number => {
+      const prev = snapshotRef.current;
+      const weekKey = weekKeyFor();
+      const claim = claimWeekly(prev.phase3.weekly, challengeId, weekKey);
+      if (claim.xp <= 0) return 0;
+      payXp(claim.xp, { phase3: { ...prev.phase3, weekly: claim.state } });
+      return claim.xp;
+    },
+    [payXp],
+  );
+
+  const claimableWeekly = useMemo(
+    () => claimableWeeklyCount(phase3.weekly),
+    [phase3.weekly],
+  );
+
+  const equipTitle = useCallback(
+    (titleId: string) =>
+      commitPhase3((state) =>
+        state.unlockedTitleIds.includes(titleId)
+          ? { ...state, equippedTitleId: titleId }
+          : null,
+      ),
+    [commitPhase3],
+  );
+
+  const equipBadge = useCallback(
+    (badgeId: string | null) =>
+      commitPhase3((state) =>
+        badgeId === null || state.unlockedBadgeIds.includes(badgeId)
+          ? { ...state, equippedBadgeId: badgeId }
+          : null,
+      ),
+    [commitPhase3],
+  );
+
+  const markNotificationsRead = useCallback(
+    () => commitPhase3((state) => ({ ...state, notifications: markAllRead(state.notifications) })),
+    [commitPhase3],
+  );
+
+  const markNotificationRead = useCallback(
+    (id: string) =>
+      commitPhase3((state) => ({ ...state, notifications: markRead(state.notifications, id) })),
+    [commitPhase3],
+  );
+
+  const clearNotifications = useCallback(
+    () => commitPhase3((state) => ({ ...state, notifications: [] })),
+    [commitPhase3],
+  );
+
+  const clearHistory = useCallback(() => {
+    const fresh = resetPhase3History();
+    const prev = snapshotRef.current;
+    const next = { ...prev, phase3: fresh };
+    snapshotRef.current = next;
+    setSnapshot(next);
+  }, []);
+
+  const unreadNotifications = useMemo(
+    () => unreadCount(phase3.notifications),
+    [phase3.notifications],
+  );
+
+  const cosmeticContext = useMemo<CosmeticContext>(
+    () => ({
+      ...emptyCosmeticContext(),
+      perfectCount: snapshot.statistics.perfectCount,
+      bestCombo: snapshot.statistics.bestCombo,
+      closeCalls: phase3.runHistory.reduce((sum, h) => sum + h.closeCalls, 0),
+      chaosRuns: phase3.chaosRuns,
+      boardsEquipped: phase3.uniqueBoardEquipHistory.length,
+      boardsUnlocked: unlockedBoardIds.length,
+      boardsTotal: BOARDS.length,
+      dailyMissionsCompleted: snapshot.missions.lifetimeCompleted,
+      playStreakLongest: phase3.streak.longest,
+      gamesPlayed: snapshot.statistics.gamesPlayed,
+      level: level.level,
+      bestScore: Math.max(0, ...Object.values(snapshot.records.highScore)),
+      bestExpertScore: Object.values(snapshot.records.highScoreByDifficulty).reduce(
+        (best, byDifficulty) => Math.max(best, byDifficulty.expert ?? 0),
+        0,
+      ),
+      loginCyclesCompleted: phase3.login.completedCycles,
+    }),
+    [snapshot.statistics, snapshot.records, snapshot.missions, phase3, unlockedBoardIds, level.level],
+  );
+
+  const equippedTitle = useMemo(
+    () => TITLES.find((t) => t.id === phase3.equippedTitleId) ?? TITLES[0],
+    [phase3.equippedTitleId],
+  );
+
+  const equippedBadge = useMemo(
+    () => BADGES.find((b) => b.id === phase3.equippedBadgeId) ?? null,
+    [phase3.equippedBadgeId],
+  );
+
+  const favorites = useMemo(
+    () => ({
+      difficulty: favoriteDifficulty(phase3.runHistory),
+      boardId: mostUsedBoard(phase3.runHistory),
+    }),
+    [phase3.runHistory],
+  );
+
   /* ---------------- home-screen reminder ---------------- */
 
   const reminder = useMemo(() => {
@@ -975,6 +1179,36 @@ export function useProgress() {
     clearDailyProgress,
     resetAllData: resetAllLocalData,
     recordSession,
+
+    /* phase 3 */
+    phase3,
+    runHistory: phase3.runHistory,
+    dailyAggregates: phase3.dailyAggregates,
+    playStreak,
+    longestPlayStreak: phase3.streak.longest,
+    loginState: phase3.login,
+    loginAvailable,
+    claimDailyLogin,
+    weekly: phase3.weekly,
+    claimableWeekly,
+    claimWeeklyChallenge,
+    titles: TITLES,
+    badges: BADGES,
+    cosmeticContext,
+    equippedTitle,
+    equippedBadge,
+    equipTitle,
+    equipBadge,
+    unlockedTitleIds: phase3.unlockedTitleIds,
+    unlockedBadgeIds: phase3.unlockedBadgeIds,
+    notifications: phase3.notifications,
+    unreadNotifications,
+    markNotificationsRead,
+    markNotificationRead,
+    clearNotifications,
+    clearHistory,
+    favorites,
+    defaultTitleId: DEFAULT_TITLE_ID,
   };
 }
 
