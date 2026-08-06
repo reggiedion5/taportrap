@@ -135,14 +135,14 @@
 /* ---------- Tap or Trap! arcade design system ---------- */
 
 :root {
-  --arcade-bg: oklch(0.16 0.045 268);
-  --arcade-bg-deep: oklch(0.11 0.04 268);
-  --arcade-surface: oklch(0.23 0.05 268);
-  --arcade-line: oklch(0.36 0.05 268);
+  --arcade-bg: oklch(0.14 0.03 268);
+  --arcade-bg-deep: oklch(0.085 0.025 268);
+  --arcade-surface: oklch(0.21 0.035 266);
+  --arcade-line: oklch(0.44 0.02 258);
   --arcade-text: oklch(0.99 0 0);
   --arcade-muted: oklch(0.83 0.02 268);
-  --neon-green: oklch(0.86 0.24 145);
-  --neon-red: oklch(0.65 0.26 25);
+  --neon-green: oklch(0.86 0.25 142);
+  --neon-red: oklch(0.6 0.25 28);
   --neon-gold: oklch(0.87 0.17 92);
   --neon-purple: oklch(0.68 0.26 305);
   --arcade-radius: 1.5rem;
