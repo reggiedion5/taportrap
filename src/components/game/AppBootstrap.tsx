@@ -52,6 +52,8 @@ export function AppBootstrap({
 
   const startup = useAppStartup(dataHydrated, boardApplied);
 
+  console.info("[boot]", startup.phase, { dataHydrated, boardApplied });
+
   const handleReset = useCallback(() => {
     resetAllLocalData();
   }, []);
