@@ -875,7 +875,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     }
 
     scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0], presetRef.current.spawnScale));
-  }, [clearAllTimers, clearDecorTimers, scheduleSpawn, setActiveTarget, startClock]);
+  }, [clearAllTimers, clearDecorTimers, difficulty, scheduleSpawn, setActiveTarget, startClock]);
 
   const pause = useCallback((source: "manual" | "system" = "manual") => {
     if (phaseRef.current !== "playing" || endedRef.current) return;
