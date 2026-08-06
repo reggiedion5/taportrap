@@ -14,6 +14,8 @@ import {
   levelForScore,
   pickColor,
   spawnDelayFor,
+  presetFor,
+  type Difficulty,
   type DifficultyLevel,
 } from "./difficulty";
 import { playSound, resumeAudio, setSoundEnabled, suspendAudio, unlockAudio } from "./audio";
@@ -53,10 +55,11 @@ function newSessionId(): string {
 
 export interface UseGameOptions {
   mode: GameMode;
+  difficulty?: Difficulty;
   onComplete: (result: GameSessionResult) => void;
 }
 
-export function useGame({ mode, onComplete }: UseGameOptions) {
+export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOptions) {
   const [phase, setPhase] = useState<GamePhase>("start");
   /** Why the run is paused — drives the pause overlay copy. */
   const [pauseSource, setPauseSource] = useState<"manual" | "system">("manual");
@@ -86,6 +89,11 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
   modeRef.current = mode;
   const configRef = useRef(MODE_CONFIG[mode]);
   configRef.current = MODE_CONFIG[mode];
+  const presetRef = useRef(presetFor(difficulty));
+  presetRef.current = presetFor(difficulty);
+  /** spawn gap for the current score, scaled by the chosen difficulty */
+  const nextSpawnDelay = () =>
+    spawnDelayFor(levelForScore(scoreRef.current), presetRef.current.spawnScale);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
@@ -437,7 +445,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
           expireTimer.current = null;
         }
         setActiveTarget(null);
-        scheduleSpawn(spawnDelayFor(levelForScore(scoreRef.current)));
+        scheduleSpawn(nextSpawnDelay());
         return;
       }
 
@@ -468,7 +476,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
           if (runId !== runIdRef.current || endedRef.current) return;
           setLifeLost(false);
           if (phaseRef.current === "playing") {
-            scheduleSpawn(spawnDelayFor(levelForScore(scoreRef.current)));
+            scheduleSpawn(nextSpawnDelay());
           }
         }, LIFE_LOST_MS);
         return;
@@ -526,7 +534,10 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
     const placement = pickPlacement(bounds, size, lastPositionRef.current);
     lastPositionRef.current = { x: placement.x, y: placement.y };
 
-    const duration = Math.max(420, Math.round(level.targetDuration * config.durationScale));
+    const duration = Math.max(
+      360,
+      Math.round(level.targetDuration * config.durationScale * presetRef.current.durationScale),
+    );
 
     const next: ActiveTarget = {
       id: ++idRef.current,
@@ -626,7 +637,9 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       // exit animation, then schedule the next target
       const runId = runIdRef.current;
       const level = levelForScore(scoreRef.current);
-      const delay = spawnDelayFor(level);
+      const delay = configRef.current.instantRespawnOnScore
+        ? 0
+        : spawnDelayFor(level, presetRef.current.spawnScale);
       exitTimer.current = window.setTimeout(() => {
         exitTimer.current = null;
         if (runId !== runIdRef.current || endedRef.current) return;
@@ -747,7 +760,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       setTimeLeft(null);
     }
 
-    scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0]));
+    scheduleSpawn(spawnDelayFor(DIFFICULTY_LEVELS[0], presetRef.current.spawnScale));
   }, [clearAllTimers, clearDecorTimers, scheduleSpawn, setActiveTarget, startClock]);
 
   const pause = useCallback((source: "manual" | "system" = "manual") => {
@@ -798,7 +811,7 @@ export function useGame({ mode, onComplete }: UseGameOptions) {
       scheduleSpawn(
         remainingSpawn.current > 0
           ? remainingSpawn.current
-          : spawnDelayFor(levelForScore(scoreRef.current)),
+          : nextSpawnDelay(),
       );
     }
     remainingTarget.current = 0;
