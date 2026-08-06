@@ -36,6 +36,8 @@ export interface FloatingFeedback {
 
 export interface GameSettings {
   sound: boolean;
+  /** Looping chiptune background music. */
+  music: boolean;
   vibration: boolean;
   /** Impact feedback: screen shake and hit flashes. */
   screenShake: boolean;

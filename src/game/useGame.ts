@@ -19,6 +19,15 @@ import {
   type DifficultyLevel,
 } from "./difficulty";
 import { playSound, resumeAudio, setSoundEnabled, suspendAudio, unlockAudio } from "./audio";
+import {
+  installMusicUnlock,
+  playTrack,
+  resumeMusic,
+  setMusicEnabled,
+  setMusicIntensity,
+  stopMusic,
+  suspendMusic,
+} from "./music";
 import { setVibrationEnabled, vibrate } from "./haptics";
 import { gradeReaction, multiplierForCombo, resolveScore } from "./scoring";
 import { pickPlacement, targetSizeFor, type AreaBounds } from "./positioning";
@@ -169,6 +178,8 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     const stored = loadSettings();
     setSettings(stored);
     setSoundEnabled(stored.sound);
+    setMusicEnabled(stored.music);
+    installMusicUnlock();
     setVibrationEnabled(stored.vibration);
     setHydrated(true);
 
@@ -184,6 +195,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       const merged = { ...prev, ...next };
       settingsRef.current = merged;
       setSoundEnabled(merged.sound);
+      setMusicEnabled(merged.music);
       setVibrationEnabled(merged.vibration);
       saveSettings(merged);
       return merged;
@@ -941,11 +953,33 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     goToMenu();
   }, [clearAllTimers, goToMenu]);
 
+  // ---------- background music ----------
+  // Menu loop on every non-playing screen, faster game loop during a run.
+  useEffect(() => {
+    if (!hydrated) return;
+    if (phase === "playing") {
+      playTrack("game");
+      resumeMusic();
+    } else if (phase === "paused") {
+      suspendMusic();
+    } else {
+      playTrack("menu");
+    }
+  }, [hydrated, phase]);
+
+  // gameplay tempo rises with the difficulty tier
+  useEffect(() => {
+    setMusicIntensity(levelForScore(score).level);
+  }, [score]);
+
+  useEffect(() => () => stopMusic(), []);
+
   // ---------- interruptions ----------
   // A single bus feeds browser visibility and native lifecycle events, so one
   // interruption pauses the run exactly once. Returning never auto-resumes.
   useEffect(() => {
     const off = onAppBackground(() => {
+      suspendMusic();
       if (phaseRef.current !== "playing") return;
       pauseRef.current("system");
     });

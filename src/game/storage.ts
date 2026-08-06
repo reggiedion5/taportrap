@@ -10,6 +10,7 @@ const LEGACY_SETTINGS_KEY = "tap-or-trap-settings-v1";
 
 export const DEFAULT_SETTINGS: GameSettings = {
   sound: true,
+  music: true,
   vibration: true,
   screenShake: true,
   reducedMotion: false,
@@ -71,6 +72,7 @@ export function loadSettings(): GameSettings {
   const source = raw ?? legacy ?? {};
   return {
     sound: safeBool(source.sound, DEFAULT_SETTINGS.sound),
+    music: safeBool(source.music, DEFAULT_SETTINGS.music),
     vibration: safeBool(source.vibration, DEFAULT_SETTINGS.vibration),
     screenShake: safeBool(source.screenShake, DEFAULT_SETTINGS.screenShake),
     reducedMotion: safeBool(source.reducedMotion, DEFAULT_SETTINGS.reducedMotion),
