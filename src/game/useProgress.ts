@@ -25,12 +25,15 @@ import {
 import { applyXp, calculateXpRewards, levelProgress } from "./xp";
 import { isDifficulty, type Difficulty } from "./difficulty";
 import {
-  DEFAULT_THEME_ID,
-  THEMES,
-  evaluateThemeUnlocks,
-  isThemeUnlocked,
-  themeById,
-} from "./themes";
+  BOARDS,
+  DEFAULT_BOARD_ID,
+  boardById,
+  evaluateBoardUnlocks,
+  isBoardUnlocked,
+  nextBoardHint,
+  type BoardId,
+  type BoardUnlockContext,
+} from "./boards";
 import {
   generatePostGameMission,
   isMissionComplete,
@@ -58,7 +61,7 @@ export interface SessionSummary {
   levelsGained: number;
   newRecords: PersonalRecordKey[];
   unlockedAchievements: Achievement[];
-  unlockedThemes: string[];
+  unlockedBoards: BoardId[];
   modeHighScore: number;
   dailyProgress: { value: number; target: number; completed: boolean } | null;
   missionCompleted: PostGameMission | null;
@@ -194,21 +197,42 @@ export function useProgress() {
     [snapshot.achievements],
   );
 
-  const themeContext = useMemo(
+  const boardContext = useMemo<BoardUnlockContext>(
     () => ({
       level: level.level,
       dailyCompleted: snapshot.daily.totalCompleted,
+      dailyStreak: snapshot.daily.bestStreak,
       achievementsUnlocked: unlockedAchievementCount,
+      gamesPlayed: snapshot.statistics.gamesPlayed,
+      bestCombo: snapshot.statistics.bestCombo,
+      perfectCount: snapshot.statistics.perfectCount,
+      totalGold: snapshot.statistics.totalGold,
+      totalTrapsAvoided: snapshot.statistics.totalTrapsAvoided,
+      totalPurpleCompletions: snapshot.statistics.totalPurpleCompletions,
+      bestScore: Math.max(0, ...Object.values(snapshot.records.highScore)),
     }),
-    [level.level, snapshot.daily.totalCompleted, unlockedAchievementCount],
+    [
+      level.level,
+      snapshot.daily.totalCompleted,
+      snapshot.daily.bestStreak,
+      snapshot.statistics,
+      snapshot.records.highScore,
+      unlockedAchievementCount,
+    ],
   );
 
-  const unlockedThemeIds = useMemo(() => evaluateThemeUnlocks(themeContext), [themeContext]);
+  const unlockedBoardIds = useMemo(() => evaluateBoardUnlocks(boardContext), [boardContext]);
 
-  const activeTheme = useMemo(() => {
-    const selected = themeById(snapshot.profile.selectedTheme);
-    return isThemeUnlocked(selected, themeContext) ? selected : themeById(DEFAULT_THEME_ID);
-  }, [snapshot.profile.selectedTheme, themeContext]);
+  const activeBoard = useMemo(() => {
+    const selected = boardById(snapshot.profile.selectedBoardId);
+    return isBoardUnlocked(selected, boardContext) ? selected : boardById(DEFAULT_BOARD_ID);
+  }, [snapshot.profile.selectedBoardId, boardContext]);
+
+  /** Boards unlocked but never opened in the collection yet. */
+  const newBoardCount = useMemo(
+    () => unlockedBoardIds.filter((id) => !snapshot.profile.seenBoardIds.includes(id)).length,
+    [unlockedBoardIds, snapshot.profile.seenBoardIds],
+  );
 
   /* ---------------- profile mutations ---------------- */
 
@@ -230,14 +254,25 @@ export function useProgress() {
     [patchProfile],
   );
 
-  const setTheme = useCallback(
-    (themeId: string) => {
-      const theme = THEMES.find((t) => t.id === themeId);
-      if (!theme || !isThemeUnlocked(theme, themeContext)) return;
-      patchProfile({ selectedTheme: theme.id });
+  const setBoard = useCallback(
+    (boardId: string) => {
+      const board = BOARDS.find((b) => b.id === boardId);
+      if (!board || !isBoardUnlocked(board, boardContext)) return;
+      patchProfile({ selectedBoardId: board.id });
     },
-    [patchProfile, themeContext],
+    [patchProfile, boardContext],
   );
+
+  /** Clears the NEW badge once the collection has been viewed. */
+  const markBoardsSeen = useCallback(() => {
+    setSnapshot((prev) => {
+      const merged = Array.from(new Set([...prev.profile.seenBoardIds, ...unlockedBoardIds]));
+      if (merged.length === prev.profile.seenBoardIds.length) return prev;
+      const profile = { ...prev.profile, seenBoardIds: merged };
+      writeJson(KEYS.profile, profile);
+      return { ...prev, profile };
+    });
+  }, [unlockedBoardIds]);
 
   const completeOnboarding = useCallback(
     () => patchProfile({ onboardingCompleted: true }),
@@ -503,18 +538,34 @@ export function useProgress() {
         totalAchievementsUnlocked: achievementCount,
       };
 
-      /* ---- theme unlocks ---- */
-      const beforeThemes = evaluateThemeUnlocks({
+      /* ---- board unlocks ---- */
+      const beforeBoards = evaluateBoardUnlocks({
         level: levelBefore,
         dailyCompleted: prev.daily.totalCompleted,
+        dailyStreak: prev.daily.bestStreak,
         achievementsUnlocked: Object.keys(prev.achievements.unlocked).length,
+        gamesPlayed: prev.statistics.gamesPlayed,
+        bestCombo: prev.statistics.bestCombo,
+        perfectCount: prev.statistics.perfectCount,
+        totalGold: prev.statistics.totalGold,
+        totalTrapsAvoided: prev.statistics.totalTrapsAvoided,
+        totalPurpleCompletions: prev.statistics.totalPurpleCompletions,
+        bestScore: Math.max(0, ...Object.values(prev.records.highScore)),
       });
-      const afterThemes = evaluateThemeUnlocks({
+      const afterBoards = evaluateBoardUnlocks({
         level: applied.level,
         dailyCompleted: daily.totalCompleted,
+        dailyStreak: daily.bestStreak,
         achievementsUnlocked: achievementCount,
+        gamesPlayed: statistics.gamesPlayed,
+        bestCombo: statistics.bestCombo,
+        perfectCount: statistics.perfectCount,
+        totalGold: statistics.totalGold,
+        totalTrapsAvoided: statistics.totalTrapsAvoided,
+        totalPurpleCompletions: statistics.totalPurpleCompletions,
+        bestScore: Math.max(0, ...Object.values(records.highScore)),
       });
-      const unlockedThemes = afterThemes.filter((id) => !beforeThemes.includes(id));
+      const unlockedBoards = afterBoards.filter((id) => !beforeBoards.includes(id));
 
       /* ---- post-game mission ---- */
       let missionCompleted: PostGameMission | null = null;
@@ -550,7 +601,7 @@ export function useProgress() {
         levelsGained: applied.levelsGained,
         newRecords,
         unlockedAchievements: unlocked,
-        unlockedThemes,
+        unlockedBoards,
         modeHighScore: records.highScoreByDifficulty[mode][runDifficulty],
         dailyProgress,
         missionCompleted,
@@ -589,32 +640,26 @@ export function useProgress() {
     if (xpLeft <= 60) {
       return `${xpLeft} XP to reach Level ${level.level + 1}.`;
     }
-    const lockedTheme = THEMES.find(
-      (t) => !isThemeUnlocked(t, themeContext) && t.unlock.kind === "achievements",
+    const lockedBoard = BOARDS.find(
+      (b) => !isBoardUnlocked(b, boardContext) && b.unlock.kind === "achievements",
     );
-    if (lockedTheme && lockedTheme.unlock.kind === "achievements") {
-      const left = lockedTheme.unlock.value - unlockedAchievementCount;
+    if (lockedBoard && lockedBoard.unlock.kind === "achievements") {
+      const left = lockedBoard.unlock.value - unlockedAchievementCount;
       if (left > 0 && left <= 3) {
-        return `${left} more achievement${left === 1 ? "" : "s"} unlocks ${lockedTheme.name}.`;
+        return `${left} more achievement${left === 1 ? "" : "s"} unlocks ${lockedBoard.name}.`;
       }
     }
     if (snapshot.daily.currentStreak > 0) {
       return `Your ${snapshot.daily.currentStreak}-day streak is active.`;
     }
     return null;
-  }, [hydrated, snapshot.daily, level, themeContext, unlockedAchievementCount]);
+  }, [hydrated, snapshot.daily, level, boardContext, unlockedAchievementCount]);
 
-  /** Secondary hint shown on the Themes nav tile while a theme is still locked. */
-  const themeHint = useMemo(() => {
+  /** Secondary hint shown on the Boards nav tile. */
+  const boardHint = useMemo(() => {
     if (!hydrated) return null;
-    const lockedTheme = THEMES.find(
-      (t) => !isThemeUnlocked(t, themeContext) && t.unlock.kind === "achievements",
-    );
-    if (!lockedTheme || lockedTheme.unlock.kind !== "achievements") return null;
-    const left = lockedTheme.unlock.value - unlockedAchievementCount;
-    if (left <= 0) return null;
-    return `${left} achievement${left === 1 ? "" : "s"} to unlock`;
-  }, [hydrated, themeContext, unlockedAchievementCount]);
+    return nextBoardHint(boardContext);
+  }, [hydrated, boardContext]);
 
   const nearestAchievement = useMemo(() => {
     const open = achievementList
@@ -636,18 +681,20 @@ export function useProgress() {
     level,
     achievementList,
     unlockedAchievementCount,
-    unlockedThemeIds,
-    themeContext,
-    activeTheme,
+    unlockedBoardIds,
+    boardContext,
+    activeBoard,
+    newBoardCount,
     mode: snapshot.profile.selectedMode,
     difficulty: snapshot.profile.selectedDifficulty ?? "standard",
     modeConfig: MODE_CONFIG[snapshot.profile.selectedMode],
     reminder,
-    themeHint,
+    boardHint,
     nearestAchievement,
     setMode,
     setDifficulty,
-    setTheme,
+    setBoard,
+    markBoardsSeen,
     completeOnboarding,
     markModeIntroSeen,
     patchProfile,
