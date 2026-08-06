@@ -178,6 +178,8 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
     const stored = loadSettings();
     setSettings(stored);
     setSoundEnabled(stored.sound);
+    setMusicEnabled(stored.music);
+    installMusicUnlock();
     setVibrationEnabled(stored.vibration);
     setHydrated(true);
 
@@ -193,6 +195,7 @@ export function useGame({ mode, difficulty = "standard", onComplete }: UseGameOp
       const merged = { ...prev, ...next };
       settingsRef.current = merged;
       setSoundEnabled(merged.sound);
+      setMusicEnabled(merged.music);
       setVibrationEnabled(merged.vibration);
       saveSettings(merged);
       return merged;
