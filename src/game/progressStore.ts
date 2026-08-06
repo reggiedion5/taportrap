@@ -23,10 +23,12 @@ export const KEYS = {
   statistics: "tap-or-trap-statistics-v2",
   achievements: "tap-or-trap-achievements-v2",
   daily: "tap-or-trap-daily-v2",
+  dailyMissions: "tap-or-trap-daily-missions-v2",
   records: "tap-or-trap-records-v2",
   mission: "tap-or-trap-mission-v2",
   migrated: "tap-or-trap-migrated-v2",
 } as const;
+
 
 const LEGACY_STATS_KEY = "tap-or-trap-stats-v1";
 const LEGACY_HIGH_SCORE_KEY = "tap-or-trap-high-score-v1";
